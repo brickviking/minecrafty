@@ -43,7 +43,7 @@
 # 0.24: Implement the xrandr as one command, not separate commands.
 
 VERSION=0
-MINOR=23
+MINOR=24
 PATCH=
 ME=$(basename $0)
 # Default gamma brightness of game
