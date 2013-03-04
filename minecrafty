@@ -7,14 +7,14 @@
 # 0.5: Add in -g (gamma) switch, the -d (default) switch, and do switch parsing. Some of this came from RfcShow.
 # 0.6: Add in function to find current gamma setting, needs work
 # 0.7: Got rid of GetGamma, as it ended up as a one-liner.
-# 0.8: Possible reinstatement as GammaEnter/GammaExit wrappers around $CMD
+# 0.8: Possible reinstatement as FetchGamma/GammaExit wrappers around $CMD
 # 0.9: Split off gamma setting into its own routine. Should we getopt this program?
 # 0.10: adding a -t (tiny) switch (takes up less memory) and an -e (enormous) switch
 #       Also tweaked RunMe to RunMC
 # 0.11: reset gamma somewhat so it only fires up if we specify a gamma 
 
 VERSION=0
-MINOR=10
+MINOR=11
 ME=$(basename $0)
 GAMMADEF=0.6  # Default gamma brightness of game
 # Default memory assign (whatever the java executable assigns)
@@ -28,7 +28,7 @@ GETOPTS="eg:hlst"
 Help() {
 	echo "${ME}: ${ME} [-h]"
 	echo "${ME} -h provides this help screen"
-	echo "${ME}: ${ME} [-s|-l|-e|-t|-g [n.n]]"
+	echo "${ME}: ${ME} [-s|-l|-e|-t|-g n[.n]]"
 	echo "    nothing:  use the default launcher"
 	echo "    -s:  starts the latest server, my code is a bit broken at the moment"
 	echo "    -l:  starts the mclauncher program"
@@ -39,11 +39,9 @@ Help() {
 	retval=0
 }
 
-GammaEnter() {
+FetchGamma() {
 	# This routine fetches available outputs that are plugged in
-	GARRAY=( $(xrandr --verbose | awk 'NR == 1 { next }; match($0, /^[[:alnum:]]+/) { output = substr($0,RSTART, RLENGTH) }; /Gamma:/ { print output, $2 }') )
-	# This'll brighten things up a bit - only thing that needs changing will be the output
-	xrandr --output ${GARRAY[0]} --gamma "${GAMMA}:${GAMMA}:${GAMMA}"
+	GARRAY=( $(xrandr --verbose | awk 'NR == 1 { next }; match($0, /^[[:alnum:]\-]+/) { output = substr($0,RSTART, RLENGTH) }; /Gamma:/ { print output, $2 }') )
 }
 
 GammaExit() { # TODO: Remove host dependency
@@ -56,50 +54,47 @@ GammaExit() { # TODO: Remove host dependency
 }
 
 SetGamma() {
-	# TODO: There's no sanity checking here
-	# Grab next param in line, use it for the gamma
-	if [[ ! $GAMMA ]]; then # Only set if it hasn't already been
-		GAMMA=${1:-${GAMMADEF}}  # This looks good for my screen, might not be useful for anyone else
+	if [[ ${1} == ${1//[^[:digit:]\.]/} ]]; then
+		if [[ ! $GAMMA ]]; then # Only set if it hasn't already been
+			GAMMA=${1:-${GAMMADEF}}  # This looks good for my screen, might not be useful for anyone else
+		fi
+	else
+		echo "You need to provide a number for -g (0.7, .7, 1.0)"
 	fi
+	# Grab next param in line, use it for the gamma
 }
 
 GammaRun() {
+	FetchGamma
 	# TODO: Specifically breaks on the case of -g -g n.n (repeating the -g switch)
 	if [[ ! $GAMMA ]]; then
 		SetGamma ${@}  # grab what's now at $1, set it as the new gamma value
 		# TODO: check $1 is a number, or even that it's set.
 	else
 		echo "Gamma has been set to $GAMMA already, ignoring $1"
-		shift
 	fi
-	if [[ ! $1 && ! $CMD ]]; then
-		Default
-	fi
+	# This'll brighten things up a bit - only thing that needs changing will be the output
+	xrandr --output ${GARRAY[0]} --gamma "${GAMMA}:${GAMMA}:${GAMMA}"
 }
 
 # Central one shot run engine.
 RunMC() {
-	GammaEnter
 	pushd $HOME/bin
 	# Run the command we got earlier, finishing by peeling the return value
 	${CMD}
 	retval=$?
 	popd
-	GammaExit
 }
 
 Default() {
 	# TODO: Fix the pulseaudio dependency
 #		CMD="padsp java -Xmx1024M -Xms1024M -cp minecraft.jar net.minecraft.LauncherFrame"
-		CMDRUN="padsp java "
+		CMDRUN="padsp java"
 		CMDARG="-cp minecraft.jar net.minecraft.LauncherFrame"
 		CMD="${CMDRUN} ${CMDOPT} ${MEM} ${CMDARG}"
 }
 
 Default
-if [[ ! $1 ]]; then
-	SetGamma # I'm really sure this is the wrong way to do this
-fi
 while getopts "eg:hlst" MYVAR; do
 	case "$MYVAR" in "s")
 		# latest server
@@ -129,7 +124,6 @@ while getopts "eg:hlst" MYVAR; do
 			break # We need to exit
 		;;
 		"g") GammaRun ${OPTARG}
-			# We should only shift this if it was digits, i.e. it sets the gamma
 		;;
 #		"d")
 #			Default
@@ -137,8 +131,10 @@ while getopts "eg:hlst" MYVAR; do
 	esac
 done
 if [[ ${CMD+defined} ]]; then
-	SetGamma
 	RunMC
+	if [[ ${GAMMA} ]]; then
+		GammaExit
+	fi
 fi
 exit $retval
 
