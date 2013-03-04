@@ -1,0 +1,9 @@
+#!/bin/bash
+VERSION=0
+MINOR=0
+pushd $HOME/bin
+xrandr --output VGA-0 --gamma 0.6:0.6:0.6
+padsp java -Xmx1024M -Xms1024M -cp minecraft.jar net.minecraft.LauncherFrame
+xrandr --output VGA-0 --gamma 1.0:1.0:1.0
+popd
+
