@@ -1,39 +1,61 @@
 #!/bin/bash
+
 VERSION=0
-MINOR=2
+MINOR=4
 ME=$(basename $0)
+
+# Gee. What can I say?
 Help() {
-	echo "${ME}: ${ME} [server181|launcher]"
-	echo "${ME}:    server181:  starts the latest server"
-	echo "${ME}:    launcher:   starts the mclauncher program"
-	echo "${ME}:    anything else (including nothing at all) starts the conventional launcher"
+	echo "${ME}: ${ME} [-s|-l]"
+	echo "    -s:  starts the latest server"
+	echo "    -l:   starts the mclauncher program"
+	echo "    anything else (including nothing at all) starts the conventional launcher"
 }
 
+# Sets the correct video output name(s) for fatty/zoom, not sure about anything else
+MachineCRTOutput() {
+	case $HOSTNAME in 
+		"fatty") OUTPUT1=CRT1; 
+		OUTPUT2=CRT2 ;;
+		"zoom") OUTPUT1=VGA-0 ;;
+		*) OUTPUT1=VGA-0 ;;
+	esac
+}
+
+# Central one shot run engine.
 RunMe() {
 	# This'll brighten things up a bit - only thing that needs changing will be the output
-	xrandr --output VGA-0 --gamma 0.6:0.6:0.6
+	xrandr --output ${OUTPUT1} --gamma 0.6:0.6:0.6
 	pushd $HOME/bin
-	# ... run the command we got earlier...
+	# Run the command we got earlier, finishing by peeling the return value
 	${CMD}
 	retval=$?
 	popd
 	# Now we put the brightness back to normal
-	xrandr --output VGA-0 --gamma 1.0:1.0:1.0
+	xrandr --output ${OUTPUT1} --gamma 1.0:1.0:1.0
+	if [[ ${OUTPUT2} ]]; then
 	# The game has a habit of resetting the other screen to 60Hz. Not nice.
-	# Not needed on zoom
-	# xrandr --output CRT2 --rate 70.1 --mode 1024x768
+		xrandr --output ${OUTPUT2} --rate 70.1 --mode 1024x768
+	fi
 }
 
-case "$1" in "server181")
-	# latest server	- update this each time the version upgrades
-	CMD="java -Xmx1024M -Xms1024M -jar minecraft_server_181.jar"
+MachineCRTOutput
+
+case "$1" in "-s")
+	# latest server	- update this
+	if [[ -f minecraft-server.jar ]]; then
+		CMD="java -Xmx1024M -Xms1024M -jar minecraft_server_181.jar"
+	else
+		echo "We don't have a server here, please download from www.minecraft.net"
+		retval=1 #bad doggie, bad
+	fi
 	;;
-    "launcher")
-# Default with any parameter other than server181
+    "-l")
+# runs mclauncher
 	CMD="padsp java -Xmx1024M -Xms1024M -jar mclauncher.jar"
 	;;
-    help) Help ;;
-# Match ANYTHING else.
+    "-h") Help ;;
+# Match ANYTHING else, including nothing at all
 	*)
 # launch the default launcher with more memory
 	CMD="padsp java -Xmx1024M -Xms1024M -cp minecraft.jar net.minecraft.LauncherFrame"
@@ -41,6 +63,6 @@ case "$1" in "server181")
 esac
 if [[ ${CMD+defined} ]]; then
 	RunMe
-	exit $retval
 fi
+exit $retval
 
