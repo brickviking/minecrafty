@@ -12,9 +12,11 @@
 # 0.10: adding a -t (tiny) switch (takes up less memory) and an -e (enormous) switch
 #       Also tweaked RunMe to RunMC
 # 0.11: reset gamma somewhat so it only fires up if we specify a gamma 
+# 0.12: Tidied up comments, commented out a host-specific section
+
 
 VERSION=0
-MINOR=11
+MINOR=12
 ME=$(basename $0)
 GAMMADEF=0.6  # Default gamma brightness of game
 # Default memory assign (whatever the java executable assigns)
@@ -22,17 +24,19 @@ MEM=" "
 # set this to blank too
 CMDOPT=" "
 CMDRUN="padsp java"
-GETOPTS="eg:hlst"
+GETOPTS="beg:hlst"
 
 # Gee. What can I say?
 Help() {
+	# About the only thing I'm missing is a graphical component to this
 	echo "${ME}: ${ME} [-h]"
 	echo "${ME} -h provides this help screen"
-	echo "${ME}: ${ME} [-s|-l|-e|-t|-g n[.n]]"
+	echo "${ME}: ${ME} [-s|-l|-e|-b|-t|-g n[.n]]"
 	echo "    nothing:  use the default launcher"
 	echo "    -s:  starts the latest server, my code is a bit broken at the moment"
 	echo "    -l:  starts the mclauncher program"
-	echo "    -e:  assign more memory to the client"
+	echo "    -e:  assign lots more memory to the client"
+	echo "    -b:  assign more memory to the client"
 	echo "    -t:  assign minimal memory to the client"
 	echo "    -g n.n: set the gamma offset. If unset, $GAMMADEF is used. Less than 1.0 = brighter, more than 1.0 = darker"
 	echo "    anything else (including nothing at all) starts the conventional launcher"
@@ -44,13 +48,14 @@ FetchGamma() {
 	GARRAY=( $(xrandr --verbose | awk 'NR == 1 { next }; match($0, /^[[:alnum:]\-]+/) { output = substr($0,RSTART, RLENGTH) }; /Gamma:/ { print output, $2 }') )
 }
 
-GammaExit() { # TODO: Remove host dependency
+GammaExit() { # TODO: Remove host dependency, pretty hard to do without having X involved anyhow.
 	# Now we put the brightness back to normal, on the first screen
 	xrandr --output ${GARRAY[0]} --gamma ${GARRAY[1]}
-	if [[ ${GARRAY[2]} && $HOSTNAME == fatty ]]; then
-	# The game has a habit of resetting the other screen to 60Hz. Not nice. Only set on fatty for now
-		xrandr --output ${GARRAY[2]} --rate 70.1 --mode 1024x768
-	fi
+	# The game had a habit of resetting the other screen to 60Hz. Not nice. Only set on fatty for now
+	# ECG-20120225: Commented out while I check the new ATI driver
+# ECG-20120225	if [[ ${GARRAY[2]} && $HOSTNAME == fatty ]]; then
+# ECG-20120225		xrandr --output ${GARRAY[2]} --rate 70.1 --mode 1024x768
+# ECG-20120225	fi
 }
 
 SetGamma() {
@@ -73,7 +78,7 @@ GammaRun() {
 	else
 		echo "Gamma has been set to $GAMMA already, ignoring $1"
 	fi
-	# This'll brighten things up a bit - only thing that needs changing will be the output
+	# This'll brighten/darken things a bit - only thing that needs changing will be the output
 	xrandr --output ${GARRAY[0]} --gamma "${GAMMA}:${GAMMA}:${GAMMA}"
 }
 
@@ -95,7 +100,7 @@ Default() {
 }
 
 Default
-while getopts "eg:hlst" MYVAR; do
+while getopts "beg:hlst" MYVAR; do
 	case "$MYVAR" in "s")
 		# latest server
 		# TODO: update this because at the moment it's broken.
@@ -114,6 +119,9 @@ while getopts "eg:hlst" MYVAR; do
 		;;
 		# TODO: For these two options, it's safer to reset CMD rather than expecting it to be set already
 		"e") MEM="-Xmx2048M -Xms1024M"
+		CMD="${CMDRUN} ${CMDOPT} ${MEM} ${CMDARG}"
+			;;
+		"b") MEM="-Xmx1024M -Xms1024M"
 		CMD="${CMDRUN} ${CMDOPT} ${MEM} ${CMDARG}"
 			;;
 		"t") MEM="-Xmx512M -Xms512M"
