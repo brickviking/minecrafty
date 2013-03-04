@@ -44,9 +44,12 @@
 # 0.25: Added in the fetchminecraft.sh script whole.
 # 0.26: Added rudimentary MinecraftLauncher support... it just launches ML, nothing else.
 # 0.27: Added stanza to FetchMinecraft to grab a default launcher, also commented future code for skmc and digiex.
+# 0.28: Also added MagicLauncher (stubbed at the moment) and enabled download of skmclauncher's snapshot build
+#     : in addition, with feedback from keeperfx, decided to tiff all the launchers into ${MCBase}/bin/some-launcher.jar
+# 0.29: added help to -f switch
 
 VERSION=0
-MINOR=27
+MINOR=29
 PATCH=
 ME=$(basename $0)
 # Default gamma brightness of game
@@ -74,16 +77,27 @@ GOA=(
 "g:" "n.n: set the gamma offset. If unset, $GAMMADEF is used. 0.7 lighter, 1.2 darker" GammaInit
 "m:" "select monitor to apply gamma correction to" SetMonitor
 "r:" "nn.n: set a valid refresh rate for the second monitor, as minecraft has a habit of setting this to the recommended value instead of the value used originally." SetRefresh
-"a" "starts Magic Launcher program (must be in ${MCBase}/bin)" SetMagicLauncher
+"a" "starts Magic Launcher program (must be in ${MCBase}/bin" SetMagicLauncher
 "l" "starts the digiex mclauncher program (must be in ${MCBase}/bin)" SetDigiLauncher
 "o" "starts the SKMClauncher program (must be in ${MCBase}/bin)" SetSKMCLauncher
 "v" "show version string" ShowVersionString
 "s:" "starts the latest server, supply a filename" ServerRun
-"f:" "retrieves version of minecraft.jar or launcher from remote host, supply a version number (i.e. 1.3.2 or 12w49a) or 'launcher'" FetchMinecraft
+"f:" "retrieves minecraft.jar or launcher from remote host, '-f help' for more specifics" FetchMinecraft
 )
 
 # Entries that aren't used at the moment
 GONA=(
+)
+
+# Entries for the -f (fetch) switch, this array is currently unused
+# there's also no way to give an example version 12w45 or 1.4.5
+FOA=(
+"help" "provides this help screen specifically for launcher downloading" FetchHelp
+"launcher" "fetches the default launcher" DefaultFetch
+"skmc" "download development version of SKMCLauncher.jar" SKMCFetch
+"digiex" "download DigiEX launcher" DigiFetch
+"magic" "download MagicLauncher" MagicFetch
+"multi" "download MultiMC" MultiFetch
 )
 
 # This routine "stuffs" values into GETOPTS for later use by the getopts routine
@@ -104,8 +118,6 @@ Help() {
 	for (( i=0, p=0; p<${#GETOPTARRAY[@]}; i+=3, p++ )); do
 		echo "-${GETOPTARRAY[p]}:    ${GOA[i+1]}"
 	done
-	unset CMD
-#	break  (seems I don't need it)
 }
 
 # Hopefully sets brightness, separate from the gamma
@@ -196,9 +208,7 @@ SetGamma() {
 
 # Central one shot run engine.
 RunMC() {
-# TODO: make this not so $HOME-centric
 # TODO: merge these if they're both set.
-#	pushd $HOME/bin
 	pushd ${MCBase}
 
 	if [[ ${GAMMA} ]]; then
@@ -247,16 +257,18 @@ FetchMinecraft() {
 	# 0.1.9: folded this directly into minecrafty, also added another two years of snapshots
 
 	# $1 ought to be something like 12w32a or 1.3.2, as it'll get used to name save files.
+	unset CMD # we need to unset this, so that we don't accidentally start minecraft
 
 	# ! BFW !  These directories had better exist, especially the second one.
-	SINGLE="$HOME/.minecraft/bin"
-	SERVER="$HOME/.minecraft/server/stash"
+	SINGLE="${MCBase}/bin"
+	SERVER="${MCBase}/server/stash"
 	if [[ ! -d $SINGLE ]]; then
 		echo "Can't save, you don't seem to have a valid minecraft installation!"
+		# TODO: This needs fixing, so the bash script will create the directory for us.
 		exit 1
 	fi
 	if [[ ! -d $SERVER ]]; then
-		echo "Can't save, please create a .minecraft/server/stash directory!"
+		echo "Can't save, please type:  mkdir -p ${MCBase}/server/stash "
 		exit 1
 	fi
 
@@ -269,7 +281,7 @@ FetchMinecraft() {
 	# Not yet, as I don't know how to match it up against certain patterns.
 	# somepattern is 1[12]w[12345][0-9][a-f], somepattern2 is [12].[0-9].[0-9]
 	case $DROPOFF in 
-		1[1234]w[12345][0-9][a-f]) # snapshot version
+		1[1234]w[012345][0-9][a-f]) # snapshot version
 			if [[ ! -f ${SINGLE}/snapshot_${DROPOFF}.jar ]]; then # only fetch if we haven't got it already
 				wget -O ${SINGLE}/snapshot_$DROPOFF.jar http://assets.minecraft.net/${DROPOFF//\./_}/minecraft.jar
 				retval=$?
@@ -295,26 +307,40 @@ FetchMinecraft() {
 			fi
 			wget -O ${SERVER}/final_server_$DROPOFF.jar http://assets.minecraft.net/${DROPOFF//\./_}/minecraft_server.jar
 		;;
-# This downloads the minecraft.jar supplied by mojang, which will become the default launcher
-# I've yet to decide if it'll allow download of other launchers, website links?
+# These options to -f download various launchers, make sure we don't overwrite.
 		launcher) # default launcher
-			wget -O ${HOME}/bin/minecraft-launcher.jar https://s3.amazonaws.com/MinecraftDownload/launcher/minecraft.jar
+			wget -O ${MCBase}/bin/minecraft-launcher.jar https://s3.amazonaws.com/MinecraftDownload/launcher/minecraft.jar
 			;;
-#		skmc) # non-default launcher
-#			wget -O ${HOME}/bin/minecraft-launcher.jar https://s3.amazonaws.com/MinecraftDownload/launcher/minecraft.jar
+		skmc) # non-default launcher
+			wget -O ${MCBase}/bin/SKMCLauncher.jar http://build.sk89q.com/job/SKMCLauncher/lastSuccessfulBuild/artifact/target/SKMCLauncher.jar
+			;;
+		magic) # another non-default launcher
+			wget -O ${MCBase}/bin/MagicLauncher-1.0.0.jar http://magiclauncher.com/download.php?f=MagicLauncher_1.0.0.jar
+			;;
+#		digiex) # non-default launcher
+#			wget -O ${MCBase}/bin/digiex-launcher.jar # we need the download link
 #			;;
-#		digiex) # default launcher
-#			wget -O ${HOME}/bin/minecraft-launcher.jar https://s3.amazonaws.com/MinecraftDownload/launcher/minecraft.jar
-#			;;
+		help)
+			echo "${ME}: -f [help|launcher|magic|skmc] [12w43a] [1.4.5]" # add digiex when I find the link
+			echo "${ME}:   help shows the launchers and versions this script downloads"
+			echo "${ME}:   launcher  downloads the default minecraft launcher"
+			echo "${ME}:   skmc  downloads the development version of sk89q's launcher"
+			echo "${ME}:   magic  downloads MagicLauncher"
+#			echo "${ME}:   digiex  downloads the DigiEX launcher"
+#			echo "${ME}:   multi  downloads the MultiMC launcher"
+			echo "${ME}:   12w45a  downloads a specific snapshot version."
+			echo "${ME}:   1.4.5  downloads a release version such as 1.4.5"
+			echo "${ME}: each of these are stored in ${MCBase}/bin"
+			break # leaves the case switch
+			;;
 		*) echo "Can't recognise that (yet), try 12w34a, 1.3.2 or launcher"
 			exit 1
 			;;
 	esac
-	popd
 }
 
 DefaultSettings() {
-		CMDARG="-cp ${HOME}/bin/minecraft-launcher.jar net.minecraft.LauncherFrame"
+		CMDARG="-cp ${MCBase}/bin/minecraft-launcher.jar net.minecraft.LauncherFrame"
 		CMD="${CMDRUN} ${CMDOPT} ${MEM} ${CMDARG}"
 #	    FetchGamma
 #	    FetchBright
