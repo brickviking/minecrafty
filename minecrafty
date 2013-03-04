@@ -26,9 +26,10 @@
 # 0.16b: changed -c to -r (refreshrate)
 # 0.17: added an array to populate ${GETOPTS} with, so I can keep Help() and ParseOpts() in sync.
 #     : ParseOpts isn't made yet.
+# 0.18: Complete rewrite of options parsing.
 
 VERSION=0
-MINOR=17
+MINOR=18
 PATCH=
 ME=$(basename $0)
 GAMMADEF=0.6  # Default gamma brightness of game
@@ -38,43 +39,40 @@ MEM=" "
 CMDOPT=" "
 #CMDRUN="padsp java"
 CMDRUN="java"
-GETOPTS="beg:hlor:s:t"
-# remove m: at this stage, as I can't remember what the heck I was doing with it
-# New array for filling GETOPTS (eventually)
+GETOPTS="beg:hlm:or:s:t"
+declare -A FUNCARRAY
+# New array for filling GETOPTS
 GOA=(
-"b" "assign more memory to the client"
-"e" "assign lots more memory to the client"
-"g:" "n.n: set the gamma offset. If unset, $GAMMADEF is used."
-"h" "provides this help screen"
-"l" "starts the digiex mclauncher program (must be in $(dirname $0))"
-"o" "starts the SKMClauncher program (must be in $(dirname $0))"
-"r:" "nn.n: set a valid refresh rate for the second monitor, as minecraft has a habit of setting this to the recommended value instead of the value used originally."
-"s:" "starts the latest server, supply a filename"
-"t" "assign minimal memory to the client"
+"b" "assign more memory to the client" SetMoreMemory
+"e" "assign lots more memory to the client" SetHeapsofMemory
+"h" "provides this help screen" Help
+"l" "starts the digiex mclauncher program (must be in $(dirname $0))" SetDigiLauncher
+"o" "starts the SKMClauncher program (must be in $(dirname $0))" SetSKMCLauncher
+"t" "assign minimal memory to the client" TinyMemory
+"g:" "n.n: set the gamma offset. If unset, $GAMMADEF is used. 0.7 lighter, 1.2 darker" SetTheGamma
+"m:" "select monitor to apply gamma correction to" SetMonitor
+"r:" "nn.n: set a valid refresh rate for the second monitor, as minecraft has a habit of setting this to the recommended value instead of the value used originally." SetRefresh
+"s:" "starts the latest server, supply a filename" StartServer
 )
-# TODO: write monitor selection section
-#"m:"
 
-# Gee. What can I say?
+# This routine "stuffs" values into GETOPTS for later use by the getopts routine
+StuffGetOpts() {
+# Apparently bash now supports ( [string]="value" ) arrays.
+	for (( i=0, p=0; i< ${#GOA[@]}; i+=3, p++ )); do
+		GETOPTARRAY+=( "${GOA[i]}" )
+		GETOPTS="${GETOPTS}${GOA[i]}"
+		HELPOPTS+=( "${GOA[i+1]}" )
+		FUNCARRAY+=( ["${GETOPTARRAY[p]}"]="${GOA[i+2]}" )
+	done
+
+}
+
 Help() {
-	# About the only thing I'm missing is a graphical component to this
-	echo "${ME}: ${ME} [-h]"
-	echo "${ME} -h provides this help screen"
-	echo "${ME}: ${ME} [-l|-c nn[.n]|-e|-b|-t|-g n[.n]|-s [filename]]"
-	echo "    nothing:  use the default launcher"
-	echo "    -s:  starts the latest server, supply a filename"
-	echo "      :  if you don't want to use minecraft_server.jar"
-	echo "    -l:  starts the mclauncher program (must be in $(dirname $0))"
-	echo "    -o:  starts the SKMClauncher program (must be in $(dirname $0))"
-	echo "    -e:  assign lots more memory to the client"
-	echo "    -b:  assign more memory to the client"
-	echo "    -t:  assign minimal memory to the client"
-	echo "    -g n.n: set the gamma offset. If unset, $GAMMADEF is used."
-	echo "      :  Less than 1.0 = brighter, more than 1.0 = darker"
-	echo "    -r nn.n: set a valid refresh rate for the second monitor, as minecraft has a"
-	echo "      :  habit of setting this to the recommended value instead of the value used originally."
-	echo "    anything else (including nothing at all) starts the conventional launcher"
-	retval=0
+	echo "$0: Help screen"
+	for (( i=1; i<${#GOA[@]}; i+=3 )); do
+		echo "-${GETOPTARRAY[$i-1]}:    ${GOA[$i]}"
+	done
+	exit
 }
 
 FetchGamma() {
@@ -114,20 +112,20 @@ SetGamma() {
 	    echo "I can't set your gamma to ${1}!"
 		echo "You need to provide a number for -g (0.7, .7, 1.0)"
 	fi
-	# Grab next param in line, use it for the gamma
 }
 
 GammaRun() {
 	# TODO: Specifically breaks on the case of -g -g n.n (repeating the -g switch)
+	if [[ -z $MO ]]; then MO=0; fi # set a default if one hasn't been set already
 	if [[ ! $GAMMA ]]; then
 		SetGamma ${@}  # grab what's now at $1, set it as the new gamma value
 		# TODO: check $1 is a number, or even that it's set.
-		# TODO: offset by monitor number
 	else
 		echo "Gamma has been set to $GAMMA already, ignoring $1"
 	fi
 	# This'll brighten/darken things a bit - only thing that needs changing will be the output
-	xrandr --output ${GARRAY[0]} --gamma "${GAMMA}:${GAMMA}:${GAMMA}"
+	# which comes from $MO
+	xrandr --output ${GARRAY[${MO}]} --gamma "${GAMMA}:${GAMMA}:${GAMMA}"
 }
 
 # Central one shot run engine.
@@ -163,54 +161,83 @@ Default() {
 		CMDARG="-cp minecraft.jar net.minecraft.LauncherFrame"
 		CMD="${CMDRUN} ${CMDOPT} ${MEM} ${CMDARG}"
 	    FetchGamma
+		StuffGetOpts
+}
+
+SetDigiLauncher() {
+	# runs mclauncher
+	CMDRUN="padsp java -Xincgc"
+	CMDARG="-jar mclauncher.jar"
+	CMD="${CMDRUN} ${CMDOPT} ${MEM} ${CMDARG}"
+}
+
+SetSKMCLauncher() {
+	# runs SKMClauncher
+	CMDRUN="padsp java -Xincgc"
+	CMDARG="-jar SKMCLauncher.jar"
+	CMD="${CMDRUN} ${CMDOPT} ${MEM} ${CMDARG}"
 }
 
 Default
-while getopts ${GETOPTS} MYVAR; do
-	# TODO: I never errorcheck here, oops.
-	case "$MYVAR" in 
-		"h") Help
-			unset CMD
-			break # We need to exit
-		;;
-		"v") echo "$ME: ${VERSION}.${MINOR}"
-			unset CMD
-			break # We need to exit
-		;;
-	# Let's deal with -s first, as it means we won't need -l or -g
-		"s") ServerRun ${OPTARG}
-		;;
-		"r") Refresh=${OPTARG}
+GetOptsOrig() {
+	while getopts ${GETOPTS} MYVAR; do
+		# TODO: I never errorcheck here, oops.
+		case "$MYVAR" in 
+			"h") Help
+				unset CMD
+				break # We need to exit
 			;;
-		"l")
-	# runs mclauncher
-		CMDRUN="padsp java -Xincgc"
-		CMDARG="-jar mclauncher.jar"
-		CMD="${CMDRUN} ${CMDOPT} ${MEM} ${CMDARG}"
-		;;
-		"o")
-	# runs SKMClauncher
-		CMDRUN="padsp java -Xincgc"
-		CMDARG="-jar SKMCLauncher.jar"
-		CMD="${CMDRUN} ${CMDOPT} ${MEM} ${CMDARG}"
-		;;
-		# TODO: For these three options, it's safer to reset CMD rather than expecting it to be set already
-		"e") MEM="-Xmx2048M -Xms1024M" # (Enormous)
-		CMD="${CMDRUN} ${CMDOPT} ${MEM} ${CMDARG}"
+			"v") echo "$ME: ${VERSION}.${MINOR}"
+				unset CMD
+				break # We need to exit
 			;;
-		"b") MEM="-Xmx1024M -Xms1024M" # (Big)
-		CMD="${CMDRUN} ${CMDOPT} ${MEM} ${CMDARG}"
+		# Let's deal with -s first, as it means we won't need -l or -g
+			"s") ServerRun ${OPTARG}
 			;;
-		"t") MEM="-Xmx512M -Xms512M" # (Tiny)
-		CMD="${CMDRUN} ${CMDOPT} ${MEM} ${CMDARG}"
+			"r") Refresh=${OPTARG}
+				;;
+			"l")
+		# runs mclauncher
+			CMDRUN="padsp java -Xincgc"
+			CMDARG="-jar mclauncher.jar"
+			CMD="${CMDRUN} ${CMDOPT} ${MEM} ${CMDARG}"
 			;;
-		"g") GammaRun ${OPTARG}
-		;;
-#		"d")
-#			Default
-#		;;
-	esac
-done
+			"o")
+		# runs SKMClauncher
+			CMDRUN="padsp java -Xincgc"
+			CMDARG="-jar SKMCLauncher.jar"
+			CMD="${CMDRUN} ${CMDOPT} ${MEM} ${CMDARG}"
+			;;
+			# TODO: For these three options, it's safer to reset CMD rather than expecting it to be set already
+			"e") MEM="-Xmx2048M -Xms1024M" # (Enormous)
+			CMD="${CMDRUN} ${CMDOPT} ${MEM} ${CMDARG}"
+				;;
+			"b") MEM="-Xmx1024M -Xms1024M" # (Big)
+			CMD="${CMDRUN} ${CMDOPT} ${MEM} ${CMDARG}"
+				;;
+			"t") MEM="-Xmx512M -Xms512M" # (Tiny)
+			CMD="${CMDRUN} ${CMDOPT} ${MEM} ${CMDARG}"
+				;;
+			"m") # TODO: correctly apply this to -g
+				MO=${OPTARG} #MonitorOffset
+				;;
+			"g") GammaRun ${OPTARG}
+			;;
+	#		"d")
+	#			Default
+	#		;;
+		esac
+	done
+}
+
+GetOptsNew() {
+	while getopts ${GETOPTS} MYVAR; do
+		${FUNCARRAY[$MYVAR]}
+	done
+}
+
+#GetOptsOrig
+GetOptsNew $@
 if [[ ${CMD+defined} ]]; then
   RunMC
   if [[ ${GAMMA} ]]; then
