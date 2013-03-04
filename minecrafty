@@ -21,9 +21,11 @@
 # 0.15: Added another launcher to the list of launchers I can execute (SKMCLauncher, by sk89q)
 #     : added help line for SKMC, tweaked help to say where launchers needed to be)
 # 0.16: added option to select which monitor I want gamma raised on.
+# 0.16a: added lines to Help describing -c
 
 VERSION=0
 MINOR=16
+PATCH=a
 ME=$(basename $0)
 GAMMADEF=0.6  # Default gamma brightness of game
 # Default memory assign (whatever the java executable assigns)
@@ -50,6 +52,8 @@ Help() {
 	echo "    -t:  assign minimal memory to the client"
 	echo "    -g n.n: set the gamma offset. If unset, $GAMMADEF is used."
 	echo "      :  Less than 1.0 = brighter, more than 1.0 = darker"
+	echo "    -c nn.n: set a valid refresh rate for the second monitor, as minecraft has a"
+	echo "      :  habit of setting this to the recommended value instead of the value used originally."
 	echo "    anything else (including nothing at all) starts the conventional launcher"
 	retval=0
 }
@@ -72,6 +76,13 @@ FetchRefresh() {
 GammaExit() { # TODO: Remove host dependency, pretty hard to do without having X involved anyhow.
 	# Now we put the brightness back to normal, on the first screen
 	xrandr --output ${GARRAY[0]} --gamma ${GARRAY[1]}
+}
+
+CorrectRefresh() {
+# The game had a habit of resetting the other screen to 60Hz. Not nice. Only set on fatty for now
+    if [[ ${GARRAY[2]} && $HOSTNAME == fatty ]]; then
+        xrandr --output ${GARRAY[2]} --rate ${Refresh} --mode 1024x768
+    fi
 }
 
 SetGamma() {
@@ -150,6 +161,8 @@ while getopts ${GETOPTS} MYVAR; do
 	# Let's deal with -s first, as it means we won't need -l or -g
 		"s") ServerRun ${OPTARG}
 		;;
+		"r") Refresh=${OPTARG}
+			;;
 		"l")
 	# runs mclauncher
 		CMDRUN="padsp java -Xincgc"
@@ -183,6 +196,9 @@ if [[ ${CMD+defined} ]]; then
   RunMC
   if [[ ${GAMMA} ]]; then
     GammaExit
+  fi
+  if [[ ${Refresh} ]]; then
+    CorrectRefresh
   fi
 fi
 exit $retval
