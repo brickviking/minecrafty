@@ -9,21 +9,31 @@
 # 0.7: Got rid of GetGamma, as it ended up as a one-liner.
 # 0.8: Possible reinstatement as GammaEnter/GammaExit wrappers around $CMD
 # 0.9: Split off gamma setting into its own routine. Should we getopt this program?
+# 0.10: adding a -t (tiny) switch (takes up less memory) and an -e (enormous) switch
+#       Also tweaked RunMe to RunMC
+# 0.11: reset gamma somewhat so it only fires up if we specify a gamma 
 
 VERSION=0
-MINOR=9
+MINOR=10
 ME=$(basename $0)
 GAMMADEF=0.6  # Default gamma brightness of game
 # Default memory assign (whatever the java executable assigns)
-GETOPTS="shletg:"
+MEM=" "
+# set this to blank too
+CMDOPT=" "
+CMDRUN="padsp java"
+GETOPTS="eg:hlst"
 
 # Gee. What can I say?
 Help() {
 	echo "${ME}: ${ME} [-h]"
 	echo "${ME} -h provides this help screen"
-	echo "${ME}: ${ME} [-s|-l|-g [n.n]]"
-	echo "    -s:  starts the latest server"
+	echo "${ME}: ${ME} [-s|-l|-e|-t|-g [n.n]]"
+	echo "    nothing:  use the default launcher"
+	echo "    -s:  starts the latest server, my code is a bit broken at the moment"
 	echo "    -l:  starts the mclauncher program"
+	echo "    -e:  assign more memory to the client"
+	echo "    -t:  assign minimal memory to the client"
 	echo "    -g n.n: set the gamma offset. If unset, $GAMMADEF is used. Less than 1.0 = brighter, more than 1.0 = darker"
 	echo "    anything else (including nothing at all) starts the conventional launcher"
 	retval=0
@@ -57,10 +67,7 @@ GammaRun() {
 	# TODO: Specifically breaks on the case of -g -g n.n (repeating the -g switch)
 	if [[ ! $GAMMA ]]; then
 		SetGamma ${@}  # grab what's now at $1, set it as the new gamma value
-		# Hm. I just realised that we do this twice - once somewhere else, and once here. I only check
-		# for $1 there, not here
 		# TODO: check $1 is a number, or even that it's set.
-		shift # Now pop it off so we get the next env var
 	else
 		echo "Gamma has been set to $GAMMA already, ignoring $1"
 		shift
@@ -71,7 +78,7 @@ GammaRun() {
 }
 
 # Central one shot run engine.
-RunMe() {
+RunMC() {
 	GammaEnter
 	pushd $HOME/bin
 	# Run the command we got earlier, finishing by peeling the return value
@@ -83,15 +90,18 @@ RunMe() {
 
 Default() {
 	# TODO: Fix the pulseaudio dependency
-		CMD="padsp java -Xmx1024M -Xms1024M -cp minecraft.jar net.minecraft.LauncherFrame"
+#		CMD="padsp java -Xmx1024M -Xms1024M -cp minecraft.jar net.minecraft.LauncherFrame"
+		CMDRUN="padsp java "
+		CMDARG="-cp minecraft.jar net.minecraft.LauncherFrame"
+		CMD="${CMDRUN} ${CMDOPT} ${MEM} ${CMDARG}"
 }
 
+Default
 if [[ ! $1 ]]; then
-	Default
 	SetGamma # I'm really sure this is the wrong way to do this
 fi
-while [[ $1 ]]; do
-	case "$1" in "-s")
+while getopts "eg:hlst" MYVAR; do
+	case "$MYVAR" in "s")
 		# latest server
 		# TODO: update this because at the moment it's broken.
 		if [[ -f minecraft-server.jar ]]; then
@@ -100,35 +110,35 @@ while [[ $1 ]]; do
 			echo "We don't have a server here, please download from www.minecraft.net"
 			retval=1 #bad doggie, bad
 		fi
-		shift
 		;;
-		"-l")
-	# runs mclauncher. TODO: Change the amount of memory assigned
-		CMD="padsp java -Xmx1024M -Xms1024M -jar mclauncher.jar"
-		shift
+		"l")
+	# runs mclauncher
+		CMDRUN="padsp java"
+		CMDARG="-jar mclauncher.jar"
+		CMD="${CMDRUN} ${CMDOPT} ${MEM} ${CMDARG}"
 		;;
-		"-h") Help
+		# TODO: For these two options, it's safer to reset CMD rather than expecting it to be set already
+		"e") MEM="-Xmx2048M -Xms1024M"
+		CMD="${CMDRUN} ${CMDOPT} ${MEM} ${CMDARG}"
+			;;
+		"t") MEM="-Xmx512M -Xms512M"
+		CMD="${CMDRUN} ${CMDOPT} ${MEM} ${CMDARG}"
+			;;
+		"h") Help
 			unset CMD
 			break # We need to exit
 		;;
-		"-g") shift 
-			GammaRun ${@}
+		"g") GammaRun ${OPTARG}
 			# We should only shift this if it was digits, i.e. it sets the gamma
-			shift # I think this is what kills the -g -g n.n
 		;;
-		"-d")
-			Default
-	# launch the default launcher with more memory
-			shift
-		;;
-	*) # Anything else, we just shift off, because we don't know what it was.
-		# This still doesn't fix the -g -g n.n bug
-		shift ;;
+#		"d")
+#			Default
+#		;;
 	esac
 done
 if [[ ${CMD+defined} ]]; then
 	SetGamma
-	RunMe
+	RunMC
 fi
 exit $retval
 
