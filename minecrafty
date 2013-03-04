@@ -28,13 +28,21 @@
 #     : ParseOpts isn't made yet.
 # 0.18: Complete rewrite of options parsing. Well on the way to being actually FINISHED!
 #     : GammaExit renamed as ResetGamma, I should rename RefreshExit too.
-# 0.19: All done, I hope.
+# 0.19: All done, I hope. One buglet found so far, order of options matters for -m and -g
+#     : Now executing SetGamma from RunMC. Only the one bugette left, skmclauncher exits and relaunches,
+#     : so the ResetGamma happens when it shouldn't happen until the script ends. Refresh rate's not getting reset.
+# 0.20: Fixed the order of -g/-m so it doesn't matter.
+#     : realised that BOTH monitors are getting their refresh rate resynched to "Preferred"
+#     : In addition, if I choose to reset monitors independently, I'm going to have an interesting problem separating
+#     : their framerates and gammas from each other. I've also discovered a "brightness" setting.
+#     : Rejiggered three of the switches so I can reuse their lowercase variants as separate switches
 
 VERSION=0
-MINOR=19
+MINOR=20
 PATCH=
 ME=$(basename $0)
-GAMMADEF=0.6  # Default gamma brightness of game
+# Default gamma brightness of game
+GAMMADEF=0.6
 # Default memory assign (whatever the java executable assigns)
 MEM=" "
 # set this to blank too
@@ -48,12 +56,13 @@ declare -A FUNCARRAY
 
 # New array for filling GETOPTS
 GOA=(
-"b" "assign more memory to the client" SetMoreMemory
-"e" "assign lots more memory to the client" SetEnormousMemory
+"B" "assign more memory to the client" SetMoreMemory
+"E" "assign lots more memory to the client" SetEnormousMemory
+"T" "assign minimal memory to the client" SetTinyMemory
+"b:" "n.n: set the brightness. If unset, $BRIGHTDEF is used. 0.7 darker, 1.2 lighter" BrightInit
 "h" "provides this help screen" Help
 "l" "starts the digiex mclauncher program (must be in $(dirname $0))" SetDigiLauncher
 "o" "starts the SKMClauncher program (must be in $(dirname $0))" SetSKMCLauncher
-"t" "assign minimal memory to the client" SetTinyMemory
 "v" "show version string" ShowVersionString
 "g:" "n.n: set the gamma offset. If unset, $GAMMADEF is used. 0.7 lighter, 1.2 darker" GammaInit
 "m:" "select monitor to apply gamma correction to" SetMonitor
@@ -91,38 +100,7 @@ StartServer() {
 	ServerRun $1
 }
 
-FetchGamma() {
-	# TODO: I should put xrandr output into a var, as it's used multiple places
-	# This routine fetches available outputs that are plugged in
-	GARRAY=( $(xrandr --verbose | awk 'NR == 1 { next }; match($0, /^[[:alnum:]\-]+/) { output = substr($0,RSTART, RLENGTH) }; /Gamma:/ { print output, $2 }') )
-}
-
-# This is meant to fetch the Refresh rates for each connected screen
-FetchRefresh() {
-	# No idea what to tack onto the end, except that I need to look for Connected,
-	# then Current, and two lines after, the refresh rate that I need.
-	# I have to create entries for (possibly multiple) screens
-	#
-  RARRAY=( $(xrandr --verbose ) )
-}
-
-ResetGamma() { # TODO: Remove host dependency, pretty hard to do without having X involved anyhow.
-	# Now we put the brightness back to normal, on the first screen
-	echo "Trying to reset brightness on GARRAY[$MON] (${GARRAY[MON]}) back to ${GARRAY[MON+1]}"
-	xrandr --output ${GARRAY[$MON]} --gamma ${GARRAY[$MON+1]}
-}
-
-ResetRefresh() {
-#   if [[ ${GARRAY[2]} && $HOSTNAME == fatty ]]; then
-	echo "Trying to reset refresh rate on GARRAY[$MON]: ${GARRAY[MON]} to $Refresh"
-# The game had a habit of resetting the other screen to 60Hz. Not nice. Only set on fatty for now
-    xrandr --output ${GARRAY[$MON]} --rate ${Refresh} --mode 1024x768
-#    xrandr --output ${GARRAY[2]} --rate ${Refresh} --mode 1024x768
-#    fi
-}
-
-SetGamma() {
-	# TODO: Specifically breaks on the case of -g -g n.n (repeating the -g switch)
+GammaInit() {
 	if [[ -z $MON ]]; then MON=0; fi # set a default if one hasn't been set already
 	if [[ ${1} == ${1//[^[:digit:]\.]/} ]]; then
 		if [[ ! $GAMMA ]]; then # Only set if it hasn't already been
@@ -131,28 +109,67 @@ SetGamma() {
 			echo "Gamma has been set to $GAMMA already, ignoring $1"
 		fi
 	else
-	# Could get tangled up with next -belts: parameter if g is empty
+# Could get tangled up with next -belts: parameter if g is empty
 	    echo "I can't set your gamma to ${1}!"
 		echo "You need to provide a number for -g (0.7, .7, 1.0)"
 	fi
-	# This'll brighten/darken things a bit - only thing that needs changing will be the output
-	# which comes from $MON
+}
+
+FetchGamma() {
+# TODO: I should put xrandr output into a var, as it's used multiple places
+# This routine fetches available outputs that are plugged in
+	GARRAY=( $(xrandr --verbose | awk 'NR == 1 { next }; match($0, /^[[:alnum:]\-]+/) { output = substr($0,RSTART, RLENGTH) }; /Gamma:/ { print output, $2 }') )
+}
+
+# This is meant to fetch the Refresh rates for each connected screen
+FetchRefresh() {
+# No idea what to tack onto the end, except that I need to look for Connected,
+# then Current, and two lines after, the refresh rate that I need.
+# I have to create entries for (possibly multiple) screens
+	#
+  RARRAY=( $(xrandr --verbose ) )
+}
+
+ResetGamma() {
+# TODO: Remove host dependency, pretty hard to do without having X involved anyhow.
+# Now we put the brightness back to normal, on the first screen
+	GAMMA=${GARRAY[$MON+1]}
+#	xrandr --output ${GARRAY[$MON]} --gamma ${GARRAY[$MON+1]}
+	SetGamma # Might as well reuse the same function.
+}
+
+ResetRefresh() {
+#   if [[ ${GARRAY[2]} && $HOSTNAME == fatty ]]; then
+#    xrandr --output ${GARRAY[$MON]} --rate ${Refresh} --mode 1024x768
+# The game had a habit of resetting the other screen to 60Hz. Not nice. Only set on fatty for now
+    xrandr --output ${GARRAY[2]} --rate ${Refresh} --mode 1024x768
+#    fi
+}
+
+SetGamma() {
+# This'll brighten/darken things a bit - only thing that needs changing will be the output
+# which comes from $MON
 	xrandr --output ${GARRAY[${MON}]} --gamma "${GAMMA}:${GAMMA}:${GAMMA}"
 }
 
 # Central one shot run engine.
 RunMC() {
-	# TODO: make this not so $HOME-centric
+# TODO: make this not so $HOME-centric
 	pushd $HOME/bin
-	# Run the command we got earlier, finishing by peeling the return value
+
+	if [[ ${GAMMA} ]]; then
+		SetGamma $GAMMA
+	fi
+# Run the command we got earlier, finishing by peeling the return value
 	${CMD}
 	retval=$?
 	popd
 }
 
 ServerRun() {
-	# Wrap with DoesFileExist for ${OPTARG}, don't forget the empty case.
-    case $1 in ''|"-*") # Trying to be clever here and eliminate empty -s followed by another option
+# Wrap with DoesFileExist for ${OPTARG}, don't forget the empty case.
+    case $1 in ''|"-*")
+# Trying to be clever here and eliminate empty -s followed by another option
 		ServerName=minecraft_server.jar
 		;;
 	"*")
@@ -175,46 +192,45 @@ DefaultSettings() {
 }
 
 SetEnormousMemory() {
-	MEM="-Xmx2048M -Xms1024M" # (Enormous)
+	MEM="-Xmx2048M -Xms1024M"
 	CMD="${CMDRUN} ${CMDOPT} ${MEM} ${CMDARG}"
 }
 
 SetMoreMemory() {
-	MEM="-Xmx1024M -Xms1024M" # (Big)
+	MEM="-Xmx1024M -Xms1024M"
 	CMD="${CMDRUN} ${CMDOPT} ${MEM} ${CMDARG}"
 }
 
 SetTinyMemory() {
-	MEM="-Xmx512M -Xms512M" # (Tiny)
+	MEM="-Xmx512M -Xms512M"
 	CMD="${CMDRUN} ${CMDOPT} ${MEM} ${CMDARG}"
 }
 
 SetMonitor() {
-	echo "OPTARG is ${1}"
-	# TODO: correctly apply this to -g
-	MON=$(( $1 + 1 )) #MonitorOffset
-}
-
-GammaInit() {
-	echo "OPTARG is $1"
-	SetGamma $1
+# TODO: correctly apply this to -g
+	MON=$(( $1 * 2 )) #MonitorOffset
+#	if ${GAMMA} set, then rerun SetGamma
+	if [[ ${GAMMA} ]]; then 
+		SetGamma
+	fi
 }
 
 ShowVersionString() {
 	echo "$ME: ${VERSION}.${MINOR}.${PATCH}"
 	unset CMD
-	break # We need to exit
+# We need to exit
+	break 
 }
 
 SetDigiLauncher() {
-	# runs mclauncher
+# runs mclauncher
 	CMDRUN="padsp java -Xincgc"
 	CMDARG="-jar mclauncher.jar"
 	CMD="${CMDRUN} ${CMDOPT} ${MEM} ${CMDARG}"
 }
 
 SetSKMCLauncher() {
-	# runs SKMClauncher
+# runs SKMClauncher
 	CMDRUN="padsp java -Xincgc"
 	CMDARG="-jar SKMCLauncher.jar"
 	CMD="${CMDRUN} ${CMDOPT} ${MEM} ${CMDARG}"
@@ -224,7 +240,7 @@ SetRefresh() {
 	Refresh=$1
 }
 
-GetOptsNew() {
+GetOpts() {
 	while getopts ${GETOPTS} MYVAR; do
 		for (( t=0; t<"${#GETOPTARRAY[@]}"; t++ )); do
 			if [[ "${MYVAR}:" == "${GETOPTARRAY[$t]}" ]]; then 
@@ -236,12 +252,11 @@ GetOptsNew() {
 }
 
 DefaultSettings
-GetOptsNew $@
+GetOpts $@
 
 if [[ ${CMD+defined} ]]; then
   RunMC
   if [[ ${GAMMA} ]]; then
-	  echo "I should be resetting gamma here"
     ResetGamma
   fi
   if [[ ${Refresh} ]]; then
