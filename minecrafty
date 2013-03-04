@@ -49,9 +49,10 @@
 # 0.29: added help to -f switch
 # 0.30: added digiex and MultiMC (for Linux), preliminary work for -l (launcher) switch.
 # 0.31: padded out support for change to -l
+# 0.32: added bukkit to the list of available downloads
 
 VERSION=0
-MINOR=31
+MINOR=32
 PATCH=
 ME=$(basename $0)
 # Default gamma brightness of game
@@ -79,10 +80,10 @@ GOA=(
 "g:" GammaInit "n.n: set the gamma offset. If unset, $GAMMADEF is used. 0.7 lighter, 1.2 darker"
 "m:" SetMonitor "select monitor to apply gamma correction to"
 "r:" SetRefresh "nn.n: set a valid refresh rate for the second monitor, as minecraft has a habit of setting this to the recommended value instead of the value used originally."
-"l:" Launcher "starts specified launcher, -l help for more details"
-"v" ShowVersionString "show version string"
-"s:" ServerRun "starts the latest server, supply a filename"
 "f:" FetchMinecraft "retrieves minecraft.jar or launcher from remote host, '-f help' for more details"
+"l:" Launcher "starts specified launcher, -l help for more details"
+"s:" ServerRun "starts the latest server, supply a filename"
+"v" ShowVersionString "show version string"
 )
 
 # Entries that aren't used at the moment
@@ -99,20 +100,26 @@ FOA=(
 "1.2.4" VersionCheck "fetches specific final-release version"
 "13w02b" VersionCheck "fetches snapshot version"
 "launcher" Fetch "fetches the default launcher"
-"skmc" Fetch "download development version of SKMCLauncher.jar"
 "digiex" Fetch "download DigiEX launcher"
 "magic" Fetch "download MagicLauncher"
 "multi" Fetch "download MultiMC"
+"skmc" Fetch "download development version of SKMCLauncher.jar"
+"bukkitrb" Fetch "download latest recommended bukkit build"
+)
+
+# Unused entries
+FONA=(
+"bukkitdevel" Fetch "download absolutely latest bukkit"
 )
 
 # Entries for the -l (launcher) switch, this array is currently unused (replace download with execute)
 LOA=(
 "help" LaunchHelp "provides this help screen specifically for launcher"
 "launcher" DefaultSettings "fetches the default launcher"
-"skmc" SetSKMCLauncher "download development version of SKMCLauncher.jar"
 "digiex" SetDigiLauncher "download DigiEX launcher"
 "magic" SetMagicLauncher "download MagicLauncher"
 "multi" SetMultiMC "download MultiMC"
+"skmc" SetSKMCLauncher "download development version of SKMCLauncher.jar"
 )
 
 # This routine "stuffs" values into GETOPTS for later use by the getopts routine
@@ -243,8 +250,6 @@ echo "Inside ResetGamma, with ${GAMMA}"
 
 ResetRefresh() {
 # TODO: It seems if the gamma never got loaded, then this function always fails
-#   if [[ ${GARRAY[2]} && $HOSTNAME == fatty ]]; then
-#    xrandr --output ${GARRAY[$MON]} --rate ${Refresh} --mode 1024x768
 # The game had a habit of resetting the other screen to 60Hz. Not nice. Only set on fatty for now
     xrandr --output ${GARRAY[2]} --rate ${Refresh} --mode 1024x768
 #    fi
@@ -297,23 +302,37 @@ ServerRun() {
 # designed to assign CMD the correct launcher
 Launcher() {
     case $1 in 
-		help) LaunchHelp
+		help) echo "${ME}: -l {help|digiex|magic|multi|skmc}"
+			LaunchHelp
 		unset CMD
 			;;
-		skmc) SetSKMCLauncher
+		digiex) SetDigiLauncher
 		;;
 		magic) SetMagicLauncher
 		;;
 		multi) SetMultiLauncher
 		;;
-		digiex) SetDigiLauncher
+		skmc) SetSKMCLauncher
 		;;
-		default)
+		default) DefaultSettings
 		;;
 		*) echo "We haven't got a launcher called $1 yet"
 		retval=1
 		;;
 esac
+}
+
+# Hopefully, pull down the RSS feed and peel the top entry
+ParseLatestRB() {
+	wget -O ${MCBase}/server/text http://dl.bukkit.org/downloads/craftbukkit/feeds/latest-rb.rss
+	# grovel through the file looking for something, peel the numbers
+	BUKKITVER=$(grep -h -m1 "<item><title>Recommended Build for CraftBukkit: " ${MCBase}/server/text | cut -c522-531 )
+}
+
+ParseLatestBeta() {
+	wget -O ${MCBase}/server/text http://dl.bukkit.org/downloads/craftbukkit/feeds/latest-rb.rss
+	# grovel through the file looking for something, peel the numbers
+	beefjerky=$(grep -h -m1 ${MCBase}/server/text "<item><title>Recommended Build for CraftBukkit: ")
 }
 
 FetchMinecraft() {
@@ -403,6 +422,14 @@ FetchMinecraft() {
 				echo "last build of MultiMC for Linux-x86 failed"
 			fi
 			;;
+		bukkitrb) 
+			ParseLatestRB
+			wget -O ${MCBase}/server/craftbukkit-${BUKKITVER}.jar http://dl.bukkit.org/latest-rb/craftbukkit.jar
+			;;
+#		bukkitbeta) 
+#			ParseLatestBeta
+#			wget -O ${MCBase}/server/craftbukkit-beta.jar http://cbukk.it/craftbukkit-beta.jar
+#			;;
 		help) 
 			echo "${ME}: -f [help|launcher|digiex|magic|skmc|multi] [12w43a] [1.4.5]"
 			FetchHelp
