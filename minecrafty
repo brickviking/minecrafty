@@ -32,14 +32,12 @@
 #     : Now executing SetGamma from RunMC. Only the one bugette left, skmclauncher exits and relaunches,
 #     : so the ResetGamma happens when it shouldn't happen until the script ends. Refresh rate's not getting reset.
 # 0.20: Fixed the order of -g/-m so it doesn't matter.
-#     : realised that BOTH monitors are getting their refresh rate resynched to "Preferred"
-#     : In addition, if I choose to reset monitors independently, I'm going to have an interesting problem separating
-#     : their framerates and gammas from each other. I've also discovered a "brightness" setting.
-#     : Rejiggered three of the switches so I can reuse their lowercase variants as separate switches
+# 0.21test: added a -d switch for debugging _every_ _line_ _of_ _script_....
+
 
 VERSION=0
-MINOR=20
-PATCH=
+MINOR=21
+PATCH=test
 ME=$(basename $0)
 # Default gamma brightness of game
 GAMMADEF=0.6
@@ -56,13 +54,12 @@ declare -A FUNCARRAY
 
 # New array for filling GETOPTS
 GOA=(
-"B" "assign more memory to the client" SetMoreMemory
-"E" "assign lots more memory to the client" SetEnormousMemory
-"T" "assign minimal memory to the client" SetTinyMemory
-"b:" "n.n: set the brightness. If unset, $BRIGHTDEF is used. 0.7 darker, 1.2 lighter" BrightInit
+"b" "assign more memory to the client" SetMoreMemory
+"e" "assign lots more memory to the client" SetEnormousMemory
 "h" "provides this help screen" Help
 "l" "starts the digiex mclauncher program (must be in $(dirname $0))" SetDigiLauncher
 "o" "starts the SKMClauncher program (must be in $(dirname $0))" SetSKMCLauncher
+"t" "assign minimal memory to the client" SetTinyMemory
 "v" "show version string" ShowVersionString
 "g:" "n.n: set the gamma offset. If unset, $GAMMADEF is used. 0.7 lighter, 1.2 darker" GammaInit
 "m:" "select monitor to apply gamma correction to" SetMonitor
@@ -98,21 +95,6 @@ Help() {
 
 StartServer() {
 	ServerRun $1
-}
-
-GammaInit() {
-	if [[ -z $MON ]]; then MON=0; fi # set a default if one hasn't been set already
-	if [[ ${1} == ${1//[^[:digit:]\.]/} ]]; then
-		if [[ ! $GAMMA ]]; then # Only set if it hasn't already been
-			GAMMA=${1:-${GAMMADEF}}  # This looks good for my screen, might not be useful for anyone else
-		else
-			echo "Gamma has been set to $GAMMA already, ignoring $1"
-		fi
-	else
-# Could get tangled up with next -belts: parameter if g is empty
-	    echo "I can't set your gamma to ${1}!"
-		echo "You need to provide a number for -g (0.7, .7, 1.0)"
-	fi
 }
 
 FetchGamma() {
@@ -215,6 +197,21 @@ SetMonitor() {
 	fi
 }
 
+GammaInit() {
+	if [[ -z $MON ]]; then MON=0; fi # set a default if one hasn't been set already
+	if [[ ${1} == ${1//[^[:digit:]\.]/} ]]; then
+		if [[ ! $GAMMA ]]; then # Only set if it hasn't already been
+			GAMMA=${1:-${GAMMADEF}}  # This looks good for my screen, might not be useful for anyone else
+		else
+			echo "Gamma has been set to $GAMMA already, ignoring $1"
+		fi
+	else
+# Could get tangled up with next -belts: parameter if g is empty
+	    echo "I can't set your gamma to ${1}!"
+		echo "You need to provide a number for -g (0.7, .7, 1.0)"
+	fi
+}
+
 ShowVersionString() {
 	echo "$ME: ${VERSION}.${MINOR}.${PATCH}"
 	unset CMD
@@ -240,7 +237,7 @@ SetRefresh() {
 	Refresh=$1
 }
 
-GetOpts() {
+GetOptsNew() {
 	while getopts ${GETOPTS} MYVAR; do
 		for (( t=0; t<"${#GETOPTARRAY[@]}"; t++ )); do
 			if [[ "${MYVAR}:" == "${GETOPTARRAY[$t]}" ]]; then 
@@ -252,7 +249,7 @@ GetOpts() {
 }
 
 DefaultSettings
-GetOpts $@
+GetOptsNew $@
 
 if [[ ${CMD+defined} ]]; then
   RunMC
