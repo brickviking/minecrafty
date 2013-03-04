@@ -29,6 +29,7 @@ MEM=" "
 # set this to blank too
 CMDOPT=" "
 CMDRUN="padsp java"
+# How the heck do we get THIS evaluated by the getopts loop?
 DEFRUN="-blc 70.1"
 GETOPTS="bc:eg:hls:t"
 
@@ -131,7 +132,8 @@ ServerRun() {
 Default() {
 	# TODO: Fix the pulseaudio dependency
 #		CMD="padsp java -Xmx1024M -Xms1024M -cp minecraft.jar net.minecraft.LauncherFrame"
-		CMDRUN="padsp java"
+#		CMDRUN="padsp java"
+		CMDRUN="padsp java -Xincgc ${DEFRUN}"
 		CMDARG="-cp minecraft.jar net.minecraft.LauncherFrame"
 		CMD="${CMDRUN} ${CMDOPT} ${MEM} ${CMDARG}"
 	    FetchGamma
@@ -154,8 +156,8 @@ while getopts ${GETOPTS} MYVAR; do
 		"c") Refresh=${OPTARG}
 			;;
 		"l")
-	# runs mclauncher
-		CMDRUN="padsp java -Xincgc"
+	# runs mclauncher with default parameters defined
+	# TODO: correct order
 		CMDARG="-jar mclauncher.jar"
 		CMD="${CMDRUN} ${CMDOPT} ${MEM} ${CMDARG}"
 		;;
