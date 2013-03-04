@@ -42,9 +42,10 @@
 # 0.23: Add proper NEW server support. Consolidate on .minecraft/server as the new home.
 # 0.24: Implement the xrandr as one command, not separate commands.
 # 0.25: Added in the fetchminecraft.sh script whole.
+# 0.26: Added rudimentary MinecraftLauncher support... it just launches ML, nothing else.
 
 VERSION=0
-MINOR=25
+MINOR=26
 PATCH=
 ME=$(basename $0)
 # Default gamma brightness of game
@@ -72,6 +73,7 @@ GOA=(
 "g:" "n.n: set the gamma offset. If unset, $GAMMADEF is used. 0.7 lighter, 1.2 darker" GammaInit
 "m:" "select monitor to apply gamma correction to" SetMonitor
 "r:" "nn.n: set a valid refresh rate for the second monitor, as minecraft has a habit of setting this to the recommended value instead of the value used originally." SetRefresh
+"a" "starts Magic Launcher program (must be in $(dirname $0))" SetMagicLauncher
 "l" "starts the digiex mclauncher program (must be in $(dirname $0))" SetDigiLauncher
 "o" "starts the SKMClauncher program (must be in $(dirname $0))" SetSKMCLauncher
 "v" "show version string" ShowVersionString
@@ -343,6 +345,14 @@ ShowVersionString() {
 	unset CMD
 # We need to exit
 	break 
+}
+
+SetMagicLauncher() {
+# queue this up so it runs the MagicLauncher.
+# TODO: fix this so it's not padsp-specific
+	CMDRUN="padsp java -Xincgc"
+	CMDARG="-jar ${MCBase}/bin/MagicLauncher_1.0.0.jar"
+	CMD="${CMDRUN} ${CMDOPT} ${MEM} ${CMDARG}"
 }
 
 SetDigiLauncher() {
