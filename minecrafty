@@ -47,9 +47,11 @@
 # 0.28: Also added MagicLauncher (stubbed at the moment) and enabled download of skmclauncher's snapshot build
 #     : in addition, with feedback from keeperfx, decided to tiff all the launchers into ${MCBase}/bin/some-launcher.jar
 # 0.29: added help to -f switch
+# 0.30: added digiex and MultiMC (for Linux), preliminary work for -l (launcher) switch.
+# 0.31: padded out support for change to -l
 
 VERSION=0
-MINOR=29
+MINOR=31
 PATCH=
 ME=$(basename $0)
 # Default gamma brightness of game
@@ -68,36 +70,49 @@ declare -A FUNCARRAY
 
 # New array for filling GETOPTS
 GOA=(
-"h" "provides this help screen (-? gets here as well)" Help
-"T" "assign minimal memory to the client" SetTinyMemory
-"B" "assign more memory to the client" SetMoreMemory
-"E" "assign lots more memory to the client" SetEnormousMemory
-"O" "create OSS-like pulseaudio device" SetPADSP
-"b:" "n.n: set the brightness. If unset, $BRIGHTDEF is used. 0.7 darker, 1.2 lighter" BrightInit
-"g:" "n.n: set the gamma offset. If unset, $GAMMADEF is used. 0.7 lighter, 1.2 darker" GammaInit
-"m:" "select monitor to apply gamma correction to" SetMonitor
-"r:" "nn.n: set a valid refresh rate for the second monitor, as minecraft has a habit of setting this to the recommended value instead of the value used originally." SetRefresh
-"a" "starts Magic Launcher program (must be in ${MCBase}/bin" SetMagicLauncher
-"l" "starts the digiex mclauncher program (must be in ${MCBase}/bin)" SetDigiLauncher
-"o" "starts the SKMClauncher program (must be in ${MCBase}/bin)" SetSKMCLauncher
-"v" "show version string" ShowVersionString
-"s:" "starts the latest server, supply a filename" ServerRun
-"f:" "retrieves minecraft.jar or launcher from remote host, '-f help' for more specifics" FetchMinecraft
+"h" Help "provides this help screen (-? gets here as well)"
+"T" SetTinyMemory "assign minimal memory to the client"
+"B" SetMoreMemory "assign more memory to the client"
+"E" SetEnormousMemory "assign lots more memory to the client"
+"O" SetPADSP "create OSS-like pulseaudio device"
+"b:" BrightInit "n.n: set the brightness. If unset, $BRIGHTDEF is used. 0.7 darker, 1.2 lighter"
+"g:" GammaInit "n.n: set the gamma offset. If unset, $GAMMADEF is used. 0.7 lighter, 1.2 darker"
+"m:" SetMonitor "select monitor to apply gamma correction to"
+"r:" SetRefresh "nn.n: set a valid refresh rate for the second monitor, as minecraft has a habit of setting this to the recommended value instead of the value used originally."
+"l:" Launcher "starts specified launcher, -l help for more details"
+"v" ShowVersionString "show version string"
+"s:" ServerRun "starts the latest server, supply a filename"
+"f:" FetchMinecraft "retrieves minecraft.jar or launcher from remote host, '-f help' for more details"
 )
 
 # Entries that aren't used at the moment
 GONA=(
+"a" SetMagicLauncher "starts Magic Launcher program (must be in ${MCBase}/bin"
+"l" SetDigiLauncher "starts the digiex mclauncher program (must be in ${MCBase}/bin)"
+"o" SetSKMCLauncher "starts the SKMClauncher program (must be in ${MCBase}/bin)"
 )
 
 # Entries for the -f (fetch) switch, this array is currently unused
 # there's also no way to give an example version 12w45 or 1.4.5
 FOA=(
-"help" "provides this help screen specifically for launcher downloading" FetchHelp
-"launcher" "fetches the default launcher" DefaultFetch
-"skmc" "download development version of SKMCLauncher.jar" SKMCFetch
-"digiex" "download DigiEX launcher" DigiFetch
-"magic" "download MagicLauncher" MagicFetch
-"multi" "download MultiMC" MultiFetch
+"help" FetchHelp "provides this help screen specifically for version and launcher downloading"
+"1.2.4" VersionCheck "fetches specific final-release version"
+"13w02b" VersionCheck "fetches snapshot version"
+"launcher" Fetch "fetches the default launcher"
+"skmc" Fetch "download development version of SKMCLauncher.jar"
+"digiex" Fetch "download DigiEX launcher"
+"magic" Fetch "download MagicLauncher"
+"multi" Fetch "download MultiMC"
+)
+
+# Entries for the -l (launcher) switch, this array is currently unused (replace download with execute)
+LOA=(
+"help" LaunchHelp "provides this help screen specifically for launcher"
+"launcher" DefaultSettings "fetches the default launcher"
+"skmc" SetSKMCLauncher "download development version of SKMCLauncher.jar"
+"digiex" SetDigiLauncher "download DigiEX launcher"
+"magic" SetMagicLauncher "download MagicLauncher"
+"multi" SetMultiMC "download MultiMC"
 )
 
 # This routine "stuffs" values into GETOPTS for later use by the getopts routine
@@ -106,8 +121,30 @@ StuffGetOpts() {
 	for (( i=0, p=0; i< ${#GOA[@]}; i+=3, p++ )); do
 		GETOPTARRAY+=( "${GOA[i]}" )
 		GETOPTS="${GETOPTS}${GOA[i]}"
-		HELPOPTS+=( "${GOA[i+1]}" )
-		FUNCARRAY+=( ["${GETOPTARRAY[p]}"]="${GOA[i+2]}" )
+		FUNCARRAY+=( ["${GETOPTARRAY[p]}"]="${GOA[i+1]}" )
+		HELPOPTS+=( "${GOA[i+2]}" )
+	done
+
+}
+
+StuffLaunchOpts() {
+# Apparently bash now supports ( [string]="value" ) arrays.
+	for (( i=0, p=0; i< ${#LOA[@]}; i+=3, p++ )); do
+		LAUNCHOPTARRAY+=( "${LOA[i]}" )
+		LAUNCHOPTS="${LAUNCHOPTS}${LOA[i]}"
+		FUNCARRAY+=( ["${LAUNCHOPTARRAY[p]}"]="${LOA[i+1]}" )
+		LAUNCHHELPOPTS+=( "${LOA[i+2]}" )
+	done
+
+}
+
+StuffFetchOpts() {
+# Apparently bash now supports ( [string]="value" ) arrays.
+	for (( i=0, p=0; i< ${#FOA[@]}; i+=3, p++ )); do
+		FETCHOPTARRAY+=( "${FOA[i]}" )
+		FETCHOPTS="${FETCHOPTS}${FOA[i]}"
+		FUNCARRAY+=( ["${FETCHOPTARRAY[p]}"]="${FOA[i+1]}" )
+		FETCHHELPOPTS+=( "${FOA[i+2]}" )
 	done
 
 }
@@ -116,7 +153,19 @@ Help() {
 	echo "$ME: Help screen"
 	echo "$ME -${GETOPTS}"
 	for (( i=0, p=0; p<${#GETOPTARRAY[@]}; i+=3, p++ )); do
-		echo "-${GETOPTARRAY[p]}:    ${GOA[i+1]}"
+		echo "-${GETOPTARRAY[p]}    ${GOA[i+2]}"
+	done
+}
+
+LaunchHelp() {
+	for (( i=0, p=0; p<${#LAUNCHOPTARRAY[@]}; i+=3, p++ )); do
+		echo "-l ${LAUNCHOPTARRAY[p]}    ${LOA[i+2]}"
+	done
+}
+
+FetchHelp() {
+	for (( i=0, p=0; p<${#FETCHOPTARRAY[@]}; i+=3, p++ )); do
+		echo "-f ${FETCHOPTARRAY[p]}    ${FOA[i+2]}"
 	done
 }
 
@@ -245,6 +294,28 @@ ServerRun() {
 	fi
 }
 
+# designed to assign CMD the correct launcher
+Launcher() {
+    case $1 in 
+		help) LaunchHelp
+		unset CMD
+			;;
+		skmc) SetSKMCLauncher
+		;;
+		magic) SetMagicLauncher
+		;;
+		multi) SetMultiLauncher
+		;;
+		digiex) SetDigiLauncher
+		;;
+		default)
+		;;
+		*) echo "We haven't got a launcher called $1 yet"
+		retval=1
+		;;
+esac
+}
+
 FetchMinecraft() {
 	# Pulled this in from fetchminecraft.sh at version 0.1.9
 	# ver 0.0.0: initial cut
@@ -281,7 +352,7 @@ FetchMinecraft() {
 	# Not yet, as I don't know how to match it up against certain patterns.
 	# somepattern is 1[12]w[12345][0-9][a-f], somepattern2 is [12].[0-9].[0-9]
 	case $DROPOFF in 
-		1[1234]w[012345][0-9][a-f]) # snapshot version
+		1[1234]w[012345][0-9][a-f]) # snapshot version, should be good for snapshots up to the end of 2014
 			if [[ ! -f ${SINGLE}/snapshot_${DROPOFF}.jar ]]; then # only fetch if we haven't got it already
 				wget -O ${SINGLE}/snapshot_$DROPOFF.jar http://assets.minecraft.net/${DROPOFF//\./_}/minecraft.jar
 				retval=$?
@@ -295,7 +366,7 @@ FetchMinecraft() {
 			# otherwise, it succeeded, we might as well go get the server file
 			wget -O ${SERVER}/snapshot_server_$DROPOFF.jar http://assets.minecraft.net/${DROPOFF//\./_}/minecraft_server.jar
 		;;
-		[12].[0-9].[0-9]|[12].[0-9]) # final version
+		[12].[0-9].[0-9]|[12].[0-9]) # final version, account for 1.4 and 1.4.3
 			if [[ ! -f ${SINGLE}/final_${DROPOFF}.jar ]]; then
 				wget -O ${SINGLE}/final_$DROPOFF.jar http://assets.minecraft.net/${DROPOFF//\./_}/minecraft.jar
 				retval=$?
@@ -317,23 +388,37 @@ FetchMinecraft() {
 		magic) # another non-default launcher
 			wget -O ${MCBase}/bin/MagicLauncher-1.0.0.jar http://magiclauncher.com/download.php?f=MagicLauncher_1.0.0.jar
 			;;
-#		digiex) # non-default launcher
-#			wget -O ${MCBase}/bin/digiex-launcher.jar # we need the download link
-#			;;
-		help)
-			echo "${ME}: -f [help|launcher|magic|skmc] [12w43a] [1.4.5]" # add digiex when I find the link
-			echo "${ME}:   help shows the launchers and versions this script downloads"
-			echo "${ME}:   launcher  downloads the default minecraft launcher"
-			echo "${ME}:   skmc  downloads the development version of sk89q's launcher"
-			echo "${ME}:   magic  downloads MagicLauncher"
+		digiex) # non-default launcher
+			wget -O ${MCBase}/bin/mclauncher.jar http://minecraft.digiex.org/dlfiles/mclauncher.jar
+			;;
+		multi) #yet another non-default, we can't normally download this one directly, it's adfly'd
+		# seems we should only do the below if the build status is successful
+			wget -O jobstatus "http://ci.forkk.net/job/MultiMC4Linux/arch=x86/lastBuild/consoleText"
+			grep -qi SUCCESS jobstatus
+			retval=$?
+			rm jobstatus
+			if [[ retval -eq 0 ]]; then
+				wget -O ${MCBase}/bin/MultiMC "http://ci.forkk.net/job/MultiMC4Linux/arch=x86/lastBuild/artifact/MultiMC"
+			else
+				echo "last build of MultiMC for Linux-x86 failed"
+			fi
+			;;
+		help) 
+			echo "${ME}: -f [help|launcher|digiex|magic|skmc|multi] [12w43a] [1.4.5]"
+			FetchHelp
+#			echo "${ME}:   help shows the launchers and versions this script downloads"
+#			echo "${ME}:   launcher  downloads the default minecraft launcher"
+#			echo "${ME}:   skmc  downloads the development version of sk89q's launcher"
+#			echo "${ME}:   magic  downloads MagicLauncher"
 #			echo "${ME}:   digiex  downloads the DigiEX launcher"
 #			echo "${ME}:   multi  downloads the MultiMC launcher"
-			echo "${ME}:   12w45a  downloads a specific snapshot version."
-			echo "${ME}:   1.4.5  downloads a release version such as 1.4.5"
-			echo "${ME}: each of these are stored in ${MCBase}/bin"
+#			echo "${ME}:   12w45a  downloads a specific snapshot version."
+#			echo "${ME}:   1.4.5  downloads a release version such as 1.4.5"
+#			echo "${ME}: each of these are stored in ${MCBase}/bin"
+#			echo "${ME}: FTB (FeedTheBeast) is not supported in this version of ${ME}"
 			break # leaves the case switch
 			;;
-		*) echo "Can't recognise that (yet), try 12w34a, 1.3.2 or launcher"
+		*) echo "Can't recognise $1 (yet). minecrafty -f help for further details."
 			exit 1
 			;;
 	esac
@@ -351,16 +436,19 @@ SetPADSP() {
 	CMD="${CMDRUN} ${CMDOPT} ${MEM} ${CMDARG}"
 }
 
+# Only of any use for running the vanilla launcher
 SetEnormousMemory() {
 	MEM="-Xmx2048M -Xms1024M"
 	CMD="${CMDRUN} ${CMDOPT} ${MEM} ${CMDARG}"
 }
 
+# Only of any use for running the vanilla launcher
 SetMoreMemory() {
 	MEM="-Xmx1024M -Xms1024M"
 	CMD="${CMDRUN} ${CMDOPT} ${MEM} ${CMDARG}"
 }
 
+# Only of any use for running the vanilla launcher
 SetTinyMemory() {
 	MEM="-Xmx512M -Xms512M"
 	CMD="${CMDRUN} ${CMDOPT} ${MEM} ${CMDARG}"
@@ -390,6 +478,14 @@ SetMagicLauncher() {
 	CMD="${CMDRUN} ${CMDOPT} ${MEM} ${CMDARG}"
 }
 
+SetMultiLauncher() {
+# queue this up so it runs MultiMC.
+# TODO: fix this so it's not padsp-specific
+	CMDRUN="padsp ${MCBase}/bin/MultiMC"
+	CMDARG=""
+	CMD="${CMDRUN} ${CMDOPT} ${CMDARG}"
+}
+
 SetDigiLauncher() {
 # runs mclauncher
 # TODO: fix this so it's not padsp-specific
@@ -417,13 +513,66 @@ SetRefresh() {
 # This fetches commandline args, parses them, then fires off relevant sections of FUNCARRAY[$ONECMD] with $OPTARG
 GetOpts() {
 	while getopts ${GETOPTS} ONECMD; do
-		if [[ "${ONECMD}" == "?" ]]; then
+		case ${ONECMD} in "?"|"h")
 # handle the getopts error here. This stops the script on an incorrect switch.
 # An alternative would have been to check ${OPTARG} against "-?"|"-h" in a case switch specifically for the help switch
 			Help
 			unset CMD
 			break
-		fi
+			;;
+#		"f") FetchOpts
+#			;;
+#		"l") LaunchOpts
+#			;;
+		esac
+
+#		fi
+		for (( t=0; t<"${#GETOPTARRAY[@]}"; t++ )); do
+			if [[ "${ONECMD}:" == "${GETOPTARRAY[$t]}" ]]; then 
+				ONECMD="${ONECMD}:"
+			fi
+		done
+		${FUNCARRAY[$ONECMD]} ${OPTARG}
+	done
+}
+
+FetchOpts() { # both FetchOpts and LaunchOpts can't use getopts, as getopts under bash doesn't use words as options
+	while getopts ${FETCHOPTS} ONECMD; do
+		# We need to change this if loop into a case switch to handle -h, -l and -f
+#		if [[ "${ONECMD}" == "?" ]]; then
+		case ${ONECMD} in "?"|"h")
+# handle the getopts error here. This stops the script on an incorrect switch.
+# An alternative would have been to check ${OPTARG} against "-?"|"-h" in a case switch specifically for the help switch
+			FetchHelp
+			unset CMD
+			break
+			;;
+		esac
+
+#		fi
+		for (( t=0; t<"${#FETCHOPTARRAY[@]}"; t++ )); do
+			if [[ "${ONECMD}:" == "${FETCHOPTARRAY[$t]}" ]]; then 
+				ONECMD="${ONECMD}:"
+			fi
+		done
+		${FUNCARRAY[$ONECMD]} ${OPTARG}
+	done
+}
+
+LaunchOpts() {
+	while getopts ${LAUNCHOPTS} ONECMD; do
+		# We need to change this if loop into a case switch to handle -h, -l and -f
+#		if [[ "${ONECMD}" == "?" ]]; then
+		case ${ONECMD} in "?"|"h")
+# handle the getopts error here. This stops the script on an incorrect switch.
+# An alternative would have been to check ${OPTARG} against "-?"|"-h" in a case switch specifically for the help switch
+			LaunchHelp
+			unset CMD
+			break
+			;;
+		esac
+
+#		fi
 		for (( t=0; t<"${#GETOPTARRAY[@]}"; t++ )); do
 			if [[ "${ONECMD}:" == "${GETOPTARRAY[$t]}" ]]; then 
 				ONECMD="${ONECMD}:"
@@ -434,6 +583,8 @@ GetOpts() {
 }
 
 StuffGetOpts
+StuffFetchOpts
+StuffLaunchOpts
 case $1 in "-?"|"-h") Help
 exit 0
 ;;
