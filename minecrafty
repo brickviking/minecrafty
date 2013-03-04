@@ -44,11 +44,12 @@ declare -A FUNCARRAY
 # New array for filling GETOPTS
 GOA=(
 "b" "assign more memory to the client" SetMoreMemory
-"e" "assign lots more memory to the client" SetHeapsofMemory
+"e" "assign lots more memory to the client" SetEnormousMemory
 "h" "provides this help screen" Help
 "l" "starts the digiex mclauncher program (must be in $(dirname $0))" SetDigiLauncher
 "o" "starts the SKMClauncher program (must be in $(dirname $0))" SetSKMCLauncher
-"t" "assign minimal memory to the client" TinyMemory
+"t" "assign minimal memory to the client" SetTinyMemory
+"v" "show version string" ShowVersionString
 "g:" "n.n: set the gamma offset. If unset, $GAMMADEF is used. 0.7 lighter, 1.2 darker" SetTheGamma
 "m:" "select monitor to apply gamma correction to" SetMonitor
 "r:" "nn.n: set a valid refresh rate for the second monitor, as minecraft has a habit of setting this to the recommended value instead of the value used originally." SetRefresh
@@ -164,6 +165,36 @@ Default() {
 		StuffGetOpts
 }
 
+SetEnormousMemory() {
+	MEM="-Xmx2048M -Xms1024M" # (Enormous)
+	CMD="${CMDRUN} ${CMDOPT} ${MEM} ${CMDARG}"
+}
+
+SetMoreMemory() {
+	MEM="-Xmx1024M -Xms1024M" # (Big)
+	CMD="${CMDRUN} ${CMDOPT} ${MEM} ${CMDARG}"
+}
+
+SetTinyMemory() {
+	MEM="-Xmx512M -Xms512M" # (Tiny)
+	CMD="${CMDRUN} ${CMDOPT} ${MEM} ${CMDARG}"
+}
+
+SetMonitor() {
+	# TODO: correctly apply this to -g
+	MO=${OPTARG} #MonitorOffset
+}
+
+SetTheGamma() {
+	GammaRun ${OPTARG}
+}
+
+ShowVersionString() {
+	echo "$ME: ${VERSION}.${MINOR}.${PATCH}"
+	unset CMD
+	break # We need to exit
+}
+
 SetDigiLauncher() {
 	# runs mclauncher
 	CMDRUN="padsp java -Xincgc"
@@ -178,6 +209,10 @@ SetSKMCLauncher() {
 	CMD="${CMDRUN} ${CMDOPT} ${MEM} ${CMDARG}"
 }
 
+SetRefresh() {
+	Refresh=${OPTARG}
+}
+
 Default
 GetOptsOrig() {
 	while getopts ${GETOPTS} MYVAR; do
@@ -187,7 +222,8 @@ GetOptsOrig() {
 				unset CMD
 				break # We need to exit
 			;;
-			"v") echo "$ME: ${VERSION}.${MINOR}"
+			"v") 
+				echo "$ME: ${VERSION}.${MINOR}"
 				unset CMD
 				break # We need to exit
 			;;
