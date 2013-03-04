@@ -33,7 +33,10 @@
 #     : so the ResetGamma happens when it shouldn't happen until the script ends. Refresh rate's not getting reset.
 # 0.20: Fixed the order of -g/-m so it doesn't matter.
 # 0.21test: added a -d switch for debugging _every_ _line_ _of_ _script_....
-
+if [[ $1 == "-d" ]]; then
+	set -x
+	shift
+fi
 
 VERSION=0
 MINOR=21
