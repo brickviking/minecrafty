@@ -41,7 +41,7 @@
 # 0.22: Provided a OSS switch (-O), which provides $CMDRUN as "padsp java". Will it propagate past launchers? Don't know.
 
 VERSION=0
-MINOR=21
+MINOR=22
 PATCH=
 ME=$(basename $0)
 # Default gamma brightness of game
