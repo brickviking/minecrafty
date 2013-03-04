@@ -39,9 +39,11 @@
 #     : Replaced MYVAR with ONECMD, added Bright_ functions and a switch. Added -? handling.
 #     : Thought of something. SKMCLauncher does its own memory handling, so I should ignore -BET if I have -o
 # 0.22: Provided a OSS switch (-O), which provides $CMDRUN as "padsp java". Will it propagate past launchers? Don't know.
+# 0.23: Add proper NEW server support. Consolidate on .minecraft/server as the new home.
+# 0.24: Implement the xrandr as one command, not separate commands.
 
 VERSION=0
-MINOR=22
+MINOR=23
 PATCH=
 ME=$(basename $0)
 # Default gamma brightness of game
@@ -60,6 +62,7 @@ declare -A FUNCARRAY
 # New array for filling GETOPTS
 GOA=(
 "B" "assign more memory to the client" SetMoreMemory
+"E" "assign lots more memory to the client" SetEnormousMemory
 "T" "assign minimal memory to the client" SetTinyMemory
 "O" "create OSS-like pulseaudio device" SetPADSP
 "b:" "n.n: set the brightness. If unset, $BRIGHTDEF is used. 0.7 darker, 1.2 lighter" BrightInit
@@ -75,7 +78,6 @@ GOA=(
 # Entries that aren't used at the moment
 GONA=(
 "s:" "starts the latest server, supply a filename" StartServer
-"E" "assign lots more memory to the client" SetEnormousMemory
 )
 
 # This routine "stuffs" values into GETOPTS for later use by the getopts routine
@@ -191,6 +193,7 @@ SetGamma() {
 # Central one shot run engine.
 RunMC() {
 # TODO: make this not so $HOME-centric
+# TODO: merge these if they're both set.
 	pushd $HOME/bin
 
 	if [[ ${GAMMA} ]]; then
@@ -208,7 +211,9 @@ RunMC() {
 }
 
 ServerRun() {
+# TODO: add the new server location of .minecraft/server/whatever.jar
 # Wrap with DoesFileExist for ${OPTARG}, don't forget the empty case.
+    ServerPlace="${HOME}/.minecraft/server"
     case $1 in ''|"-*")
 # Trying to be clever here and eliminate empty -s followed by another option
 		ServerName=minecraft_server.jar
@@ -217,8 +222,8 @@ ServerRun() {
 		ServerName="${1}.jar"
 		;;
     esac
-	if [[ -f ${ServerName} ]]; then
-		CMD="java -Xmx1024M -Xms1024M -jar ${ServerName}"
+	if [[ -f i${ServerPlace}/${ServerName} ]]; then
+		CMD="java -Xmx1024M -Xincgc -jar ${ServerPlace}/${ServerName}"
 	else
 		echo "We don't have the $1 server ${ServerName} here, please download from www.minecraft.net"
 		retval=1 #bad doggie, bad
@@ -254,7 +259,6 @@ SetTinyMemory() {
 
 SetMonitor() {
 # TODO: correctly apply this to -g
-# TODO: For a new set of monitor, we should put the original monitor back to rights.
 	MON=$(( $1 * 2 )) #MonitorOffset
 #	if ${GAMMA} set, then rerun SetGamma
 	if [[ ${GAMMA} ]]; then 
@@ -271,6 +275,7 @@ ShowVersionString() {
 
 SetDigiLauncher() {
 # runs mclauncher
+# TODO: fix this so it's not padsp-specific
 	CMDRUN="padsp java -Xincgc"
 	CMDARG="-jar mclauncher.jar"
 	CMD="${CMDRUN} ${CMDOPT} ${MEM} ${CMDARG}"
@@ -278,6 +283,7 @@ SetDigiLauncher() {
 
 SetSKMCLauncher() {
 # runs SKMClauncher
+# TODO: fix this so it's not padsp-specific
 # We don't need ${MEM} here, as SKMClauncher allows for setting specific memory when starting minecraft.
 	CMDRUN="padsp java -Xincgc"
 	CMDARG="-jar SKMCLauncher.jar"
