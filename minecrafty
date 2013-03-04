@@ -41,9 +41,10 @@
 # 0.22: Provided a OSS switch (-O), which provides $CMDRUN as "padsp java". Will it propagate past launchers? Don't know.
 # 0.23: Add proper NEW server support. Consolidate on .minecraft/server as the new home.
 # 0.24: Implement the xrandr as one command, not separate commands.
+# 0.25: Added in the fetchminecraft.sh script whole.
 
 VERSION=0
-MINOR=24
+MINOR=25
 PATCH=
 ME=$(basename $0)
 # Default gamma brightness of game
@@ -55,29 +56,31 @@ CMDOPT=" "
 # TODO: Fix the pulseaudio dependency
 #CMDRUN="padsp java"
 CMDRUN="java"
+MCBase="${HOME}/.minecraft"
 
 # Mandatory to declare an associative array
 declare -A FUNCARRAY
 
 # New array for filling GETOPTS
 GOA=(
+"h" "provides this help screen (-? gets here as well)" Help
+"T" "assign minimal memory to the client" SetTinyMemory
 "B" "assign more memory to the client" SetMoreMemory
 "E" "assign lots more memory to the client" SetEnormousMemory
-"T" "assign minimal memory to the client" SetTinyMemory
 "O" "create OSS-like pulseaudio device" SetPADSP
 "b:" "n.n: set the brightness. If unset, $BRIGHTDEF is used. 0.7 darker, 1.2 lighter" BrightInit
-"h" "provides this help screen (-? gets here as well)" Help
-"l" "starts the digiex mclauncher program (must be in $(dirname $0))" SetDigiLauncher
-"o" "starts the SKMClauncher program (must be in $(dirname $0))" SetSKMCLauncher
-"v" "show version string" ShowVersionString
 "g:" "n.n: set the gamma offset. If unset, $GAMMADEF is used. 0.7 lighter, 1.2 darker" GammaInit
 "m:" "select monitor to apply gamma correction to" SetMonitor
 "r:" "nn.n: set a valid refresh rate for the second monitor, as minecraft has a habit of setting this to the recommended value instead of the value used originally." SetRefresh
+"l" "starts the digiex mclauncher program (must be in $(dirname $0))" SetDigiLauncher
+"o" "starts the SKMClauncher program (must be in $(dirname $0))" SetSKMCLauncher
+"v" "show version string" ShowVersionString
+"s:" "starts the latest server, supply a filename" ServerRun
+"f:" "retrieves version of minecraft.jar from remote host, supply a version number (i.e. 1.3.2 or 12w49a)" FetchMinecraft
 )
 
 # Entries that aren't used at the moment
 GONA=(
-"s:" "starts the latest server, supply a filename" StartServer
 )
 
 # This routine "stuffs" values into GETOPTS for later use by the getopts routine
@@ -100,10 +103,6 @@ Help() {
 	done
 	unset CMD
 #	break  (seems I don't need it)
-}
-
-StartServer() {
-	ServerRun $1
 }
 
 # Hopefully sets brightness, separate from the gamma
@@ -173,11 +172,13 @@ ResetGamma() {
 # TODO: Remove host dependency, pretty hard to do without having X involved anyhow.
 # Now we put the brightness back to normal, on the first screen
 	GAMMA=${GARRAY[$MON+1]}
+echo "Inside ResetGamma, with ${GAMMA}"
 #	xrandr --output ${GARRAY[$MON]} --gamma ${GARRAY[$MON+1]}
 	SetGamma # Might as well reuse the same function.
 }
 
 ResetRefresh() {
+# TODO: It seems if the gamma never got loaded, then this function always fails
 #   if [[ ${GARRAY[2]} && $HOSTNAME == fatty ]]; then
 #    xrandr --output ${GARRAY[$MON]} --rate ${Refresh} --mode 1024x768
 # The game had a habit of resetting the other screen to 60Hz. Not nice. Only set on fatty for now
@@ -194,7 +195,8 @@ SetGamma() {
 RunMC() {
 # TODO: make this not so $HOME-centric
 # TODO: merge these if they're both set.
-	pushd $HOME/bin
+#	pushd $HOME/bin
+	pushd ${MCBase}
 
 	if [[ ${GAMMA} ]]; then
 		FetchGamma
@@ -213,25 +215,95 @@ RunMC() {
 ServerRun() {
 # TODO: add the new server location of .minecraft/server/whatever.jar
 # Wrap with DoesFileExist for ${OPTARG}, don't forget the empty case.
-    ServerPlace="${HOME}/.minecraft/server"
-    case $1 in ''|"-*")
-# Trying to be clever here and eliminate empty -s followed by another option
-		ServerName=minecraft_server.jar
-		;;
-	"*")
-		ServerName="${1}.jar"
-		;;
-    esac
-	if [[ -f i${ServerPlace}/${ServerName} ]]; then
+    if [[ ${1} == "default" ]]; then
+	    ServerName=minecraft_server.jar
+	else
+	    ServerName=${1}
+	fi
+
+    ServerPlace="${MCBase}/server"
+	echo "ServerName now set to ${ServerName}"
+	if [[ -f ${ServerPlace}/${ServerName} ]]; then
 		CMD="java -Xmx1024M -Xincgc -jar ${ServerPlace}/${ServerName}"
 	else
-		echo "We don't have the $1 server ${ServerName} here, please download from www.minecraft.net"
-		retval=1 #bad doggie, bad
+		echo "We don't have the $1 server here, please download from www.minecraft.net"
+		retval=1 #bad doggie, bad, there's no point in continuing any further
+		echo "Instead, here's a default launcher"
 	fi
 }
 
+FetchMinecraft() {
+	# Pulled this in from fetchminecraft.sh at version 0.1.9
+	# ver 0.0.0: initial cut
+	# 0.0.1: finally got the script fetching the client and server
+	#      : now I just need to toggle -c/-s for fetching just the client or server
+	# 0.0.2: checked if we succeeded in fetching the file
+	# 0.0.3: split off the two patterns, as they create two slightly different names
+	#      : i.e.  final_$VER or snapshot_$VER.  Also shifted the initial cd outside the case switch.
+	# 0.1.1: no idea why I upgraded to this number, but hey.
+	# 0.1.9: folded this directly into minecrafty, also added another two years of snapshots
+
+	# $1 ought to be something like 12w32a or 1.3.2, as it'll get used to name save files.
+
+	# ! BFW !  These directories had better exist, especially the second one.
+	SINGLE="$HOME/.minecraft/bin"
+	SERVER="$HOME/.minecraft/server/stash"
+	if [[ ! -d $SINGLE ]]; then
+		echo "Can't save, you don't seem to have a valid minecraft installation!"
+		exit 1
+	fi
+	if [[ ! -d $SERVER ]]; then
+		echo "Can't save, please create a .minecraft/server/stash directory!"
+		exit 1
+	fi
+
+	DROPOFF=$1
+	if [[ -z $DROPOFF ]]; then
+		echo "Can't save something I don't know the name of!"
+		exit 1
+	fi
+	# Okay, we have a $1, do we cardinalise it?
+	# Not yet, as I don't know how to match it up against certain patterns.
+	# somepattern is 1[12]w[12345][0-9][a-f], somepattern2 is [12].[0-9].[0-9]
+	pushd "$SINGLE"
+	case $DROPOFF in 
+		1[1234]w[12345][0-9][a-f]) # snapshot version
+			if [[ ! -f snapshot_${DROPOFF}.jar ]]; then # only fetch if we haven't got it already
+				wget -O snapshot_$DROPOFF.jar http://assets.minecraft.net/${DROPOFF//\./_}/minecraft.jar
+				retval=$?
+			fi
+			# We need an error check. If wget returns a 1, then we erase the file we just created.
+			if [[ $retval != 0 ]]; then
+				rm snapshot_${DROPOFF}.jar
+				echo "Download failed, no such version or other error"
+				exit 1
+			fi
+			# otherwise, it succeeded, we might as well go get the server file
+			cd "$SERVER"
+			wget -O snapshot_server_$DROPOFF.jar http://assets.minecraft.net/${DROPOFF//\./_}/minecraft_server.jar
+		;;
+		[12].[0-9].[0-9]|[12].[0-9]) # final version
+			if [[ ! -f final_${DROPOFF}.jar ]]; then
+				wget -O final_$DROPOFF.jar http://assets.minecraft.net/${DROPOFF//\./_}/minecraft.jar
+				retval=$?
+			fi
+			if [[ $retval != 0 ]]; then
+				rm final_${DROPOFF}.jar
+				echo "Download failed, no such version or other error"
+				exit 1
+			fi
+			cd "$SERVER"
+			wget -O final_server_$DROPOFF.jar http://assets.minecraft.net/${DROPOFF//\./_}/minecraft_server.jar
+		;;
+		*) echo "Can't recognise that (yet), try 12w34a or 1.3.2"
+			exit 1
+			;;
+	esac
+	popd
+}
+
 DefaultSettings() {
-		CMDARG="-cp minecraft.jar net.minecraft.LauncherFrame"
+		CMDARG="-cp ${HOME}/bin/minecraft-launcher.jar net.minecraft.LauncherFrame"
 		CMD="${CMDRUN} ${CMDOPT} ${MEM} ${CMDARG}"
 #	    FetchGamma
 #	    FetchBright
@@ -277,7 +349,7 @@ SetDigiLauncher() {
 # runs mclauncher
 # TODO: fix this so it's not padsp-specific
 	CMDRUN="padsp java -Xincgc"
-	CMDARG="-jar mclauncher.jar"
+	CMDARG="-jar ${MCBase}/bin/mclauncher.jar"
 	CMD="${CMDRUN} ${CMDOPT} ${MEM} ${CMDARG}"
 }
 
@@ -286,12 +358,14 @@ SetSKMCLauncher() {
 # TODO: fix this so it's not padsp-specific
 # We don't need ${MEM} here, as SKMClauncher allows for setting specific memory when starting minecraft.
 	CMDRUN="padsp java -Xincgc"
-	CMDARG="-jar SKMCLauncher.jar"
+	CMDARG="-jar ${MCBase}/bin/SKMCLauncher.jar"
 	MEM=" "
 	CMD="${CMDRUN} ${CMDOPT} ${MEM} ${CMDARG}"
 }
 
 SetRefresh() {
+	# We need this so we can reset the gamma or refresh rate later on.
+	FetchGamma
 	Refresh=$1
 }
 
