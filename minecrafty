@@ -20,13 +20,16 @@
 # 0.14: I need to add a correction for gamma at exit of mc.
 # 0.15: Added another launcher to the list of launchers I can execute (SKMCLauncher, by sk89q)
 #     : added help line for SKMC, tweaked help to say where launchers needed to be)
-# 0.16: added option to select which monitor I want gamma raised on.
+# 0.16: added -m option to select which monitor I want gamma raised on.
+#     : Only problem with this, is it's often different from the monitor I need to correct refresh on.
 # 0.16a: added lines to Help describing -c
 # 0.16b: changed -c to -r (refreshrate)
+# 0.17: added an array to populate ${GETOPTS} with, so I can keep Help() and ParseOpts() in sync.
+#     : ParseOpts isn't made yet.
 
 VERSION=0
-MINOR=16
-PATCH=b
+MINOR=17
+PATCH=
 ME=$(basename $0)
 GAMMADEF=0.6  # Default gamma brightness of game
 # Default memory assign (whatever the java executable assigns)
@@ -37,6 +40,20 @@ CMDOPT=" "
 CMDRUN="java"
 GETOPTS="beg:hlor:s:t"
 # remove m: at this stage, as I can't remember what the heck I was doing with it
+# New array for filling GETOPTS (eventually)
+GOA=(
+"b" "assign more memory to the client"
+"e" "assign lots more memory to the client"
+"g:" "n.n: set the gamma offset. If unset, $GAMMADEF is used."
+"h" "provides this help screen"
+"l" "starts the digiex mclauncher program (must be in $(dirname $0))"
+"o" "starts the SKMClauncher program (must be in $(dirname $0))"
+"r:" "nn.n: set a valid refresh rate for the second monitor, as minecraft has a habit of setting this to the recommended value instead of the value used originally."
+"s:" "starts the latest server, supply a filename"
+"t" "assign minimal memory to the client"
+)
+# TODO: write monitor selection section
+#"m:"
 
 # Gee. What can I say?
 Help() {
