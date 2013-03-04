@@ -13,10 +13,14 @@
 #       Also tweaked RunMe to RunMC
 # 0.11: reset gamma somewhat so it only fires up if we specify a gamma 
 # 0.12: Tidied up comments, commented out a host-specific section
-
+# 0.13: Initial try at hacking in server support, change the s parameter to accept a filename
+#     : This would (of course) fail in the case of an empty -g AND -s (whether empty or not)
+#     : or vice versa: empty -s with -g parameter.
+#     : Other problems apply if I specify -s at all, I won't need -l or -g anyhow
+#     : Also added in a version switch.
 
 VERSION=0
-MINOR=12
+MINOR=13
 ME=$(basename $0)
 GAMMADEF=0.6  # Default gamma brightness of game
 # Default memory assign (whatever the java executable assigns)
@@ -24,16 +28,17 @@ MEM=" "
 # set this to blank too
 CMDOPT=" "
 CMDRUN="padsp java"
-GETOPTS="beg:hlst"
+GETOPTS="beg:hls:tv"
 
 # Gee. What can I say?
 Help() {
 	# About the only thing I'm missing is a graphical component to this
 	echo "${ME}: ${ME} [-h]"
 	echo "${ME} -h provides this help screen"
-	echo "${ME}: ${ME} [-s|-l|-e|-b|-t|-g n[.n]]"
+	echo "${ME}: ${ME} [-l|-e|-b|-t|-g n[.n]|-s [filename]]"
 	echo "    nothing:  use the default launcher"
-	echo "    -s:  starts the latest server, my code is a bit broken at the moment"
+	echo "    -s:  starts the latest server, supply a filename"
+	echo "      :  if you don't want to use minecraft_server.jar"
 	echo "    -l:  starts the mclauncher program"
 	echo "    -e:  assign lots more memory to the client"
 	echo "    -b:  assign more memory to the client"
@@ -52,10 +57,9 @@ GammaExit() { # TODO: Remove host dependency, pretty hard to do without having X
 	# Now we put the brightness back to normal, on the first screen
 	xrandr --output ${GARRAY[0]} --gamma ${GARRAY[1]}
 	# The game had a habit of resetting the other screen to 60Hz. Not nice. Only set on fatty for now
-	# ECG-20120225: Commented out while I check the new ATI driver
-# ECG-20120225	if [[ ${GARRAY[2]} && $HOSTNAME == fatty ]]; then
-# ECG-20120225		xrandr --output ${GARRAY[2]} --rate 70.1 --mode 1024x768
-# ECG-20120225	fi
+	if [[ ${GARRAY[2]} && $HOSTNAME == fatty ]]; then
+		xrandr --output ${GARRAY[2]} --rate 70.1 --mode 1024x768
+	fi
 }
 
 SetGamma() {
@@ -64,6 +68,8 @@ SetGamma() {
 			GAMMA=${1:-${GAMMADEF}}  # This looks good for my screen, might not be useful for anyone else
 		fi
 	else
+	# Could get tangled up with next -belts: parameter if g is empty
+	    echo "I can't set your gamma to ${1}!"
 		echo "You need to provide a number for -g (0.7, .7, 1.0)"
 	fi
 	# Grab next param in line, use it for the gamma
@@ -91,6 +97,23 @@ RunMC() {
 	popd
 }
 
+ServerRun() {
+	# Wrap with DoesFileExist for ${OPTARG}, don't forget the empty case.
+    case $1 in ''|"-*") # Trying to be clever here and eliminate empty -s followed by another option
+		ServerName=minecraft_server.jar
+		;;
+	"*")
+		ServerName="${1}.jar"
+		;;
+    esac
+	if [[ -f ${ServerName} ]]; then
+		CMD="java -Xmx1024M -Xms1024M -jar ${ServerName}"
+	else
+		echo "We don't have the $1 server ${ServerName} here, please download from www.minecraft.net"
+		retval=1 #bad doggie, bad
+	fi
+}
+
 Default() {
 	# TODO: Fix the pulseaudio dependency
 #		CMD="padsp java -Xmx1024M -Xms1024M -cp minecraft.jar net.minecraft.LauncherFrame"
@@ -100,37 +123,35 @@ Default() {
 }
 
 Default
-while getopts "beg:hlst" MYVAR; do
-	case "$MYVAR" in "s")
-		# latest server
-		# TODO: update this because at the moment it's broken.
-		if [[ -f minecraft-server.jar ]]; then
-			CMD="java -Xmx1024M -Xms1024M -jar minecraft_server_181.jar"
-		else
-			echo "We don't have a server here, please download from www.minecraft.net"
-			retval=1 #bad doggie, bad
-		fi
+while getopts $GETOPTS MYVAR; do
+	case "$MYVAR" in 
+		"h") Help
+			unset CMD
+			break # We need to exit
 		;;
+	"v") unset CMD
+		echo "$ME: ${VERSION}.${MINOR}"
+		break
+		;;
+	# Let's deal with -s first, as it means we won't need -l or -g
+		"s") ServerRun ${OPTARG}
+		;;		
 		"l")
 	# runs mclauncher
 		CMDRUN="padsp java"
 		CMDARG="-jar mclauncher.jar"
 		CMD="${CMDRUN} ${CMDOPT} ${MEM} ${CMDARG}"
 		;;
-		# TODO: For these two options, it's safer to reset CMD rather than expecting it to be set already
-		"e") MEM="-Xmx2048M -Xms1024M"
+		# TODO: For these three options, it's safer to reset CMD rather than expecting it to be set already
+		"e") MEM="-Xmx2048M -Xms1024M" # (Enormous)
 		CMD="${CMDRUN} ${CMDOPT} ${MEM} ${CMDARG}"
 			;;
-		"b") MEM="-Xmx1024M -Xms1024M"
+		"b") MEM="-Xmx1024M -Xms1024M" # (Big)
 		CMD="${CMDRUN} ${CMDOPT} ${MEM} ${CMDARG}"
 			;;
-		"t") MEM="-Xmx512M -Xms512M"
+		"t") MEM="-Xmx512M -Xms512M" # (Tiny)
 		CMD="${CMDRUN} ${CMDOPT} ${MEM} ${CMDARG}"
 			;;
-		"h") Help
-			unset CMD
-			break # We need to exit
-		;;
 		"g") GammaRun ${OPTARG}
 		;;
 #		"d")
