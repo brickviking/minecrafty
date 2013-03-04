@@ -18,9 +18,10 @@
 #     : or vice versa: empty -s with -g parameter.
 #     : Other problems apply if I specify -s at all, I won't need -l or -g anyhow
 # 0.14: I need to add a correction for gamma at exit of mc.
+# 0.15: Run with a default set of parameters, and change if anything's on the cmd line.
 
 VERSION=0
-MINOR=11
+MINOR=15
 ME=$(basename $0)
 GAMMADEF=0.6  # Default gamma brightness of game
 # Default memory assign (whatever the java executable assigns)
@@ -28,6 +29,7 @@ MEM=" "
 # set this to blank too
 CMDOPT=" "
 CMDRUN="padsp java"
+DEFRUN="-blc 70.1"
 GETOPTS="bc:eg:hls:t"
 
 # Gee. What can I say?
@@ -70,9 +72,9 @@ GammaExit() { # TODO: Remove host dependency, pretty hard to do without having X
 
 RefreshCorrect() {
 # The game had a habit of resetting the other screen to 60Hz. Not nice. Only set on fatty for now
-if [[ ${GARRAY[2]} && $HOSTNAME == fatty ]]; then
-	xrandr --output ${GARRAY[2]} --rate ${Refresh} --mode 1024x768
-fi
+    if [[ ${GARRAY[2]} && $HOSTNAME == fatty ]]; then
+        xrandr --output ${GARRAY[2]} --rate ${Refresh} --mode 1024x768
+    fi
 }
 
 SetGamma() {
@@ -89,7 +91,6 @@ SetGamma() {
 }
 
 GammaRun() {
-	FetchGamma
 	# TODO: Specifically breaks on the case of -g -g n.n (repeating the -g switch)
 	if [[ ! $GAMMA ]]; then
 		SetGamma ${@}  # grab what's now at $1, set it as the new gamma value
@@ -133,6 +134,7 @@ Default() {
 		CMDRUN="padsp java"
 		CMDARG="-cp minecraft.jar net.minecraft.LauncherFrame"
 		CMD="${CMDRUN} ${CMDOPT} ${MEM} ${CMDARG}"
+	    FetchGamma
 }
 
 Default
@@ -153,7 +155,7 @@ while getopts ${GETOPTS} MYVAR; do
 			;;
 		"l")
 	# runs mclauncher
-		CMDRUN="padsp java"
+		CMDRUN="padsp java -Xincgc"
 		CMDARG="-jar mclauncher.jar"
 		CMD="${CMDRUN} ${CMDOPT} ${MEM} ${CMDARG}"
 		;;
