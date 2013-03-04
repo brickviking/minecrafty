@@ -37,6 +37,8 @@
 #     : their framerates and gammas from each other. I've also discovered a "brightness" setting.
 # 0.21: Rejiggered three of the switches so I can reuse their lowercase variants as separate switches
 #     : Replaced MYVAR with ONECMD, added Bright_ functions and a switch. Added -? handling.
+#     : Thought of something. SKMCLauncher does its own memory handling, so I should ignore -BET if I have -o
+# 0.22: Provided a OSS switch (-O), which provides $CMDRUN as "padsp java". Will it propagate past launchers? Don't know.
 
 VERSION=0
 MINOR=21
@@ -60,6 +62,7 @@ GOA=(
 "B" "assign more memory to the client" SetMoreMemory
 "E" "assign lots more memory to the client" SetEnormousMemory
 "T" "assign minimal memory to the client" SetTinyMemory
+"O" "create OSS-like pulseaudio device" SetPADSP
 "b:" "n.n: set the brightness. If unset, $BRIGHTDEF is used. 0.7 darker, 1.2 lighter" BrightInit
 "h" "provides this help screen (-? gets here as well)" Help
 "l" "starts the digiex mclauncher program (must be in $(dirname $0))" SetDigiLauncher
@@ -88,8 +91,8 @@ StuffGetOpts() {
 }
 
 Help() {
-	echo "$0: Help screen"
-	echo "$0 -${GETOPTS}"
+	echo "$ME: Help screen"
+	echo "$ME -${GETOPTS}"
 	for (( i=0, p=0; p<${#GETOPTARRAY[@]}; i+=3, p++ )); do
 		echo "-${GETOPTARRAY[p]}:    ${GOA[i+1]}"
 	done
@@ -191,12 +194,12 @@ RunMC() {
 	pushd $HOME/bin
 
 	if [[ ${GAMMA} ]]; then
+		FetchGamma
 		SetGamma $GAMMA
 	fi
 	if [[ ${BRIGHT} ]]; then
-		echo "Attempting to set brightness of $BRIGHT"
+		FetchBright
 		SetBright $BRIGHT
-		echo "Exiting from SetBright"
 	fi
 # Run the command we got earlier, finishing by peeling the return value
 	${CMD}
@@ -225,8 +228,13 @@ ServerRun() {
 DefaultSettings() {
 		CMDARG="-cp minecraft.jar net.minecraft.LauncherFrame"
 		CMD="${CMDRUN} ${CMDOPT} ${MEM} ${CMDARG}"
-	    FetchGamma
-	    FetchBright
+#	    FetchGamma
+#	    FetchBright
+}
+
+SetPADSP() {
+	CMDRUN="padsp java"
+	CMD="${CMDRUN} ${CMDOPT} ${MEM} ${CMDARG}"
 }
 
 SetEnormousMemory() {
@@ -269,8 +277,10 @@ SetDigiLauncher() {
 
 SetSKMCLauncher() {
 # runs SKMClauncher
+# We don't need ${MEM} here, as SKMClauncher allows for setting specific memory when starting minecraft.
 	CMDRUN="padsp java -Xincgc"
 	CMDARG="-jar SKMCLauncher.jar"
+	MEM=" "
 	CMD="${CMDRUN} ${CMDOPT} ${MEM} ${CMDARG}"
 }
 
@@ -281,6 +291,13 @@ SetRefresh() {
 # This fetches commandline args, parses them, then fires off relevant sections of FUNCARRAY[$ONECMD] with $OPTARG
 GetOpts() {
 	while getopts ${GETOPTS} ONECMD; do
+		if [[ "${ONECMD}" == "?" ]]; then
+# handle the getopts error here. This stops the script on an incorrect switch.
+# An alternative would have been to check ${OPTARG} against "-?"|"-h" in a case switch specifically for the help switch
+			Help
+			unset CMD
+			break
+		fi
 		for (( t=0; t<"${#GETOPTARRAY[@]}"; t++ )); do
 			if [[ "${ONECMD}:" == "${GETOPTARRAY[$t]}" ]]; then 
 				ONECMD="${ONECMD}:"
@@ -291,10 +308,10 @@ GetOpts() {
 }
 
 StuffGetOpts
-if [[ $1 == "-?" ]]; then
-	Help
-	exit 0
-fi
+case $1 in "-?"|"-h") Help
+exit 0
+;;
+esac
 DefaultSettings
 GetOpts $@
 
