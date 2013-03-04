@@ -142,6 +142,10 @@ while getopts ${GETOPTS} MYVAR; do
 			unset CMD
 			break # We need to exit
 		;;
+		"v") echo "$ME: ${VERSION}.${MINOR}"
+			unset CMD
+			break # We need to exit
+		;;
 	# Let's deal with -s first, as it means we won't need -l or -g
 		"s") ServerRun ${OPTARG}
 		;;
