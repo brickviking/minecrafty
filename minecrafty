@@ -18,35 +18,38 @@
 #     : or vice versa: empty -s with -g parameter.
 #     : Other problems apply if I specify -s at all, I won't need -l or -g anyhow
 # 0.14: I need to add a correction for gamma at exit of mc.
-# 0.15: Run with a default set of parameters, and change if anything's on the cmd line.
+# 0.15: Added another launcher to the list of launchers I can execute (SKMCLauncher, by sk89q)
+#     : added help line for SKMC, tweaked help to say where launchers needed to be)
+# 0.16: added option to select which monitor I want gamma raised on.
 
 VERSION=0
-MINOR=15
+MINOR=16
 ME=$(basename $0)
 GAMMADEF=0.6  # Default gamma brightness of game
 # Default memory assign (whatever the java executable assigns)
 MEM=" "
 # set this to blank too
 CMDOPT=" "
-CMDRUN="padsp java"
-# How the heck do we get THIS evaluated by the getopts loop?
-DEFRUN="-blc 70.1"
-GETOPTS="bc:eg:hls:t"
+#CMDRUN="padsp java"
+CMDRUN="java"
+GETOPTS="bc:eg:hlm:os:t"
 
 # Gee. What can I say?
 Help() {
 	# About the only thing I'm missing is a graphical component to this
 	echo "${ME}: ${ME} [-h]"
 	echo "${ME} -h provides this help screen"
-	echo "${ME}: ${ME} [-l|-e|-b|-t|-g n[.n]|-s [filename]]"
+	echo "${ME}: ${ME} [-l|-c nn[.n]|-e|-b|-t|-g n[.n]|-s [filename]]"
 	echo "    nothing:  use the default launcher"
 	echo "    -s:  starts the latest server, supply a filename"
 	echo "      :  if you don't want to use minecraft_server.jar"
-	echo "    -l:  starts the mclauncher program"
+	echo "    -l:  starts the mclauncher program (must be in $(dirname $0))"
+	echo "    -o:  starts the SKMClauncher program (must be in $(dirname $0))"
 	echo "    -e:  assign lots more memory to the client"
 	echo "    -b:  assign more memory to the client"
 	echo "    -t:  assign minimal memory to the client"
-	echo "    -g n.n: set the gamma offset. If unset, $GAMMADEF is used. Less than 1.0 = brighter, more than 1.0 = darker"
+	echo "    -g n.n: set the gamma offset. If unset, $GAMMADEF is used."
+	echo "      :  Less than 1.0 = brighter, more than 1.0 = darker"
 	echo "    anything else (including nothing at all) starts the conventional launcher"
 	retval=0
 }
@@ -71,13 +74,6 @@ GammaExit() { # TODO: Remove host dependency, pretty hard to do without having X
 	xrandr --output ${GARRAY[0]} --gamma ${GARRAY[1]}
 }
 
-RefreshCorrect() {
-# The game had a habit of resetting the other screen to 60Hz. Not nice. Only set on fatty for now
-    if [[ ${GARRAY[2]} && $HOSTNAME == fatty ]]; then
-        xrandr --output ${GARRAY[2]} --rate ${Refresh} --mode 1024x768
-    fi
-}
-
 SetGamma() {
 	if [[ ${1} == ${1//[^[:digit:]\.]/} ]]; then
 		if [[ ! $GAMMA ]]; then # Only set if it hasn't already been
@@ -96,6 +92,7 @@ GammaRun() {
 	if [[ ! $GAMMA ]]; then
 		SetGamma ${@}  # grab what's now at $1, set it as the new gamma value
 		# TODO: check $1 is a number, or even that it's set.
+		# TODO: offset by monitor number
 	else
 		echo "Gamma has been set to $GAMMA already, ignoring $1"
 	fi
@@ -132,8 +129,7 @@ ServerRun() {
 Default() {
 	# TODO: Fix the pulseaudio dependency
 #		CMD="padsp java -Xmx1024M -Xms1024M -cp minecraft.jar net.minecraft.LauncherFrame"
-#		CMDRUN="padsp java"
-		CMDRUN="padsp java -Xincgc ${DEFRUN}"
+		CMDRUN="padsp java"
 		CMDARG="-cp minecraft.jar net.minecraft.LauncherFrame"
 		CMD="${CMDRUN} ${CMDOPT} ${MEM} ${CMDARG}"
 	    FetchGamma
@@ -141,6 +137,7 @@ Default() {
 
 Default
 while getopts ${GETOPTS} MYVAR; do
+	# TODO: I never errorcheck here, oops.
 	case "$MYVAR" in 
 		"h") Help
 			unset CMD
@@ -153,12 +150,16 @@ while getopts ${GETOPTS} MYVAR; do
 	# Let's deal with -s first, as it means we won't need -l or -g
 		"s") ServerRun ${OPTARG}
 		;;
-		"c") Refresh=${OPTARG}
-			;;
 		"l")
-	# runs mclauncher with default parameters defined
-	# TODO: correct order
+	# runs mclauncher
+		CMDRUN="padsp java -Xincgc"
 		CMDARG="-jar mclauncher.jar"
+		CMD="${CMDRUN} ${CMDOPT} ${MEM} ${CMDARG}"
+		;;
+		"o")
+	# runs SKMClauncher
+		CMDRUN="padsp java -Xincgc"
+		CMDARG="-jar SKMCLauncher.jar"
 		CMD="${CMDRUN} ${CMDOPT} ${MEM} ${CMDARG}"
 		;;
 		# TODO: For these three options, it's safer to reset CMD rather than expecting it to be set already
@@ -182,9 +183,6 @@ if [[ ${CMD+defined} ]]; then
   RunMC
   if [[ ${GAMMA} ]]; then
     GammaExit
-  fi
-  if [[ ${Refresh} ]]; then
-    RefreshCorrect
   fi
 fi
 exit $retval
