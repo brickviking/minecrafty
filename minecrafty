@@ -1,9 +1,46 @@
 #!/bin/bash
 VERSION=0
-MINOR=0
-pushd $HOME/bin
-xrandr --output VGA-0 --gamma 0.6:0.6:0.6
-padsp java -Xmx1024M -Xms1024M -cp minecraft.jar net.minecraft.LauncherFrame
-xrandr --output VGA-0 --gamma 1.0:1.0:1.0
-popd
+MINOR=2
+ME=$(basename $0)
+Help() {
+	echo "${ME}: ${ME} [server181|launcher]"
+	echo "${ME}:    server181:  starts the latest server"
+	echo "${ME}:    launcher:   starts the mclauncher program"
+	echo "${ME}:    anything else (including nothing at all) starts the conventional launcher"
+}
+
+RunMe() {
+	# This'll brighten things up a bit - only thing that needs changing will be the output
+	xrandr --output VGA-0 --gamma 0.6:0.6:0.6
+	pushd $HOME/bin
+	# ... run the command we got earlier...
+	${CMD}
+	retval=$?
+	popd
+	# Now we put the brightness back to normal
+	xrandr --output VGA-0 --gamma 1.0:1.0:1.0
+	# The game has a habit of resetting the other screen to 60Hz. Not nice.
+	# Not needed on zoom
+	# xrandr --output CRT2 --rate 70.1 --mode 1024x768
+}
+
+case "$1" in "server181")
+	# latest server	- update this each time the version upgrades
+	CMD="java -Xmx1024M -Xms1024M -jar minecraft_server_181.jar"
+	;;
+    "launcher")
+# Default with any parameter other than server181
+	CMD="padsp java -Xmx1024M -Xms1024M -jar mclauncher.jar"
+	;;
+    help) Help ;;
+# Match ANYTHING else.
+	*)
+# launch the default launcher with more memory
+	CMD="padsp java -Xmx1024M -Xms1024M -cp minecraft.jar net.minecraft.LauncherFrame"
+	;;
+esac
+if [[ ${CMD+defined} ]]; then
+	RunMe
+	exit $retval
+fi
 
