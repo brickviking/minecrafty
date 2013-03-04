@@ -50,9 +50,10 @@
 # 0.30: added digiex and MultiMC (for Linux), preliminary work for -l (launcher) switch.
 # 0.31: padded out support for change to -l
 # 0.32: added bukkit to the list of available downloads
+# 0.33: added a switch to suspend pulseaudio
 
 VERSION=0
-MINOR=32
+MINOR=33
 PATCH=
 ME=$(basename $0)
 # Default gamma brightness of game
@@ -76,6 +77,7 @@ GOA=(
 "B" SetMoreMemory "assign more memory to the client"
 "E" SetEnormousMemory "assign lots more memory to the client"
 "O" SetPADSP "create OSS-like pulseaudio device"
+"P" SetPAPause "suspends pulseaudio while minecraft runs"
 "b:" BrightInit "n.n: set the brightness. If unset, $BRIGHTDEF is used. 0.7 darker, 1.2 lighter"
 "g:" GammaInit "n.n: set the gamma offset. If unset, $GAMMADEF is used. 0.7 lighter, 1.2 darker"
 "m:" SetMonitor "select monitor to apply gamma correction to"
@@ -463,6 +465,11 @@ SetPADSP() {
 	CMD="${CMDRUN} ${CMDOPT} ${MEM} ${CMDARG}"
 }
 
+SetPAPause() {
+	CMDRUN="pasuspender -- java"
+	CMD="${CMDRUN} ${CMDOPT} ${MEM} ${CMDARG}"
+}
+
 # Only of any use for running the vanilla launcher
 SetEnormousMemory() {
 	MEM="-Xmx2048M -Xms1024M"
@@ -527,6 +534,7 @@ SetSKMCLauncher() {
 # We don't need ${MEM} here, as SKMClauncher allows for setting specific memory when starting minecraft.
 	CMDRUN="padsp java -Xincgc"
 	CMDARG="-jar ${MCBase}/bin/SKMCLauncher.jar"
+#	CMDARG="-jar ${MCBase}/bin/SKMCLauncher-3.1.7-SNAPSHOT.jar"
 	MEM=" "
 	CMD="${CMDRUN} ${CMDOPT} ${MEM} ${CMDARG}"
 }
