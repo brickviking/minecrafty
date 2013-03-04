@@ -43,9 +43,10 @@
 # 0.24: Implement the xrandr as one command, not separate commands.
 # 0.25: Added in the fetchminecraft.sh script whole.
 # 0.26: Added rudimentary MinecraftLauncher support... it just launches ML, nothing else.
+# 0.27: Added stanza to FetchMinecraft to grab a default launcher, also commented future code for skmc and digiex.
 
 VERSION=0
-MINOR=26
+MINOR=27
 PATCH=
 ME=$(basename $0)
 # Default gamma brightness of game
@@ -73,12 +74,12 @@ GOA=(
 "g:" "n.n: set the gamma offset. If unset, $GAMMADEF is used. 0.7 lighter, 1.2 darker" GammaInit
 "m:" "select monitor to apply gamma correction to" SetMonitor
 "r:" "nn.n: set a valid refresh rate for the second monitor, as minecraft has a habit of setting this to the recommended value instead of the value used originally." SetRefresh
-"a" "starts Magic Launcher program (must be in $(dirname $0))" SetMagicLauncher
-"l" "starts the digiex mclauncher program (must be in $(dirname $0))" SetDigiLauncher
-"o" "starts the SKMClauncher program (must be in $(dirname $0))" SetSKMCLauncher
+"a" "starts Magic Launcher program (must be in ${MCBase}/bin)" SetMagicLauncher
+"l" "starts the digiex mclauncher program (must be in ${MCBase}/bin)" SetDigiLauncher
+"o" "starts the SKMClauncher program (must be in ${MCBase}/bin)" SetSKMCLauncher
 "v" "show version string" ShowVersionString
 "s:" "starts the latest server, supply a filename" ServerRun
-"f:" "retrieves version of minecraft.jar from remote host, supply a version number (i.e. 1.3.2 or 12w49a)" FetchMinecraft
+"f:" "retrieves version of minecraft.jar or launcher from remote host, supply a version number (i.e. 1.3.2 or 12w49a) or 'launcher'" FetchMinecraft
 )
 
 # Entries that aren't used at the moment
@@ -267,37 +268,45 @@ FetchMinecraft() {
 	# Okay, we have a $1, do we cardinalise it?
 	# Not yet, as I don't know how to match it up against certain patterns.
 	# somepattern is 1[12]w[12345][0-9][a-f], somepattern2 is [12].[0-9].[0-9]
-	pushd "$SINGLE"
 	case $DROPOFF in 
 		1[1234]w[12345][0-9][a-f]) # snapshot version
-			if [[ ! -f snapshot_${DROPOFF}.jar ]]; then # only fetch if we haven't got it already
-				wget -O snapshot_$DROPOFF.jar http://assets.minecraft.net/${DROPOFF//\./_}/minecraft.jar
+			if [[ ! -f ${SINGLE}/snapshot_${DROPOFF}.jar ]]; then # only fetch if we haven't got it already
+				wget -O ${SINGLE}/snapshot_$DROPOFF.jar http://assets.minecraft.net/${DROPOFF//\./_}/minecraft.jar
 				retval=$?
 			fi
 			# We need an error check. If wget returns a 1, then we erase the file we just created.
 			if [[ $retval != 0 ]]; then
-				rm snapshot_${DROPOFF}.jar
+				rm ${SINGLE}/snapshot_${DROPOFF}.jar
 				echo "Download failed, no such version or other error"
 				exit 1
 			fi
 			# otherwise, it succeeded, we might as well go get the server file
-			cd "$SERVER"
-			wget -O snapshot_server_$DROPOFF.jar http://assets.minecraft.net/${DROPOFF//\./_}/minecraft_server.jar
+			wget -O ${SERVER}/snapshot_server_$DROPOFF.jar http://assets.minecraft.net/${DROPOFF//\./_}/minecraft_server.jar
 		;;
 		[12].[0-9].[0-9]|[12].[0-9]) # final version
-			if [[ ! -f final_${DROPOFF}.jar ]]; then
-				wget -O final_$DROPOFF.jar http://assets.minecraft.net/${DROPOFF//\./_}/minecraft.jar
+			if [[ ! -f ${SINGLE}/final_${DROPOFF}.jar ]]; then
+				wget -O ${SINGLE}/final_$DROPOFF.jar http://assets.minecraft.net/${DROPOFF//\./_}/minecraft.jar
 				retval=$?
 			fi
 			if [[ $retval != 0 ]]; then
-				rm final_${DROPOFF}.jar
+				rm ${SINGLE}/final_${DROPOFF}.jar
 				echo "Download failed, no such version or other error"
 				exit 1
 			fi
-			cd "$SERVER"
-			wget -O final_server_$DROPOFF.jar http://assets.minecraft.net/${DROPOFF//\./_}/minecraft_server.jar
+			wget -O ${SERVER}/final_server_$DROPOFF.jar http://assets.minecraft.net/${DROPOFF//\./_}/minecraft_server.jar
 		;;
-		*) echo "Can't recognise that (yet), try 12w34a or 1.3.2"
+# This downloads the minecraft.jar supplied by mojang, which will become the default launcher
+# I've yet to decide if it'll allow download of other launchers, website links?
+		launcher) # default launcher
+			wget -O ${HOME}/bin/minecraft-launcher.jar https://s3.amazonaws.com/MinecraftDownload/launcher/minecraft.jar
+			;;
+#		skmc) # non-default launcher
+#			wget -O ${HOME}/bin/minecraft-launcher.jar https://s3.amazonaws.com/MinecraftDownload/launcher/minecraft.jar
+#			;;
+#		digiex) # default launcher
+#			wget -O ${HOME}/bin/minecraft-launcher.jar https://s3.amazonaws.com/MinecraftDownload/launcher/minecraft.jar
+#			;;
+		*) echo "Can't recognise that (yet), try 12w34a, 1.3.2 or launcher"
 			exit 1
 			;;
 	esac
