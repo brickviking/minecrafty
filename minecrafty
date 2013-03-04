@@ -17,10 +17,10 @@
 #     : This would (of course) fail in the case of an empty -g AND -s (whether empty or not)
 #     : or vice versa: empty -s with -g parameter.
 #     : Other problems apply if I specify -s at all, I won't need -l or -g anyhow
-#     : Also added in a version switch.
+# 0.14: I need to add a correction for gamma at exit of mc.
 
 VERSION=0
-MINOR=13
+MINOR=11
 ME=$(basename $0)
 GAMMADEF=0.6  # Default gamma brightness of game
 # Default memory assign (whatever the java executable assigns)
@@ -28,7 +28,7 @@ MEM=" "
 # set this to blank too
 CMDOPT=" "
 CMDRUN="padsp java"
-GETOPTS="beg:hls:tv"
+GETOPTS="bc:eg:hls:t"
 
 # Gee. What can I say?
 Help() {
@@ -49,17 +49,30 @@ Help() {
 }
 
 FetchGamma() {
+	# TODO: I should put xrandr output into a var, as it's used multiple places
 	# This routine fetches available outputs that are plugged in
 	GARRAY=( $(xrandr --verbose | awk 'NR == 1 { next }; match($0, /^[[:alnum:]\-]+/) { output = substr($0,RSTART, RLENGTH) }; /Gamma:/ { print output, $2 }') )
+}
+
+# This is meant to fetch the Refresh rates for each connected screen
+FetchRefresh() {
+	# No idea what to tack onto the end, except that I need to look for Connected,
+	# then Current, and two lines after, the refresh rate that I need.
+	# I have to create entries for (possibly multiple) screens
+	#
+  RARRAY=( $(xrandr --verbose ) )
 }
 
 GammaExit() { # TODO: Remove host dependency, pretty hard to do without having X involved anyhow.
 	# Now we put the brightness back to normal, on the first screen
 	xrandr --output ${GARRAY[0]} --gamma ${GARRAY[1]}
-	# The game had a habit of resetting the other screen to 60Hz. Not nice. Only set on fatty for now
-	if [[ ${GARRAY[2]} && $HOSTNAME == fatty ]]; then
-		xrandr --output ${GARRAY[2]} --rate 70.1 --mode 1024x768
-	fi
+}
+
+RefreshCorrect() {
+# The game had a habit of resetting the other screen to 60Hz. Not nice. Only set on fatty for now
+if [[ ${GARRAY[2]} && $HOSTNAME == fatty ]]; then
+	xrandr --output ${GARRAY[2]} --rate ${Refresh} --mode 1024x768
+fi
 }
 
 SetGamma() {
@@ -123,19 +136,17 @@ Default() {
 }
 
 Default
-while getopts $GETOPTS MYVAR; do
+while getopts ${GETOPTS} MYVAR; do
 	case "$MYVAR" in 
 		"h") Help
 			unset CMD
 			break # We need to exit
 		;;
-	"v") unset CMD
-		echo "$ME: ${VERSION}.${MINOR}"
-		break
-		;;
 	# Let's deal with -s first, as it means we won't need -l or -g
 		"s") ServerRun ${OPTARG}
-		;;		
+		;;
+		"c") Refresh=${OPTARG}
+			;;
 		"l")
 	# runs mclauncher
 		CMDRUN="padsp java"
@@ -160,10 +171,13 @@ while getopts $GETOPTS MYVAR; do
 	esac
 done
 if [[ ${CMD+defined} ]]; then
-	RunMC
-	if [[ ${GAMMA} ]]; then
-		GammaExit
-	fi
+  RunMC
+  if [[ ${GAMMA} ]]; then
+    GammaExit
+  fi
+  if [[ ${Refresh} ]]; then
+    RefreshCorrect
+  fi
 fi
 exit $retval
 
