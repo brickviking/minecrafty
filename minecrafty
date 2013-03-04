@@ -1,67 +1,133 @@
 #!/bin/bash
+# 0.0: Initial three-liner, set gamma to 0.6, run minecraft, put gamma back.
+# 0.1: wrap things a bit
+# 0.2: add in switches -launcher, -server181
+# 0.3: Add functions for help, RunMe, change switches to short form -s/-l
+# 0.4: put in host detection, so CRT outputs get detected on a per-host basis.
+# 0.5: Add in -g (gamma) switch, the -d (default) switch, and do switch parsing. Some of this came from RfcShow.
+# 0.6: Add in function to find current gamma setting, needs work
+# 0.7: Got rid of GetGamma, as it ended up as a one-liner.
+# 0.8: Possible reinstatement as GammaEnter/GammaExit wrappers around $CMD
+# 0.9: Split off gamma setting into its own routine. Should we getopt this program?
 
 VERSION=0
-MINOR=4
+MINOR=9
 ME=$(basename $0)
+GAMMADEF=0.6  # Default gamma brightness of game
+# Default memory assign (whatever the java executable assigns)
+GETOPTS="shletg:"
 
 # Gee. What can I say?
 Help() {
-	echo "${ME}: ${ME} [-s|-l]"
+	echo "${ME}: ${ME} [-h]"
+	echo "${ME} -h provides this help screen"
+	echo "${ME}: ${ME} [-s|-l|-g [n.n]]"
 	echo "    -s:  starts the latest server"
-	echo "    -l:   starts the mclauncher program"
+	echo "    -l:  starts the mclauncher program"
+	echo "    -g n.n: set the gamma offset. If unset, $GAMMADEF is used. Less than 1.0 = brighter, more than 1.0 = darker"
 	echo "    anything else (including nothing at all) starts the conventional launcher"
+	retval=0
 }
 
-# Sets the correct video output name(s) for fatty/zoom, not sure about anything else
-MachineCRTOutput() {
-	case $HOSTNAME in 
-		"fatty") OUTPUT1=CRT1; 
-		OUTPUT2=CRT2 ;;
-		"zoom") OUTPUT1=VGA-0 ;;
-		*) OUTPUT1=VGA-0 ;;
-	esac
+GammaEnter() {
+	# This routine fetches available outputs that are plugged in
+	GARRAY=( $(xrandr --verbose | awk 'NR == 1 { next }; match($0, /^[[:alnum:]]+/) { output = substr($0,RSTART, RLENGTH) }; /Gamma:/ { print output, $2 }') )
+	# This'll brighten things up a bit - only thing that needs changing will be the output
+	xrandr --output ${GARRAY[0]} --gamma "${GAMMA}:${GAMMA}:${GAMMA}"
+}
+
+GammaExit() { # TODO: Remove host dependency
+	# Now we put the brightness back to normal, on the first screen
+	xrandr --output ${GARRAY[0]} --gamma ${GARRAY[1]}
+	if [[ ${GARRAY[2]} && $HOSTNAME == fatty ]]; then
+	# The game has a habit of resetting the other screen to 60Hz. Not nice. Only set on fatty for now
+		xrandr --output ${GARRAY[2]} --rate 70.1 --mode 1024x768
+	fi
+}
+
+SetGamma() {
+	# TODO: There's no sanity checking here
+	# Grab next param in line, use it for the gamma
+	if [[ ! $GAMMA ]]; then # Only set if it hasn't already been
+		GAMMA=${1:-${GAMMADEF}}  # This looks good for my screen, might not be useful for anyone else
+	fi
+}
+
+GammaRun() {
+	# TODO: Specifically breaks on the case of -g -g n.n (repeating the -g switch)
+	if [[ ! $GAMMA ]]; then
+		SetGamma ${@}  # grab what's now at $1, set it as the new gamma value
+		# Hm. I just realised that we do this twice - once somewhere else, and once here. I only check
+		# for $1 there, not here
+		# TODO: check $1 is a number, or even that it's set.
+		shift # Now pop it off so we get the next env var
+	else
+		echo "Gamma has been set to $GAMMA already, ignoring $1"
+		shift
+	fi
+	if [[ ! $1 && ! $CMD ]]; then
+		Default
+	fi
 }
 
 # Central one shot run engine.
 RunMe() {
-	# This'll brighten things up a bit - only thing that needs changing will be the output
-	xrandr --output ${OUTPUT1} --gamma 0.6:0.6:0.6
+	GammaEnter
 	pushd $HOME/bin
 	# Run the command we got earlier, finishing by peeling the return value
 	${CMD}
 	retval=$?
 	popd
-	# Now we put the brightness back to normal
-	xrandr --output ${OUTPUT1} --gamma 1.0:1.0:1.0
-	if [[ ${OUTPUT2} ]]; then
-	# The game has a habit of resetting the other screen to 60Hz. Not nice.
-		xrandr --output ${OUTPUT2} --rate 70.1 --mode 1024x768
-	fi
+	GammaExit
 }
 
-MachineCRTOutput
+Default() {
+	# TODO: Fix the pulseaudio dependency
+		CMD="padsp java -Xmx1024M -Xms1024M -cp minecraft.jar net.minecraft.LauncherFrame"
+}
 
-case "$1" in "-s")
-	# latest server	- update this
-	if [[ -f minecraft-server.jar ]]; then
-		CMD="java -Xmx1024M -Xms1024M -jar minecraft_server_181.jar"
-	else
-		echo "We don't have a server here, please download from www.minecraft.net"
-		retval=1 #bad doggie, bad
-	fi
-	;;
-    "-l")
-# runs mclauncher
-	CMD="padsp java -Xmx1024M -Xms1024M -jar mclauncher.jar"
-	;;
-    "-h") Help ;;
-# Match ANYTHING else, including nothing at all
-	*)
-# launch the default launcher with more memory
-	CMD="padsp java -Xmx1024M -Xms1024M -cp minecraft.jar net.minecraft.LauncherFrame"
-	;;
-esac
+if [[ ! $1 ]]; then
+	Default
+	SetGamma # I'm really sure this is the wrong way to do this
+fi
+while [[ $1 ]]; do
+	case "$1" in "-s")
+		# latest server
+		# TODO: update this because at the moment it's broken.
+		if [[ -f minecraft-server.jar ]]; then
+			CMD="java -Xmx1024M -Xms1024M -jar minecraft_server_181.jar"
+		else
+			echo "We don't have a server here, please download from www.minecraft.net"
+			retval=1 #bad doggie, bad
+		fi
+		shift
+		;;
+		"-l")
+	# runs mclauncher. TODO: Change the amount of memory assigned
+		CMD="padsp java -Xmx1024M -Xms1024M -jar mclauncher.jar"
+		shift
+		;;
+		"-h") Help
+			unset CMD
+			break # We need to exit
+		;;
+		"-g") shift 
+			GammaRun ${@}
+			# We should only shift this if it was digits, i.e. it sets the gamma
+			shift # I think this is what kills the -g -g n.n
+		;;
+		"-d")
+			Default
+	# launch the default launcher with more memory
+			shift
+		;;
+	*) # Anything else, we just shift off, because we don't know what it was.
+		# This still doesn't fix the -g -g n.n bug
+		shift ;;
+	esac
+done
 if [[ ${CMD+defined} ]]; then
+	SetGamma
 	RunMe
 fi
 exit $retval
