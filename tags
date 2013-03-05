@@ -1,0 +1,44 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.9~svn20110310	//
+BrightInit	minecrafty	/^BrightInit() {$/;"	f
+DefaultSettings	minecrafty	/^DefaultSettings() {$/;"	f
+FetchBright	minecrafty	/^FetchBright() {$/;"	f
+FetchGamma	minecrafty	/^FetchGamma() {$/;"	f
+FetchHelp	minecrafty	/^FetchHelp() {$/;"	f
+FetchMinecraft	minecrafty	/^FetchMinecraft() {$/;"	f
+FetchOpts	minecrafty	/^FetchOpts() { # both FetchOpts and LaunchOpts can't use getopts, as getopts under bash doesn't use words as options$/;"	f
+FetchRefresh	minecrafty	/^FetchRefresh() {$/;"	f
+GammaInit	minecrafty	/^GammaInit() {$/;"	f
+GetOpts	minecrafty	/^GetOpts() {$/;"	f
+Help	minecrafty	/^Help() {$/;"	f
+LaunchHelp	minecrafty	/^LaunchHelp() {$/;"	f
+LaunchOpts	minecrafty	/^LaunchOpts() {$/;"	f
+Launcher	minecrafty	/^Launcher() {$/;"	f
+ParseLatestBeta	minecrafty	/^ParseLatestBeta() {$/;"	f
+ParseLatestRB	minecrafty	/^ParseLatestRB() {$/;"	f
+ResetBright	minecrafty	/^ResetBright() {$/;"	f
+ResetGamma	minecrafty	/^ResetGamma() {$/;"	f
+ResetRefresh	minecrafty	/^ResetRefresh() {$/;"	f
+RunMC	minecrafty	/^RunMC() {$/;"	f
+ServerRun	minecrafty	/^ServerRun() {$/;"	f
+SetBright	minecrafty	/^SetBright() {$/;"	f
+SetDigiLauncher	minecrafty	/^SetDigiLauncher() {$/;"	f
+SetEnormousMemory	minecrafty	/^SetEnormousMemory() {$/;"	f
+SetGamma	minecrafty	/^SetGamma() {$/;"	f
+SetMagicLauncher	minecrafty	/^SetMagicLauncher() {$/;"	f
+SetMonitor	minecrafty	/^SetMonitor() {$/;"	f
+SetMoreMemory	minecrafty	/^SetMoreMemory() {$/;"	f
+SetMultiLauncher	minecrafty	/^SetMultiLauncher() {$/;"	f
+SetPADSP	minecrafty	/^SetPADSP() {$/;"	f
+SetPAPause	minecrafty	/^SetPAPause() {$/;"	f
+SetRefresh	minecrafty	/^SetRefresh() {$/;"	f
+SetSKMCLauncher	minecrafty	/^SetSKMCLauncher() {$/;"	f
+SetTinyMemory	minecrafty	/^SetTinyMemory() {$/;"	f
+ShowVersionString	minecrafty	/^ShowVersionString() {$/;"	f
+StuffFetchOpts	minecrafty	/^StuffFetchOpts() {$/;"	f
+StuffGetOpts	minecrafty	/^StuffGetOpts() {$/;"	f
+StuffLaunchOpts	minecrafty	/^StuffLaunchOpts() {$/;"	f
