@@ -66,6 +66,7 @@ CMDOPT=" "
 #CMDRUN="padsp java"
 CMDRUN="java"
 MCBase="${HOME}/.minecraft"
+CLBase="${HOME}/.craftland"
 
 # Mandatory to declare an associative array
 declare -A FUNCARRAY
@@ -102,6 +103,7 @@ FOA=(
 "1.2.4" VersionCheck "fetches specific final-release version"
 "13w02b" VersionCheck "fetches snapshot version"
 "launcher" Fetch "fetches the default launcher"
+"craft" Fetch "Craftlauncher for latest Aether prerelease"
 "digiex" Fetch "download DigiEX launcher"
 "magic" Fetch "download MagicLauncher"
 "multi" Fetch "download MultiMC"
@@ -118,10 +120,14 @@ FONA=(
 LOA=(
 "help" LaunchHelp "provides this help screen specifically for launcher"
 "launcher" DefaultSettings "fetches the default launcher"
-"digiex" SetDigiLauncher "download DigiEX launcher"
-"magic" SetMagicLauncher "download MagicLauncher"
-"multi" SetMultiMC "download MultiMC"
-"skmc" SetSKMCLauncher "download development version of SKMCLauncher.jar"
+"digiex" SetDigiLauncher "execute DigiEX launcher"
+"magic" SetMagicLauncher "execute MagicLauncher"
+"multi" SetMultiMC "execute MultiMC"
+"skmc" SetSKMCLauncher "execute development version of SKMCLauncher.jar"
+)
+
+LONA=(
+"craft" SetCraftLauncher "runs the CraftLauncher, which is a frontend downloader"
 )
 
 # This routine "stuffs" values into GETOPTS for later use by the getopts routine
@@ -316,6 +322,8 @@ Launcher() {
 		;;
 		skmc) SetSKMCLauncher
 		;;
+		craft) SetCraftLauncher
+		;;
 		default) DefaultSettings
 		;;
 		*) echo "We haven't got a launcher called $1 yet"
@@ -424,6 +432,16 @@ FetchMinecraft() {
 				echo "last build of MultiMC for Linux-x86 failed"
 			fi
 			;;
+		craft) # Patching in support for craftlauncher, the only one to need a different root.
+			if [[ ! -d ${CLBase} ]]; then
+				mkdir ${CLBASE}
+				# TODO: If this fails, we have bigger problems
+			fi
+			wget -O ${CLBase}/craftlandloader.jar "http://craftland.org/mod/craftlandloader.jar"
+			# TODO: how the heck do we execute this? we need loader.jar, not craftlandloader.jar
+			echo "Please execute 'java -jar '${CLBase}/craftlandloader.jar"
+			echo "This will prepare craftland for execution later, with ${ME} -l craft"
+			;;
 		bukkitrb) 
 			ParseLatestRB
 			wget -O ${MCBase}/server/craftbukkit-${BUKKITVER}.jar http://dl.bukkit.org/latest-rb/craftbukkit.jar
@@ -520,6 +538,13 @@ SetMultiLauncher() {
 	CMD="${CMDRUN} ${CMDOPT} ${CMDARG}"
 }
 
+# !! This executes the craftland loader, which requires an INSTALLED craftland
+SetCraftLauncher() {
+	CMDRUN="padsp java"
+	CMDARG="-Xincgc -jar ${CLBase}/loader.jar"
+	CMD="${CMDRUN} ${CMDOPT} ${CMDARG}"
+}
+
 SetDigiLauncher() {
 # runs mclauncher
 # TODO: fix this so it's not padsp-specific
@@ -535,6 +560,7 @@ SetSKMCLauncher() {
 	CMDRUN="padsp java -Xincgc"
 	CMDARG="-jar ${MCBase}/bin/SKMCLauncher.jar"
 #	CMDARG="-jar ${MCBase}/bin/SKMCLauncher-3.1.7-SNAPSHOT.jar"
+	echo "${ME}: ${MEM} (from -T/-B/-E) is being ignored. skmclauncher sets memory for minecraft from its own settings"
 	MEM=" "
 	CMD="${CMDRUN} ${CMDOPT} ${MEM} ${CMDARG}"
 }
