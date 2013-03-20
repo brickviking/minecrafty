@@ -381,7 +381,7 @@ FetchMinecraft() {
 	# Not yet, as I don't know how to match it up against certain patterns.
 	# somepattern is 1[12]w[12345][0-9][a-f], somepattern2 is [12].[0-9].[0-9]
 	case $DROPOFF in 
-		1[1234]w[012345][0-9][a-f]) # snapshot version, should be good for snapshots up to the end of 2014
+		1[1234]w[012345][0-9][a-f_]) # snapshot version, should be good for snapshots up to the end of 2014
 			if [[ ! -f ${SINGLE}/snapshot_${DROPOFF}.jar ]]; then # only fetch if we haven't got it already
 				wget -O ${SINGLE}/snapshot_$DROPOFF.jar http://assets.minecraft.net/${DROPOFF//\./_}/minecraft.jar
 				retval=$?
