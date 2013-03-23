@@ -98,8 +98,7 @@ GONA=(
 "o" SetSKMCLauncher "starts the SKMClauncher program (must be in ${MCBase}/bin)"
 )
 
-# Entries for the -f (fetch) switch, this array is currently unused
-# there's also no way to give an example version 12w45 or 1.4.5
+# Entries for the -f (fetch) switch
 FOA=(
 "help" FetchHelp "provides this help screen specifically for version and launcher downloading"
 "1.2.4" VersionCheck "fetches specific final-release version"
@@ -113,13 +112,13 @@ FOA=(
 "bukkitrb" Fetch "download latest recommended bukkit build"
 )
 
-# Unused entries
+# Unused -f entries
 FONA=(
 "bukkitdevel" Fetch "download absolutely latest bukkit"
 "ftb" Fetch "download the FTB launcher"
 )
 
-# Entries for the -l (launcher) switch, this array is currently unused (replace download with execute)
+# Entries for the -l (launcher) switch
 LOA=(
 "help" LaunchHelp "provides this help screen specifically for launcher"
 "launcher" DefaultSettings "fetches the default launcher"
@@ -129,6 +128,7 @@ LOA=(
 "skmc" SetSKMCLauncher "execute development version of SKMCLauncher.jar"
 )
 
+# Unused -l entries
 LONA=(
 "craft" SetCraftLauncher "runs the CraftLauncher, which is a frontend downloader"
 "ftb" Fetch "runs the FTB launcher"
