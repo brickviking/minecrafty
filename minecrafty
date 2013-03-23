@@ -51,9 +51,10 @@
 # 0.31: padded out support for change to -l
 # 0.32: added bukkit to the list of available downloads
 # 0.33: added a switch to suspend pulseaudio
+# 0.34: Added _ to the patterns to grep for on -f
 
 VERSION=0
-MINOR=33
+MINOR=34
 PATCH=
 ME=$(basename $0)
 # Default gamma brightness of game
