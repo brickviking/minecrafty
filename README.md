@@ -30,10 +30,13 @@ Who this is for:
   minecraft quits.
 * People who want a single file to start whatever variant of minecraft they have,
   whether client or server.
+* People who are reasonably comfortable with using a commandline. This program
+  works well enough from .desktop files, but then you don't see any text information.
 
 Who this is NOT for:
 * People with no computer experience, who just want to run minecraft without
-  any changes, additions or hassles.
+  any changes, additions or hassles. If the base jar does what you want, then
+  this script is not for you.
 * People trying to run minecraft without having paid for it. This script
   will not help you. Minecraft is not overly expensive in comparison to some
   other games, and is most definitely worth it.
