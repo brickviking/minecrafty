@@ -54,9 +54,10 @@
 # 0.34: Added _ to the patterns to grep for on -f
 # 0.35: Reworked the Helps for -l and -f to cough up parameters on one line
 # 0.36: Add FTB to list of -l and -f
+# 0.37: Slotted in MVC, put ftb into FOA and LOA so help works.
 
 VERSION=0
-MINOR=36
+MINOR=37
 PATCH=
 ME=$(basename $0)
 # Default gamma brightness of game
@@ -95,9 +96,6 @@ GOA=(
 
 # Entries that aren't used at the moment, they're obsolete, I think.
 GONA=(
-"a" SetMagicLauncher "starts Magic Launcher program (must be in ${MCBase}/bin"
-"l" SetDigiLauncher "starts the digiex mclauncher program (must be in ${MCBase}/bin)"
-"o" SetSKMCLauncher "starts the SKMClauncher program (must be in ${MCBase}/bin)"
 )
 
 # Entries for the -f (fetch) switch
@@ -108,16 +106,17 @@ FOA=(
 "launcher" Fetch "fetches the default launcher"
 "craft" Fetch "Craftlauncher for latest Aether prerelease"
 "digiex" Fetch "download DigiEX launcher"
+"ftb" Fetch "download the FTB launcher"
 "magic" Fetch "download MagicLauncher"
 "multi" Fetch "download MultiMC"
 "skmc" Fetch "download development version of SKMCLauncher.jar"
+"mvc" Fetch "download the Minecraft Version Changer from TunkDesign"
 "bukkitrb" Fetch "download latest recommended bukkit build"
 )
 
 # Unused -f entries
 FONA=(
 "bukkitdevel" Fetch "download absolutely latest bukkit"
-"ftb" Fetch "download the FTB launcher"
 )
 
 # Entries for the -l (launcher) switch
@@ -129,6 +128,7 @@ LOA=(
 "multi" SetMultiMC "execute MultiMC"
 "skmc" SetSKMCLauncher "execute development version of SKMCLauncher.jar"
 "ftb" SetFTBLauncher "runs the FTB launcher"
+"mvc" SetMVCLauncher "runs the Minecraft Version Changer (MVC.jar)"
 )
 
 # Unused -l entries
@@ -183,7 +183,7 @@ LaunchHelp() {
     for (( i=3, p=1; p<${#LAUNCHOPTARRAY[@]}; i+=3, p++ )); do
         LOTA+="|${LAUNCHOPTARRAY[p]}"
     done
-    echo "$ME: -l [${LOTA}]"
+    echo "$ME -l [${LOTA}]"
     for (( i=0, p=0; p<${#LAUNCHOPTARRAY[@]}; i+=3, p++ )); do
         echo "-l ${LAUNCHOPTARRAY[p]}    ${LOA[i+2]}"
     done
@@ -194,7 +194,7 @@ FetchHelp() {
     for (( i=3, p=1; p<${#FETCHOPTARRAY[@]}; i+=3, p++ )); do
         FOTA+="|${FETCHOPTARRAY[p]}"
     done
-    echo "$ME: -f [${FOTA}]"
+    echo "$ME -f [${FOTA}]"
     for (( i=0, p=0; p<${#FETCHOPTARRAY[@]}; i+=3, p++ )); do
         echo "-f ${FETCHOPTARRAY[p]}    ${FOA[i+2]}"
     done
@@ -341,6 +341,8 @@ Launcher() {
         ;;
         ftb) SetFTBLauncher
         ;;
+        mvc) SetMVCLauncher
+        ;;
         default) DefaultSettings
         ;;
         *) echo "We haven't got a launcher called $1 yet"
@@ -466,6 +468,9 @@ FetchMinecraft() {
             fi
             # TODO: correct this for each version, scrape webpage?
             wget -O ${FTBBase}/FTB_Loader.jar "http://www.creeperrepo.net/direct/FTB2/697ef1c4d2cb0eddfbf53c3eceba4889/launcher%5EFTB_Launcher.jar"
+            ;;
+        mvc) 
+            wget -O ${MCBase}/bin/MVC.jar "http://mvc.tunkdesign.com/cgi-bin/load.cgi?dljar/MVC.jar"
             ;;
         bukkitrb) 
             ParseLatestRB
