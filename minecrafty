@@ -53,9 +53,10 @@
 # 0.33: added a switch to suspend pulseaudio
 # 0.34: Added _ to the patterns to grep for on -f
 # 0.35: Reworked the Helps for -l and -f to cough up parameters on one line
+# 0.36: Add FTB to list of -l and -f
 
 VERSION=0
-MINOR=35
+MINOR=36
 PATCH=
 ME=$(basename $0)
 # Default gamma brightness of game
@@ -69,6 +70,7 @@ CMDOPT=" "
 CMDRUN="java"
 MCBase="${HOME}/.minecraft"
 CLBase="${HOME}/.craftland"
+FTBBase="${HOME}/FTB.minecraft"
 
 # Mandatory to declare an associative array
 declare -A FUNCARRAY
@@ -91,7 +93,7 @@ GOA=(
 "v" ShowVersionString "show version string"
 )
 
-# Entries that aren't used at the moment
+# Entries that aren't used at the moment, they're obsolete, I think.
 GONA=(
 "a" SetMagicLauncher "starts Magic Launcher program (must be in ${MCBase}/bin"
 "l" SetDigiLauncher "starts the digiex mclauncher program (must be in ${MCBase}/bin)"
@@ -126,130 +128,130 @@ LOA=(
 "magic" SetMagicLauncher "execute MagicLauncher"
 "multi" SetMultiMC "execute MultiMC"
 "skmc" SetSKMCLauncher "execute development version of SKMCLauncher.jar"
+"ftb" SetFTBLauncher "runs the FTB launcher"
 )
 
 # Unused -l entries
 LONA=(
 "craft" SetCraftLauncher "runs the CraftLauncher, which is a frontend downloader"
-"ftb" Fetch "runs the FTB launcher"
 )
 
 # This routine "stuffs" values into GETOPTS for later use by the getopts routine
 StuffGetOpts() {
 # Apparently bash now supports ( [string]="value" ) arrays.
-	for (( i=0, p=0; i< ${#GOA[@]}; i+=3, p++ )); do
-		GETOPTARRAY+=( "${GOA[i]}" )
-		GETOPTS="${GETOPTS}${GOA[i]}"
-		FUNCARRAY+=( ["${GETOPTARRAY[p]}"]="${GOA[i+1]}" )
-		HELPOPTS+=( "${GOA[i+2]}" )
-	done
+    for (( i=0, p=0; i< ${#GOA[@]}; i+=3, p++ )); do
+        GETOPTARRAY+=( "${GOA[i]}" )
+        GETOPTS="${GETOPTS}${GOA[i]}"
+        FUNCARRAY+=( ["${GETOPTARRAY[p]}"]="${GOA[i+1]}" )
+        HELPOPTS+=( "${GOA[i+2]}" )
+    done
 
 }
 
 StuffLaunchOpts() {
 # Apparently bash now supports ( [string]="value" ) arrays.
-	for (( i=0, p=0; i< ${#LOA[@]}; i+=3, p++ )); do
-		LAUNCHOPTARRAY+=( "${LOA[i]}" )
-		LAUNCHOPTS="${LAUNCHOPTS}${LOA[i]}"
-		FUNCARRAY+=( ["${LAUNCHOPTARRAY[p]}"]="${LOA[i+1]}" )
-		LAUNCHHELPOPTS+=( "${LOA[i+2]}" )
-	done
+    for (( i=0, p=0; i< ${#LOA[@]}; i+=3, p++ )); do
+        LAUNCHOPTARRAY+=( "${LOA[i]}" )
+        LAUNCHOPTS="${LAUNCHOPTS}${LOA[i]}"
+        FUNCARRAY+=( ["${LAUNCHOPTARRAY[p]}"]="${LOA[i+1]}" )
+        LAUNCHHELPOPTS+=( "${LOA[i+2]}" )
+    done
 
 }
 
 StuffFetchOpts() {
 # Apparently bash now supports ( [string]="value" ) arrays.
-	for (( i=0, p=0; i< ${#FOA[@]}; i+=3, p++ )); do
-		FETCHOPTARRAY+=( "${FOA[i]}" )
-		FETCHOPTS="${FETCHOPTS}${FOA[i]}"
-		FUNCARRAY+=( ["${FETCHOPTARRAY[p]}"]="${FOA[i+1]}" )
-		FETCHHELPOPTS+=( "${FOA[i+2]}" )
-	done
+    for (( i=0, p=0; i< ${#FOA[@]}; i+=3, p++ )); do
+        FETCHOPTARRAY+=( "${FOA[i]}" )
+        FETCHOPTS="${FETCHOPTS}${FOA[i]}"
+        FUNCARRAY+=( ["${FETCHOPTARRAY[p]}"]="${FOA[i+1]}" )
+        FETCHHELPOPTS+=( "${FOA[i+2]}" )
+    done
 
 }
 
 Help() {
-	echo "$ME: Help screen"
-	echo "$ME -${GETOPTS}"
-	for (( i=0, p=0; p<${#GETOPTARRAY[@]}; i+=3, p++ )); do
-		echo "-${GETOPTARRAY[p]}    ${GOA[i+2]}"
-	done
+    echo "$ME: Help screen"
+    echo "$ME -${GETOPTS}"
+    for (( i=0, p=0; p<${#GETOPTARRAY[@]}; i+=3, p++ )); do
+        echo "-${GETOPTARRAY[p]}    ${GOA[i+2]}"
+    done
 }
 
 LaunchHelp() {
     LOTA="${LAUNCHOPTARRAY[0]}"
-	for (( i=3, p=1; p<${#LAUNCHOPTARRAY[@]}; i+=3, p++ )); do
-		LOTA+="|${LAUNCHOPTARRAY[p]}"
-	done
-	echo "$ME: -l [${LOTA}]"
-	for (( i=0, p=0; p<${#LAUNCHOPTARRAY[@]}; i+=3, p++ )); do
-		echo "-l ${LAUNCHOPTARRAY[p]}    ${LOA[i+2]}"
-	done
+    for (( i=3, p=1; p<${#LAUNCHOPTARRAY[@]}; i+=3, p++ )); do
+        LOTA+="|${LAUNCHOPTARRAY[p]}"
+    done
+    echo "$ME: -l [${LOTA}]"
+    for (( i=0, p=0; p<${#LAUNCHOPTARRAY[@]}; i+=3, p++ )); do
+        echo "-l ${LAUNCHOPTARRAY[p]}    ${LOA[i+2]}"
+    done
 }
 
 FetchHelp() {
     FOTA="${FETCHOPTARRAY[0]}"
-	for (( i=3, p=1; p<${#FETCHOPTARRAY[@]}; i+=3, p++ )); do
-		FOTA+="|${FETCHOPTARRAY[p]}"
-	done
-	echo "$ME: -f [${FOTA}]"
-	for (( i=0, p=0; p<${#FETCHOPTARRAY[@]}; i+=3, p++ )); do
-		echo "-f ${FETCHOPTARRAY[p]}    ${FOA[i+2]}"
-	done
+    for (( i=3, p=1; p<${#FETCHOPTARRAY[@]}; i+=3, p++ )); do
+        FOTA+="|${FETCHOPTARRAY[p]}"
+    done
+    echo "$ME: -f [${FOTA}]"
+    for (( i=0, p=0; p<${#FETCHOPTARRAY[@]}; i+=3, p++ )); do
+        echo "-f ${FETCHOPTARRAY[p]}    ${FOA[i+2]}"
+    done
 }
 
 # Hopefully sets brightness, separate from the gamma
 BrightInit() {
-	if [[ -z $MON ]]; then MON=0; fi # set a default if one hasn't been set already
-	if [[ ${1} == ${1//[^[:digit:]\.]/} ]]; then
-		if [[ ! $BRIGHT ]]; then # Only set if it hasn't already been
-			BRIGHT=${1:-${BRIGHTDEF}}  # This looks good for my screen, might not be useful for anyone else
-		else
-			echo "Brightness has been set to $BRIGHT already, ignoring $1"
-		fi
-	else
+    if [[ -z $MON ]]; then MON=0; fi # set a default if one hasn't been set already
+    if [[ ${1} == ${1//[^[:digit:]\.]/} ]]; then
+        if [[ ! $BRIGHT ]]; then # Only set if it hasn't already been
+            BRIGHT=${1:-${BRIGHTDEF}}  # This looks good for my screen, might not be useful for anyone else
+        else
+            echo "Brightness has been set to $BRIGHT already, ignoring $1"
+        fi
+    else
 # Could get tangled up with next -belts: parameter if g is empty
-	    echo "I can't set brightness to ${1}! Try using a number such as 0.7, .7 or 1"
-	fi
+        echo "I can't set brightness to ${1}! Try using a number such as 0.7, .7 or 1"
+    fi
 }
 
 FetchBright() {
 # TODO: I should put xrandr output into a var, as it's used multiple places
 # This routine fetches available outputs that are plugged in
-	BARRAY=( $(xrandr --verbose | awk 'NR == 1 { next }; match($0, /^[[:alnum:]\-]+/) { output = substr($0,RSTART, RLENGTH) }; /Brightness:/ { print output, $2 }') )
+    BARRAY=( $(xrandr --verbose | awk 'NR == 1 { next }; match($0, /^[[:alnum:]\-]+/) { output = substr($0,RSTART, RLENGTH) }; /Brightness:/ { print output, $2 }') )
 }
 
 # This'll brighten/darken things a bit - only thing that needs changing will be the output monitor
 SetBright() {
-	xrandr --output ${BARRAY[${MON}]} --brightness "${BRIGHT}"
+    xrandr --output ${BARRAY[${MON}]} --brightness "${BRIGHT}"
 }
 
 ResetBright() {
 # TODO: Remove host dependency, pretty hard to do without having X involved anyhow.
 # Now we put the brightness back to normal, on the first screen
-	BRIGHT=${BARRAY[$MON+1]}
-#	xrandr --output ${BARRAY[$MON]} --brightness ${BARRAY[$MON+1]}
-	SetBright # Might as well reuse the same function.
+    BRIGHT=${BARRAY[$MON+1]}
+#    xrandr --output ${BARRAY[$MON]} --brightness ${BARRAY[$MON+1]}
+    SetBright # Might as well reuse the same function.
 }
 
 GammaInit() {
-	if [[ -z $MON ]]; then MON=0; fi # set a default if one hasn't been set already
-	if [[ ${1} == ${1//[^[:digit:]\.]/} ]]; then
-		if [[ ! $GAMMA ]]; then # Only set if it hasn't already been
-			GAMMA=${1:-${GAMMADEF}}  # This looks good for my screen, might not be useful for anyone else
-		else
-			echo "Gamma has been set to $GAMMA already, ignoring $1"
-		fi
-	else
+    if [[ -z $MON ]]; then MON=0; fi # set a default if one hasn't been set already
+    if [[ ${1} == ${1//[^[:digit:]\.]/} ]]; then
+        if [[ ! $GAMMA ]]; then # Only set if it hasn't already been
+            GAMMA=${1:-${GAMMADEF}}  # This looks good for my screen, might not be useful for anyone else
+        else
+            echo "Gamma has been set to $GAMMA already, ignoring $1"
+        fi
+    else
 # Could get tangled up with next -belts: parameter if g is empty
-	    echo "I can't set your gamma to ${1}! Try using a number such as 0.7, .7 or 1"
-	fi
+        echo "I can't set your gamma to ${1}! Try using a number such as 0.7, .7 or 1"
+    fi
 }
 
 FetchGamma() {
 # TODO: I should put xrandr output into a var, as it's used multiple places
 # This routine fetches available outputs that are plugged in
-	GARRAY=( $(xrandr --verbose | awk 'NR == 1 { next }; match($0, /^[[:alnum:]\-]+/) { output = substr($0,RSTART, RLENGTH) }; /Gamma:/ { print output, $2 }') )
+    GARRAY=( $(xrandr --verbose | awk 'NR == 1 { next }; match($0, /^[[:alnum:]\-]+/) { output = substr($0,RSTART, RLENGTH) }; /Gamma:/ { print output, $2 }') )
 }
 
 # This is meant to fetch the Refresh rates for each connected screen
@@ -257,17 +259,17 @@ FetchRefresh() {
 # No idea what to tack onto the end, except that I need to look for Connected,
 # then Current, and two lines after, the refresh rate that I need.
 # I have to create entries for (possibly multiple) screens
-	#
+    #
   RARRAY=( $(xrandr --verbose ) )
 }
 
 ResetGamma() {
 # TODO: Remove host dependency, pretty hard to do without having X involved anyhow.
 # Now we put the brightness back to normal, on the first screen
-	GAMMA=${GARRAY[$MON+1]}
+    GAMMA=${GARRAY[$MON+1]}
 echo "Inside ResetGamma, with ${GAMMA}"
-#	xrandr --output ${GARRAY[$MON]} --gamma ${GARRAY[$MON+1]}
-	SetGamma # Might as well reuse the same function.
+#    xrandr --output ${GARRAY[$MON]} --gamma ${GARRAY[$MON+1]}
+    SetGamma # Might as well reuse the same function.
 }
 
 ResetRefresh() {
@@ -279,380 +281,396 @@ ResetRefresh() {
 
 # This'll brighten/darken things a bit - only thing that needs changing will be the output monitor
 SetGamma() {
-	xrandr --output ${GARRAY[${MON}]} --gamma "${GAMMA}:${GAMMA}:${GAMMA}"
+    xrandr --output ${GARRAY[${MON}]} --gamma "${GAMMA}:${GAMMA}:${GAMMA}"
 }
 
 # Central one shot run engine.
 RunMC() {
 # TODO: merge these if they're both set.
-	pushd ${MCBase}
+    pushd ${MCBase}
 
-	if [[ ${GAMMA} ]]; then
-		FetchGamma
-		SetGamma $GAMMA
-	fi
-	if [[ ${BRIGHT} ]]; then
-		FetchBright
-		SetBright $BRIGHT
-	fi
+    if [[ ${GAMMA} ]]; then
+        FetchGamma
+        SetGamma $GAMMA
+    fi
+    if [[ ${BRIGHT} ]]; then
+        FetchBright
+        SetBright $BRIGHT
+    fi
 # Run the command we got earlier, finishing by peeling the return value
-	${CMD}
-	retval=$?
-	popd
+    ${CMD}
+    retval=$?
+    popd
 }
 
 ServerRun() {
 # TODO: add the new server location of .minecraft/server/whatever.jar
 # Wrap with DoesFileExist for ${OPTARG}, don't forget the empty case.
     if [[ ${1} == "default" ]]; then
-	    ServerName=minecraft_server.jar
-	else
-	    ServerName=${1}
-	fi
+        ServerName=minecraft_server.jar
+    else
+        ServerName=${1}
+    fi
 
     ServerPlace="${MCBase}/server"
-	echo "ServerName now set to ${ServerName}"
-	if [[ -f ${ServerPlace}/${ServerName} ]]; then
-		CMD="java -Xmx1024M -Xincgc -jar ${ServerPlace}/${ServerName}"
-	else
-		echo "We don't have the $1 server here, please download from www.minecraft.net"
-		retval=1 #bad doggie, bad, there's no point in continuing any further
-		echo "Instead, here's a default launcher"
-	fi
+    echo "ServerName now set to ${ServerName}"
+    if [[ -f ${ServerPlace}/${ServerName} ]]; then
+        CMD="java -Xmx1024M -Xincgc -jar ${ServerPlace}/${ServerName}"
+    else
+        echo "We don't have the $1 server here, please download from www.minecraft.net"
+        retval=1 #bad doggie, bad, there's no point in continuing any further
+        echo "Instead, here's a default launcher"
+    fi
 }
 
 # designed to assign CMD the correct launcher
 Launcher() {
     case $1 in 
-		help) LaunchHelp
-		unset CMD
-			;;
-		digiex) SetDigiLauncher
-		;;
-		magic) SetMagicLauncher
-		;;
-		multi) SetMultiLauncher
-		;;
-		skmc) SetSKMCLauncher
-		;;
-		craft) SetCraftLauncher
-		;;
-		default) DefaultSettings
-		;;
-		*) echo "We haven't got a launcher called $1 yet"
-		retval=1
-		;;
+        help) LaunchHelp
+        unset CMD
+            ;;
+        digiex) SetDigiLauncher
+        ;;
+        magic) SetMagicLauncher
+        ;;
+        multi) SetMultiLauncher
+        ;;
+        skmc) SetSKMCLauncher
+        ;;
+        craft) SetCraftLauncher
+        ;;
+        ftb) SetFTBLauncher
+        ;;
+        default) DefaultSettings
+        ;;
+        *) echo "We haven't got a launcher called $1 yet"
+        retval=1
+        ;;
 esac
 }
 
 # Hopefully, pull down the RSS feed and peel the top entry
 ParseLatestRB() {
-	wget -O ${MCBase}/server/text http://dl.bukkit.org/downloads/craftbukkit/feeds/latest-rb.rss
-	# grovel through the file looking for something, peel the numbers
-	BUKKITVER=$(grep -h -m1 "<item><title>Recommended Build for CraftBukkit: " ${MCBase}/server/text | cut -c522-531 )
+    wget -O ${MCBase}/server/text http://dl.bukkit.org/downloads/craftbukkit/feeds/latest-rb.rss
+    # grovel through the file looking for something, peel the numbers
+    BUKKITVER=$(grep -h -m1 "<item><title>Recommended Build for CraftBukkit: " ${MCBase}/server/text | cut -c522-531 )
 }
 
 ParseLatestBeta() {
-	wget -O ${MCBase}/server/text http://dl.bukkit.org/downloads/craftbukkit/feeds/latest-rb.rss
-	# grovel through the file looking for something, peel the numbers
-	beefjerky=$(grep -h -m1 ${MCBase}/server/text "<item><title>Recommended Build for CraftBukkit: ")
+    wget -O ${MCBase}/server/text http://dl.bukkit.org/downloads/craftbukkit/feeds/latest-rb.rss
+    # grovel through the file looking for something, peel the numbers
+    beefjerky=$(grep -h -m1 ${MCBase}/server/text "<item><title>Recommended Build for CraftBukkit: ")
 }
 
 FetchMinecraft() {
-	# Pulled this in from fetchminecraft.sh at version 0.1.9
-	# ver 0.0.0: initial cut
-	# 0.0.1: finally got the script fetching the client and server
-	#      : now I just need to toggle -c/-s for fetching just the client or server
-	# 0.0.2: checked if we succeeded in fetching the file
-	# 0.0.3: split off the two patterns, as they create two slightly different names
-	#      : i.e.  final_$VER or snapshot_$VER.  Also shifted the initial cd outside the case switch.
-	# 0.1.1: no idea why I upgraded to this number, but hey.
-	# 0.1.9: folded this directly into minecrafty, also added another two years of snapshots
+    # Pulled this in from fetchminecraft.sh at version 0.1.9
+    # ver 0.0.0: initial cut
+    # 0.0.1: finally got the script fetching the client and server
+    #      : now I just need to toggle -c/-s for fetching just the client or server
+    # 0.0.2: checked if we succeeded in fetching the file
+    # 0.0.3: split off the two patterns, as they create two slightly different names
+    #      : i.e.  final_$VER or snapshot_$VER.  Also shifted the initial cd outside the case switch.
+    # 0.1.1: no idea why I upgraded to this number, but hey.
+    # 0.1.9: folded this directly into minecrafty, also added another two years of snapshots
 
-	# $1 ought to be something like 12w32a or 1.3.2, as it'll get used to name save files.
-	unset CMD # we need to unset this, so that we don't accidentally start minecraft
+    # $1 ought to be something like 12w32a or 1.3.2, as it'll get used to name save files.
+    unset CMD # we need to unset this, so that we don't accidentally start minecraft
 
-	# ! BFW !  These directories had better exist, especially the second one.
-	SINGLE="${MCBase}/bin"
-	SERVER="${MCBase}/server/stash"
-	if [[ ! -d $SINGLE ]]; then
-		echo "Can't save, you don't seem to have a valid minecraft installation!"
-		# TODO: This needs fixing, so the bash script will create the directory for us.
-		exit 1
-	fi
-	if [[ ! -d $SERVER ]]; then
-		echo "Can't save, please type:  mkdir -p ${MCBase}/server/stash "
-		exit 1
-	fi
+    # ! BFW !  These directories had better exist, especially the second one.
+    SINGLE="${MCBase}/bin"
+    SERVER="${MCBase}/server/stash"
+    if [[ ! -d $SINGLE ]]; then
+        echo "Can't save, you don't seem to have a valid minecraft installation!"
+        # TODO: This needs fixing, so the bash script will create the directory for us.
+        exit 1
+    fi
+    if [[ ! -d $SERVER ]]; then
+        echo "Can't save, please type:  mkdir -p ${MCBase}/server/stash "
+        exit 1
+    fi
 
-	DROPOFF=$1
-	if [[ -z $DROPOFF ]]; then
-		echo "Can't save something I don't know the name of!"
-		exit 1
-	fi
-	# Okay, we have a $1, do we cardinalise it?
-	# Not yet, as I don't know how to match it up against certain patterns.
-	# somepattern is 1[12]w[12345][0-9][a-f], somepattern2 is [12].[0-9].[0-9]
-	case $DROPOFF in 
-		1[1234]w[012345][0-9][a-f_]) # snapshot version, should be good for snapshots up to the end of 2014
-			if [[ ! -f ${SINGLE}/snapshot_${DROPOFF}.jar ]]; then # only fetch if we haven't got it already
-				wget -O ${SINGLE}/snapshot_$DROPOFF.jar http://assets.minecraft.net/${DROPOFF//\./_}/minecraft.jar
-				retval=$?
-			fi
-			# We need an error check. If wget returns a 1, then we erase the file we just created.
-			if [[ $retval != 0 ]]; then
-				rm ${SINGLE}/snapshot_${DROPOFF}.jar
-				echo "Download failed, no such version or other error"
-				exit 1
-			fi
-			# otherwise, it succeeded, we might as well go get the server file
-			wget -O ${SERVER}/snapshot_server_$DROPOFF.jar http://assets.minecraft.net/${DROPOFF//\./_}/minecraft_server.jar
-		;;
-		[12].[0-9].[0-9]|[12].[0-9]) # final version, account for 1.4 and 1.4.3
-			if [[ ! -f ${SINGLE}/final_${DROPOFF}.jar ]]; then
-				wget -O ${SINGLE}/final_$DROPOFF.jar http://assets.minecraft.net/${DROPOFF//\./_}/minecraft.jar
-				retval=$?
-			fi
-			if [[ $retval != 0 ]]; then
-				rm ${SINGLE}/final_${DROPOFF}.jar
-				echo "Download failed, no such version or other error"
-				exit 1
-			fi
-			wget -O ${SERVER}/final_server_$DROPOFF.jar http://assets.minecraft.net/${DROPOFF//\./_}/minecraft_server.jar
-		;;
+    DROPOFF=$1
+    if [[ -z $DROPOFF ]]; then
+        echo "Can't save something I don't know the name of!"
+        exit 1
+    fi
+    # Okay, we have a $1, do we cardinalise it?
+    # Not yet, as I don't know how to match it up against certain patterns.
+    # somepattern is 1[12]w[12345][0-9][a-f], somepattern2 is [12].[0-9].[0-9]
+    case $DROPOFF in 
+        1[1234]w[012345][0-9][a-f_]) # snapshot version, should be good for snapshots up to the end of 2014
+            if [[ ! -f ${SINGLE}/snapshot_${DROPOFF}.jar ]]; then # only fetch if we haven't got it already
+                wget -O ${SINGLE}/snapshot_$DROPOFF.jar http://assets.minecraft.net/${DROPOFF//\./_}/minecraft.jar
+                retval=$?
+            fi
+            # We need an error check. If wget returns a 1, then we erase the file we just created.
+            if [[ $retval != 0 ]]; then
+                rm ${SINGLE}/snapshot_${DROPOFF}.jar
+                echo "Download failed, no such version or other error"
+                exit 1
+            fi
+            # otherwise, it succeeded, we might as well go get the server file
+            wget -O ${SERVER}/snapshot_server_$DROPOFF.jar http://assets.minecraft.net/${DROPOFF//\./_}/minecraft_server.jar
+        ;;
+        [12].[0-9].[0-9]|[12].[0-9]) # final version, account for 1.4 and 1.4.3
+            if [[ ! -f ${SINGLE}/final_${DROPOFF}.jar ]]; then
+                wget -O ${SINGLE}/final_$DROPOFF.jar http://assets.minecraft.net/${DROPOFF//\./_}/minecraft.jar
+                retval=$?
+            fi
+            if [[ $retval != 0 ]]; then
+                rm ${SINGLE}/final_${DROPOFF}.jar
+                echo "Download failed, no such version or other error"
+                exit 1
+            fi
+            wget -O ${SERVER}/final_server_$DROPOFF.jar http://assets.minecraft.net/${DROPOFF//\./_}/minecraft_server.jar
+        ;;
 # These options to -f download various launchers, make sure we don't overwrite.
-		launcher) # default launcher, should we call this default instead of launcher?
-			wget -O ${MCBase}/bin/minecraft-launcher.jar https://s3.amazonaws.com/MinecraftDownload/launcher/minecraft.jar
-			;;
-		skmc) # non-default launcher
-			wget -O ${MCBase}/bin/SKMCLauncher.jar http://build.sk89q.com/job/SKMCLauncher/lastSuccessfulBuild/artifact/target/SKMCLauncher.jar
-			;;
-		magic) # another non-default launcher
-			wget -O ${MCBase}/bin/MagicLauncher-1.0.0.jar http://magiclauncher.com/download.php?f=MagicLauncher_1.0.0.jar
-			;;
-		digiex) # non-default launcher
-			wget -O ${MCBase}/bin/mclauncher.jar http://minecraft.digiex.org/dlfiles/mclauncher.jar
-			;;
-		multi) #yet another non-default, we can't normally download this one directly, it's adfly'd
-		# seems we should only do the below if the build status is successful
-			wget -O jobstatus "http://ci.forkk.net/job/MultiMC4Linux/arch=x86/lastBuild/consoleText"
-			grep -qi SUCCESS jobstatus
-			retval=$?
-			rm jobstatus
-			if [[ retval -eq 0 ]]; then
-				wget -O ${MCBase}/bin/MultiMC "http://ci.forkk.net/job/MultiMC4Linux/arch=x86/lastBuild/artifact/MultiMC"
-			else
-				echo "last build of MultiMC for Linux-x86 failed"
-			fi
-			;;
-		craft) # Patching in support for craftlauncher, one of the few to need a different root.
-			if [[ ! -d ${CLBase} ]]; then
-				mkdir ${CLBASE}
-				# TODO: If this fails, we have bigger problems
-			fi
-			wget -O ${CLBase}/craftlandloader.jar "http://craftland.org/mod/craftlandloader.jar"
-			# TODO: how the heck do we execute this? we need loader.jar, not craftlandloader.jar
-			echo "Please execute 'java -jar '${CLBase}/craftlandloader.jar"
-			echo "This will prepare craftland for execution later, with ${ME} -l craft"
-			;;
-		bukkitrb) 
-			ParseLatestRB
-			wget -O ${MCBase}/server/craftbukkit-${BUKKITVER}.jar http://dl.bukkit.org/latest-rb/craftbukkit.jar
-			;;
-#		bukkitbeta) 
-#			ParseLatestBeta
-#			wget -O ${MCBase}/server/craftbukkit-beta.jar http://cbukk.it/craftbukkit-beta.jar
-#			;;
-		help) 
-			FetchHelp
-#			echo "${ME}:   help shows the launchers and versions this script downloads"
-#			echo "${ME}:   launcher  downloads the default minecraft launcher"
-#			echo "${ME}:   skmc  downloads the development version of sk89q's launcher"
-#			echo "${ME}:   magic  downloads MagicLauncher"
-#			echo "${ME}:   digiex  downloads the DigiEX launcher"
-#			echo "${ME}:   multi  downloads the MultiMC launcher"
-#			echo "${ME}:   12w45a  downloads a specific snapshot version."
-#			echo "${ME}:   1.4.5  downloads a release version such as 1.4.5"
-#			echo "${ME}: each of these are stored in ${MCBase}/bin"
-#			echo "${ME}: FTB (FeedTheBeast) is not supported in this version of ${ME}"
-			break # leaves the case switch
-			;;
-		*) echo "Can't recognise $1 (yet). minecrafty -f help for further details."
-			exit 1
-			;;
-	esac
+        launcher) # default launcher, should we call this default instead of launcher?
+            wget -O ${MCBase}/bin/minecraft-launcher.jar https://s3.amazonaws.com/MinecraftDownload/launcher/minecraft.jar
+            ;;
+        skmc) # non-default launcher
+            wget -O ${MCBase}/bin/SKMCLauncher.jar http://build.sk89q.com/job/SKMCLauncher/lastSuccessfulBuild/artifact/target/SKMCLauncher.jar
+            ;;
+        magic) # another non-default launcher
+            wget -O ${MCBase}/bin/MagicLauncher-1.0.0.jar http://magiclauncher.com/download.php?f=MagicLauncher_1.0.0.jar
+            ;;
+        digiex) # non-default launcher
+            wget -O ${MCBase}/bin/mclauncher.jar http://minecraft.digiex.org/dlfiles/mclauncher.jar
+            ;;
+        multi) #yet another non-default, we can't normally download this one directly, it's adfly'd
+        # seems we should only do the below if the build status is successful
+            wget -O jobstatus "http://ci.forkk.net/job/MultiMC4Linux/arch=x86/lastBuild/consoleText"
+            grep -qi SUCCESS jobstatus
+            retval=$?
+            rm jobstatus
+            if [[ retval -eq 0 ]]; then
+                wget -O ${MCBase}/bin/MultiMC "http://ci.forkk.net/job/MultiMC4Linux/arch=x86/lastBuild/artifact/MultiMC"
+            else
+                echo "last build of MultiMC for Linux-x86 failed"
+            fi
+            ;;
+        craft) # Patching in support for craftlauncher, one of the few to need a different root.
+            if [[ ! -d ${CLBase} ]]; then
+                mkdir ${CLBASE}
+                # TODO: If this fails, we have bigger problems
+            fi
+            wget -O ${CLBase}/craftlandloader.jar "http://craftland.org/mod/craftlandloader.jar"
+            # TODO: how the heck do we execute this? we need loader.jar, not craftlandloader.jar
+            echo "Please execute 'java -jar '${CLBase}/craftlandloader.jar"
+            echo "This will prepare craftland for execution later, with ${ME} -l craft"
+            ;;
+        ftb) # Patching in support for FTB_Launcher, one of the few to need a different root.
+            if [[ ! -d ${FTBBase} ]]; then
+                mkdir ${FTBBASE}
+                # TODO: If this fails, we have bigger problems
+            fi
+            # TODO: correct this for each version, scrape webpage?
+            wget -O ${FTBBase}/FTB_Loader.jar "http://www.creeperrepo.net/direct/FTB2/697ef1c4d2cb0eddfbf53c3eceba4889/launcher%5EFTB_Launcher.jar"
+            ;;
+        bukkitrb) 
+            ParseLatestRB
+            wget -O ${MCBase}/server/craftbukkit-${BUKKITVER}.jar http://dl.bukkit.org/latest-rb/craftbukkit.jar
+            ;;
+#        bukkitbeta) 
+#            ParseLatestBeta
+#            wget -O ${MCBase}/server/craftbukkit-beta.jar http://cbukk.it/craftbukkit-beta.jar
+#            ;;
+        help) 
+            FetchHelp
+            break # leaves the case switch
+            ;;
+        *) echo "Can't recognise $1 (yet). minecrafty -f help for further details."
+            exit 1
+            ;;
+    esac
 }
 
 DefaultSettings() {
-		CMDARG="-cp ${MCBase}/bin/minecraft-launcher.jar net.minecraft.LauncherFrame"
-		CMD="${CMDRUN} ${CMDOPT} ${MEM} ${CMDARG}"
-#	    FetchGamma
-#	    FetchBright
+        CMDARG="-cp ${MCBase}/bin/minecraft-launcher.jar net.minecraft.LauncherFrame"
+        CMD="${CMDRUN} ${CMDOPT} ${MEM} ${CMDARG}"
+#        FetchGamma
+#        FetchBright
 }
 
 SetPADSP() {
-	CMDRUN="padsp java"
-	CMD="${CMDRUN} ${CMDOPT} ${MEM} ${CMDARG}"
+    CMDRUN="padsp java"
+    CMD="${CMDRUN} ${CMDOPT} ${MEM} ${CMDARG}"
 }
 
 SetPAPause() {
-	CMDRUN="pasuspender -- java"
-	CMD="${CMDRUN} ${CMDOPT} ${MEM} ${CMDARG}"
+    CMDRUN="pasuspender -- java"
+    CMD="${CMDRUN} ${CMDOPT} ${MEM} ${CMDARG}"
 }
 
 # Only of any use for running the vanilla launcher
 SetEnormousMemory() {
-	MEM="-Xmx2048M -Xms1024M"
-	CMD="${CMDRUN} ${CMDOPT} ${MEM} ${CMDARG}"
+    MEM="-Xmx2048M -Xms1024M"
+    CMD="${CMDRUN} ${CMDOPT} ${MEM} ${CMDARG}"
 }
 
 # Only of any use for running the vanilla launcher
 SetMoreMemory() {
-	MEM="-Xmx1024M -Xms1024M"
-	CMD="${CMDRUN} ${CMDOPT} ${MEM} ${CMDARG}"
+    MEM="-Xmx1024M -Xms1024M"
+    CMD="${CMDRUN} ${CMDOPT} ${MEM} ${CMDARG}"
 }
 
 # Only of any use for running the vanilla launcher
 SetTinyMemory() {
-	MEM="-Xmx512M -Xms512M"
-	CMD="${CMDRUN} ${CMDOPT} ${MEM} ${CMDARG}"
+    MEM="-Xmx512M -Xms512M"
+    CMD="${CMDRUN} ${CMDOPT} ${MEM} ${CMDARG}"
 }
 
 SetMonitor() {
 # TODO: correctly apply this to -g
-	MON=$(( $1 * 2 )) #MonitorOffset
-#	if ${GAMMA} set, then rerun SetGamma
-	if [[ ${GAMMA} ]]; then 
-		SetGamma
-	fi
+    MON=$(( $1 * 2 )) #MonitorOffset
+#    if ${GAMMA} set, then rerun SetGamma
+    if [[ ${GAMMA} ]]; then 
+        SetGamma
+    fi
 }
 
 ShowVersionString() {
-	echo "$ME: ${VERSION}.${MINOR}.${PATCH}"
-	unset CMD
+    echo "$ME: ${VERSION}.${MINOR}.${PATCH}"
+    unset CMD
 # We need to exit
-	break 
+    break 
 }
 
 SetMagicLauncher() {
 # queue this up so it runs the MagicLauncher.
 # TODO: fix this so it's not padsp-specific
-	CMDRUN="padsp java -Xincgc"
-	CMDARG="-jar ${MCBase}/bin/MagicLauncher_1.0.0.jar"
-	CMD="${CMDRUN} ${CMDOPT} ${MEM} ${CMDARG}"
+    CMDRUN="padsp java -Xincgc"
+    CMDARG="-jar ${MCBase}/bin/MagicLauncher_1.0.0.jar"
+    CMD="${CMDRUN} ${CMDOPT} ${MEM} ${CMDARG}"
 }
 
 SetMultiLauncher() {
 # queue this up so it runs MultiMC.
 # TODO: fix this so it's not padsp-specific
-	CMDRUN="padsp ${MCBase}/bin/MultiMC"
-	CMDARG=""
-	CMD="${CMDRUN} ${CMDOPT} ${CMDARG}"
+    CMDRUN="padsp ${MCBase}/bin/MultiMC"
+    CMDARG=""
+    CMD="${CMDRUN} ${CMDOPT} ${CMDARG}"
 }
 
 # !! This executes the craftland loader, which requires an INSTALLED craftland
 SetCraftLauncher() {
-	CMDRUN="padsp java"
-	CMDARG="-Xincgc -jar ${CLBase}/loader.jar"
-	CMD="${CMDRUN} ${CMDOPT} ${CMDARG}"
+    CMDRUN="padsp java"
+    CMDARG="-Xincgc -jar ${CLBase}/loader.jar"
+    CMD="${CMDRUN} ${CMDOPT} ${CMDARG}"
 }
 
 SetDigiLauncher() {
 # runs mclauncher
 # TODO: fix this so it's not padsp-specific
-	CMDRUN="padsp java -Xincgc"
-	CMDARG="-jar ${MCBase}/bin/mclauncher.jar"
-	CMD="${CMDRUN} ${CMDOPT} ${MEM} ${CMDARG}"
+    CMDRUN="padsp java -Xincgc"
+    CMDARG="-jar ${MCBase}/bin/mclauncher.jar"
+    CMD="${CMDRUN} ${CMDOPT} ${MEM} ${CMDARG}"
 }
 
 SetSKMCLauncher() {
 # runs SKMClauncher
 # TODO: fix this so it's not padsp-specific
 # We don't need ${MEM} here, as SKMClauncher allows for setting specific memory when starting minecraft.
-	CMDRUN="padsp java -Xincgc"
-	CMDARG="-jar ${MCBase}/bin/SKMCLauncher.jar"
-#	CMDARG="-jar ${MCBase}/bin/SKMCLauncher-3.1.7-SNAPSHOT.jar"
-	echo "${ME}: ${MEM} (from -T/-B/-E) is being ignored. skmclauncher sets memory for minecraft from its own settings"
-	MEM=" "
-	CMD="${CMDRUN} ${CMDOPT} ${MEM} ${CMDARG}"
+    CMDRUN="padsp java -Xincgc"
+    CMDARG="-jar ${MCBase}/bin/SKMCLauncher.jar"
+#    CMDARG="-jar ${MCBase}/bin/SKMCLauncher-3.1.7-SNAPSHOT.jar"
+    echo "${ME}: ${MEM} (from -T/-B/-E) is being ignored. skmclauncher sets memory for minecraft from its own settings"
+    MEM=" "
+    CMD="${CMDRUN} ${CMDOPT} ${MEM} ${CMDARG}"
+}
+
+SetFTBLauncher() {
+    echo "${ME}: ${MEM} (from -T/-B/-E) is being ignored. the FTB launcher sets memory for minecraft from its own settings"
+    MEM=" "
+    CMDRUN="padsp java -Xincgc"
+    CMDARG="-jar ${FTBBase}/FTB_Launcher.jar"
+    CMD="${CMDRUN} ${CMDOPT} ${MEM} ${CMDARG}"
+}
+
+SetMVCLauncher() {
+# runs mvc, a minecraft version patcher
+# TODO: fix this so it's not padsp-specific
+    CMDRUN="padsp java -Xincgc"
+    CMDARG="-jar ${MCBase}/bin/MVC.jar"
+    CMD="${CMDRUN} ${CMDOPT} ${MEM} ${CMDARG}"
 }
 
 SetRefresh() {
-	# We need this so we can reset the gamma or refresh rate later on.
-	FetchGamma
-	Refresh=$1
+    # We need this so we can reset the gamma or refresh rate later on.
+    FetchGamma
+    Refresh=$1
 }
 
 # This fetches commandline args, parses them, then fires off relevant sections of FUNCARRAY[$ONECMD] with $OPTARG
 GetOpts() {
-	while getopts ${GETOPTS} ONECMD; do
-		case ${ONECMD} in "?"|"h")
+    while getopts ${GETOPTS} ONECMD; do
+        case ${ONECMD} in "?"|"h")
 # handle the getopts error here. This stops the script on an incorrect switch.
 # An alternative would have been to check ${OPTARG} against "-?"|"-h" in a case switch specifically for the help switch
-			Help
-			unset CMD
-			break
-			;;
-#		"f") FetchOpts
-#			;;
-#		"l") LaunchOpts
-#			;;
-		esac
+            Help
+            unset CMD
+            break
+            ;;
+#        "f") FetchOpts
+#            ;;
+#        "l") LaunchOpts
+#            ;;
+        esac
 
-#		fi
-		for (( t=0; t<"${#GETOPTARRAY[@]}"; t++ )); do
-			if [[ "${ONECMD}:" == "${GETOPTARRAY[$t]}" ]]; then 
-				ONECMD="${ONECMD}:"
-			fi
-		done
-		${FUNCARRAY[$ONECMD]} ${OPTARG}
-	done
+#        fi
+        for (( t=0; t<"${#GETOPTARRAY[@]}"; t++ )); do
+            if [[ "${ONECMD}:" == "${GETOPTARRAY[$t]}" ]]; then 
+                ONECMD="${ONECMD}:"
+            fi
+        done
+        ${FUNCARRAY[$ONECMD]} ${OPTARG}
+    done
 }
 
 FetchOpts() { # both FetchOpts and LaunchOpts can't use getopts, as getopts under bash doesn't use words as options
-	while getopts ${FETCHOPTS} ONECMD; do
-		# We need to change this if loop into a case switch to handle -h, -l and -f
-#		if [[ "${ONECMD}" == "?" ]]; then
-		case ${ONECMD} in "?"|"h")
+    while getopts ${FETCHOPTS} ONECMD; do
+        # We need to change this if loop into a case switch to handle -h, -l and -f
+#        if [[ "${ONECMD}" == "?" ]]; then
+        case ${ONECMD} in "?"|"h")
 # handle the getopts error here. This stops the script on an incorrect switch.
 # An alternative would have been to check ${OPTARG} against "-?"|"-h" in a case switch specifically for the help switch
-			FetchHelp
-			unset CMD
-			break
-			;;
-		esac
+            FetchHelp
+            unset CMD
+            break
+            ;;
+        esac
 
-#		fi
-		for (( t=0; t<"${#FETCHOPTARRAY[@]}"; t++ )); do
-			if [[ "${ONECMD}:" == "${FETCHOPTARRAY[$t]}" ]]; then 
-				ONECMD="${ONECMD}:"
-			fi
-		done
-		${FUNCARRAY[$ONECMD]} ${OPTARG}
-	done
+#        fi
+        for (( t=0; t<"${#FETCHOPTARRAY[@]}"; t++ )); do
+            if [[ "${ONECMD}:" == "${FETCHOPTARRAY[$t]}" ]]; then 
+                ONECMD="${ONECMD}:"
+            fi
+        done
+        ${FUNCARRAY[$ONECMD]} ${OPTARG}
+    done
 }
 
 LaunchOpts() {
-	while getopts ${LAUNCHOPTS} ONECMD; do
-		# We need to change this if loop into a case switch to handle -h, -l and -f
-#		if [[ "${ONECMD}" == "?" ]]; then
-		case ${ONECMD} in "?"|"h")
+    while getopts ${LAUNCHOPTS} ONECMD; do
+        # We need to change this if loop into a case switch to handle -h, -l and -f
+#        if [[ "${ONECMD}" == "?" ]]; then
+        case ${ONECMD} in "?"|"h")
 # handle the getopts error here. This stops the script on an incorrect switch.
 # An alternative would have been to check ${OPTARG} against "-?"|"-h" in a case switch specifically for the help switch
-			LaunchHelp
-			unset CMD
-			break
-			;;
-		esac
+            LaunchHelp
+            unset CMD
+            break
+            ;;
+        esac
 
-#		fi
-		for (( t=0; t<"${#GETOPTARRAY[@]}"; t++ )); do
-			if [[ "${ONECMD}:" == "${GETOPTARRAY[$t]}" ]]; then 
-				ONECMD="${ONECMD}:"
-			fi
-		done
-		${FUNCARRAY[$ONECMD]} ${OPTARG}
-	done
+#        fi
+        for (( t=0; t<"${#GETOPTARRAY[@]}"; t++ )); do
+            if [[ "${ONECMD}:" == "${GETOPTARRAY[$t]}" ]]; then 
+                ONECMD="${ONECMD}:"
+            fi
+        done
+        ${FUNCARRAY[$ONECMD]} ${OPTARG}
+    done
 }
 
 StuffGetOpts

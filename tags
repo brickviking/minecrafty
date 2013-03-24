@@ -26,9 +26,12 @@ ResetRefresh	minecrafty	/^ResetRefresh() {$/;"	f
 RunMC	minecrafty	/^RunMC() {$/;"	f
 ServerRun	minecrafty	/^ServerRun() {$/;"	f
 SetBright	minecrafty	/^SetBright() {$/;"	f
+SetCraftLauncher	minecrafty	/^SetCraftLauncher() {$/;"	f
 SetDigiLauncher	minecrafty	/^SetDigiLauncher() {$/;"	f
 SetEnormousMemory	minecrafty	/^SetEnormousMemory() {$/;"	f
+SetFTBLauncher	minecrafty	/^SetFTBLauncher() {$/;"	f
 SetGamma	minecrafty	/^SetGamma() {$/;"	f
+SetMVCLauncher	minecrafty	/^SetMVCLauncher() {$/;"	f
 SetMagicLauncher	minecrafty	/^SetMagicLauncher() {$/;"	f
 SetMonitor	minecrafty	/^SetMonitor() {$/;"	f
 SetMoreMemory	minecrafty	/^SetMoreMemory() {$/;"	f
