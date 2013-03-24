@@ -5,7 +5,15 @@ This is the one-stop script for starting Minecraft. This isn't a replacement for
 launchers, it's more a tool to help out with starting them up.
 
 Features:
-* Download commonly available launchers (skmclauncher, MultiMC, MagicLauncher, etc)
+* Download commonly available launchers
+  * Default launcher (minecraft.net)
+  * SKMCLauncher (sk89q.com)
+  * Digiex (somewhat obsolete and not kept up to date)
+  * MagicLauncher
+  * MultiMC
+  * FeedTheBeast
+  * Craftland
+  * Minecraft Version Changer (TunkDesign)
 * Download available versions of the minecraft client and server
 * Execute any installed minecraft launcher, even the default one
   * Allocate memory
