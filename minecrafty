@@ -123,6 +123,7 @@ FONA=(
 LOA=(
 "help" LaunchHelp "provides this help screen specifically for launcher"
 "launcher" DefaultSettings "fetches the default launcher"
+"craft" SetCraftLauncher "runs the CraftLauncher, which is a frontend downloader"
 "digiex" SetDigiLauncher "execute DigiEX launcher"
 "magic" SetMagicLauncher "execute MagicLauncher"
 "multi" SetMultiMC "execute MultiMC"
@@ -133,7 +134,6 @@ LOA=(
 
 # Unused -l entries
 LONA=(
-"craft" SetCraftLauncher "runs the CraftLauncher, which is a frontend downloader"
 )
 
 # This routine "stuffs" values into GETOPTS for later use by the getopts routine
