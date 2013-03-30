@@ -55,9 +55,10 @@
 # 0.35: Reworked the Helps for -l and -f to cough up parameters on one line
 # 0.36: Add FTB to list of -l and -f
 # 0.37: Slotted in MVC, put ftb into FOA and LOA so help works.
+# 0.38: Add in the Technic launcher to FetchMinecraft and Launch, also caught typos.
 
 VERSION=0
-MINOR=37
+MINOR=38
 PATCH=
 ME=$(basename $0)
 # Default gamma brightness of game
@@ -72,6 +73,7 @@ CMDRUN="java"
 MCBase="${HOME}/.minecraft"
 CLBase="${HOME}/.craftland"
 FTBBase="${HOME}/FTB.minecraft"
+TechBase="${HOME}/.technic"
 
 # Mandatory to declare an associative array
 declare -A FUNCARRAY
@@ -110,6 +112,7 @@ FOA=(
 "magic" Fetch "download MagicLauncher"
 "multi" Fetch "download MultiMC"
 "skmc" Fetch "download development version of SKMCLauncher.jar"
+"technic" Fetch "download beta Technic launcher"
 "mvc" Fetch "download the Minecraft Version Changer from TunkDesign"
 "bukkitrb" Fetch "download latest recommended bukkit build"
 )
@@ -129,6 +132,7 @@ LOA=(
 "multi" SetMultiMC "execute MultiMC"
 "skmc" SetSKMCLauncher "execute development version of SKMCLauncher.jar"
 "ftb" SetFTBLauncher "runs the FTB launcher"
+"technic" SetTechLauncher "download beta Technic launcher"
 "mvc" SetMVCLauncher "runs the Minecraft Version Changer (MVC.jar)"
 )
 
@@ -341,6 +345,8 @@ Launcher() {
         ;;
         ftb) SetFTBLauncher
         ;;
+        Technic) SetTechLauncher
+        ;;
         mvc) SetMVCLauncher
         ;;
         default) DefaultSettings
@@ -426,7 +432,9 @@ FetchMinecraft() {
             fi
             wget -O ${SERVER}/final_server_$DROPOFF.jar http://assets.minecraft.net/${DROPOFF//\./_}/minecraft_server.jar
         ;;
+##################		
 # These options to -f download various launchers, make sure we don't overwrite.
+##################		
         launcher) # default launcher, should we call this default instead of launcher?
             wget -O ${MCBase}/bin/minecraft-launcher.jar https://s3.amazonaws.com/MinecraftDownload/launcher/minecraft.jar
             ;;
@@ -463,11 +471,19 @@ FetchMinecraft() {
             ;;
         ftb) # Patching in support for FTB_Launcher, one of the few to need a different root.
             if [[ ! -d ${FTBBase} ]]; then
-                mkdir ${FTBBASE}
+                mkdir ${FTBBase}
                 # TODO: If this fails, we have bigger problems
             fi
             # TODO: correct this for each version, scrape webpage?
             wget -O ${FTBBase}/FTB_Loader.jar "http://www.creeperrepo.net/direct/FTB2/697ef1c4d2cb0eddfbf53c3eceba4889/launcher%5EFTB_Launcher.jar"
+            ;;
+        technic) # Patching in support for FTB_Launcher, one of the few to need a different root.
+            if [[ ! -d ${TechnicBase} ]]; then
+                mkdir ${TechnicBase}
+                # TODO: If this fails, we have bigger problems
+            fi
+            # TODO: correct this for each version, scrape webpage?
+            wget -O ${TechnicBase}/Technic_Loader.jar "http://mirror.technicpack.net/launcher/221/TechnicLauncher.jar"
             ;;
         mvc) 
             wget -O ${MCBase}/bin/MVC.jar "http://mvc.tunkdesign.com/cgi-bin/load.cgi?dljar/MVC.jar"
@@ -589,6 +605,14 @@ SetFTBLauncher() {
     MEM=" "
     CMDRUN="padsp java -Xincgc"
     CMDARG="-jar ${FTBBase}/FTB_Launcher.jar"
+    CMD="${CMDRUN} ${CMDOPT} ${MEM} ${CMDARG}"
+}
+
+SetTechLauncher() {
+    echo "${ME}: ${MEM} (from -T/-B/-E) is being ignored. the Technic launcher sets memory for minecraft from its own settings"
+    MEM=" "
+    CMDRUN="padsp java -Xincgc"
+    CMDARG="-jar ${TechBase}/TechnicLauncher.jar"
     CMD="${CMDRUN} ${CMDOPT} ${MEM} ${CMDARG}"
 }
 

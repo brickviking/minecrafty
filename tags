@@ -40,6 +40,7 @@ SetPADSP	minecrafty	/^SetPADSP() {$/;"	f
 SetPAPause	minecrafty	/^SetPAPause() {$/;"	f
 SetRefresh	minecrafty	/^SetRefresh() {$/;"	f
 SetSKMCLauncher	minecrafty	/^SetSKMCLauncher() {$/;"	f
+SetTechLauncher	minecrafty	/^SetTechLauncher() {$/;"	f
 SetTinyMemory	minecrafty	/^SetTinyMemory() {$/;"	f
 ShowVersionString	minecrafty	/^ShowVersionString() {$/;"	f
 StuffFetchOpts	minecrafty	/^StuffFetchOpts() {$/;"	f
