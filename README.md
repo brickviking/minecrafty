@@ -24,7 +24,7 @@ Features:
 
 Requirements:
 * A paid account for minecraft. Unpaid won't work, or at best you will have demo.
-* Any version of Linux (FreeBSD may work, but only if you have bash installed)
+* Any version of Linux with bash 4 (FreeBSD may work, but only if you have bash 4 installed)
 * xrandr (available in most Linuxes)
 * wget (to fetch files)
 * Java (either OpenJDK, Oracle JDK or equivalents)
