@@ -585,7 +585,7 @@ SetSKMCLauncher() {
     CMDRUN="padsp java -Xincgc"
     CMDARG="-jar ${MCBase}/bin/SKMCLauncher.jar"
 #    CMDARG="-jar ${MCBase}/bin/SKMCLauncher-3.1.7-SNAPSHOT.jar"
-    if [[ ${MEM} ]]; then
+    if [[ -n ${MEM} ]]; then
         echo "${ME}: ${MEM} (from -T/-B/-E) is being ignored. skmclauncher sets memory for minecraft from its own settings"
     fi
     MEM=" "
@@ -593,7 +593,7 @@ SetSKMCLauncher() {
 }
 
 SetFTBLauncher() {
-    if [[ ${MEM} ]]; then
+    if [[ -n ${MEM} ]]; then
         echo "${ME}: ${MEM} (from -T/-B/-E) is being ignored. skmclauncher sets memory for minecraft from its own settings"
     fi
     MEM=" "
@@ -603,7 +603,7 @@ SetFTBLauncher() {
 }
 
 SetTechLauncher() {
-    if [[ ${MEM} ]]; then
+    if [[ -n ${MEM} ]]; then
         echo "${ME}: ${MEM} (from -T/-B/-E) is being ignored. skmclauncher sets memory for minecraft from its own settings"
     fi
     MEM=" "
