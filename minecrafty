@@ -56,6 +56,7 @@
 # 0.36: Add FTB to list of -l and -f
 # 0.37: Slotted in MVC, put ftb into FOA and LOA so help works.
 # 0.38: Add in the Technic launcher to FetchMinecraft and Launch, also caught typos.
+#     : incidentally, are LaunchHelpOpts or FetchHelpOpts being used any more?
 
 VERSION=0
 MINOR=38
@@ -77,6 +78,7 @@ TechBase="${HOME}/.technic"
 
 # Mandatory to declare an associative array
 declare -A FUNCARRAY
+declare -A CMDARRAY
 
 # New array for filling GETOPTS
 GOA=(
@@ -329,6 +331,20 @@ ServerRun() {
 
 # designed to assign CMD the correct launcher
 Launcher() {
+    if [[ ${CMDARRAY[$1]+set} ]]; then
+        case $1 in *)
+    ${CMDARRAY[$1]}
+	;;
+esac
+else
+        echo "We haven't got a launcher called $1 yet"
+        retval=1
+fi
+
+}
+
+#Original variant
+OldLauncher() {
     case $1 in 
         help) LaunchHelp
         unset CMD
@@ -702,9 +718,19 @@ LaunchOpts() {
     done
 }
 
+# Creates the associative command array, using LOA[0] and LOA[1]
+StuffCommands() {
+for (( c=0; c<${#LOA[@]}; c+=3 )); do
+  CMDARRAY[${LOA[c]}]=${LOA[c+1]}
+done
+
+}
+
 StuffGetOpts
 StuffFetchOpts
 StuffLaunchOpts
+StuffCommands
+
 case $1 in "-?"|"-h") Help
 exit 0
 ;;
