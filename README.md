@@ -13,8 +13,9 @@ Features:
   * MultiMC
   * FeedTheBeast
   * Craftland
+  * Technic
   * Minecraft Version Changer (TunkDesign)
-* Download available versions of the minecraft client and server
+* Download available release and snapshot versions of the minecraft client and server
 * Execute any installed minecraft launcher, even the default one
   * Allocate memory
   * Change screen brightness/gamma
@@ -34,7 +35,7 @@ Who this is for:
 * People who use modified jars
 * People who use non-standard launchers
 * People who wish to tweak how minecraft starts up
-* Dual monitor setups where the second screen gets refresh rate reset every time
+* Dual monitor setups where the second screen gets its refresh rate reset every time
   minecraft quits.
 * People who want a single file to start whatever variant of minecraft they have,
   whether client or server.
