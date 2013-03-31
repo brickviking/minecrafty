@@ -60,7 +60,7 @@
 # 0.39: Rewrote Launcher()
 
 VERSION=0
-MINOR=38
+MINOR=39
 PATCH=
 ME=$(basename $0)
 # Default gamma brightness of game
@@ -585,25 +585,31 @@ SetSKMCLauncher() {
     CMDRUN="padsp java -Xincgc"
     CMDARG="-jar ${MCBase}/bin/SKMCLauncher.jar"
 #    CMDARG="-jar ${MCBase}/bin/SKMCLauncher-3.1.7-SNAPSHOT.jar"
-    echo "${ME}: ${MEM} (from -T/-B/-E) is being ignored. skmclauncher sets memory for minecraft from its own settings"
+    if [[ ${MEM} ]]; then
+        echo "${ME}: ${MEM} (from -T/-B/-E) is being ignored. skmclauncher sets memory for minecraft from its own settings"
+    fi
     MEM=" "
-    CMD="${CMDRUN} ${CMDOPT} ${MEM} ${CMDARG}"
+    CMD="${CMDRUN} ${CMDOPT} ${CMDARG}"
 }
 
 SetFTBLauncher() {
-    echo "${ME}: ${MEM} (from -T/-B/-E) is being ignored. the FTB launcher sets memory for minecraft from its own settings"
+    if [[ ${MEM} ]]; then
+        echo "${ME}: ${MEM} (from -T/-B/-E) is being ignored. skmclauncher sets memory for minecraft from its own settings"
+    fi
     MEM=" "
     CMDRUN="padsp java -Xincgc"
     CMDARG="-jar ${FTBBase}/FTB_Launcher.jar"
-    CMD="${CMDRUN} ${CMDOPT} ${MEM} ${CMDARG}"
+    CMD="${CMDRUN} ${CMDOPT} ${CMDARG}"
 }
 
 SetTechLauncher() {
-    echo "${ME}: ${MEM} (from -T/-B/-E) is being ignored. the Technic launcher sets memory for minecraft from its own settings"
+    if [[ ${MEM} ]]; then
+        echo "${ME}: ${MEM} (from -T/-B/-E) is being ignored. skmclauncher sets memory for minecraft from its own settings"
+    fi
     MEM=" "
     CMDRUN="padsp java -Xincgc"
     CMDARG="-jar ${TechBase}/TechnicLauncher.jar"
-    CMD="${CMDRUN} ${CMDOPT} ${MEM} ${CMDARG}"
+    CMD="${CMDRUN} ${CMDOPT} ${CMDARG}"
 }
 
 SetMVCLauncher() {
