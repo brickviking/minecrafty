@@ -57,6 +57,7 @@
 # 0.37: Slotted in MVC, put ftb into FOA and LOA so help works.
 # 0.38: Add in the Technic launcher to FetchMinecraft and Launch, also caught typos.
 #     : incidentally, are LaunchHelpOpts or FetchHelpOpts being used any more?
+# 0.39: Rewrote Launcher()
 
 VERSION=0
 MINOR=38
@@ -104,18 +105,18 @@ GONA=(
 
 # Entries for the -f (fetch) switch
 FOA=(
-"help" FetchHelp "provides this help screen specifically for version and launcher downloading"
-"1.2.4" VersionCheck "fetches specific final-release version"
-"13w02b" VersionCheck "fetches snapshot version"
-"launcher" Fetch "fetches the default launcher"
-"craft" Fetch "Craftlauncher for latest Aether prerelease"
+"help" FetchHelp "provide this help screen specifically for version and launcher downloading"
+"1.2.4" VersionCheck "download a specific final-release version"
+"13w02b" VersionCheck "download a specific snapshot version"
+"launcher" Fetch "download default launcher"
+"craft" Fetch "download Craftland installer for latest Aether prerelease"
 "digiex" Fetch "download DigiEX launcher"
-"ftb" Fetch "download the FTB launcher"
+"ftb" Fetch "download FTB launcher"
 "magic" Fetch "download MagicLauncher"
 "multi" Fetch "download MultiMC"
 "skmc" Fetch "download development version of SKMCLauncher.jar"
 "technic" Fetch "download beta Technic launcher"
-"mvc" Fetch "download the Minecraft Version Changer from TunkDesign"
+"mvc" Fetch "download Minecraft Version Changer from TunkDesign"
 "bukkitrb" Fetch "download latest recommended bukkit build"
 )
 
@@ -126,16 +127,16 @@ FONA=(
 
 # Entries for the -l (launcher) switch
 LOA=(
-"help" LaunchHelp "provides this help screen specifically for launcher"
-"default" DefaultSettings "executes the default launcher"
-"craft" SetCraftLauncher "runs the CraftLauncher"
-"digiex" SetDigiLauncher "execute DigiEX launcher"
-"magic" SetMagicLauncher "execute MagicLauncher"
-"multi" SetMultiMC "execute MultiMC"
-"skmc" SetSKMCLauncher "execute development version of SKMCLauncher.jar"
-"ftb" SetFTBLauncher "runs the FTB launcher"
-"technic" SetTechLauncher "download beta Technic launcher"
-"mvc" SetMVCLauncher "runs the Minecraft Version Changer (MVC.jar)"
+"help" LaunchHelp "provide this screen specifically for launcher (-l) help"
+"launcher" DefaultSettings "run default launcher"
+"craft" SetCraftLauncher "run CraftLand launcher"
+"digiex" SetDigiLauncher "run DigiEX launcher"
+"magic" SetMagicLauncher "run MagicLauncher"
+"multi" SetMultiMC "run MultiMC"
+"skmc" SetSKMCLauncher "run development version of SKMCLauncher.jar"
+"ftb" SetFTBLauncher "run FTB launcher"
+"technic" SetTechLauncher "run Technic launcher"
+"mvc" SetMVCLauncher "run Minecraft Version Changer (MVC.jar)"
 )
 
 # Unused -l entries
@@ -332,45 +333,18 @@ ServerRun() {
 # designed to assign CMD the correct launcher
 Launcher() {
     if [[ ${CMDARRAY[$1]+set} ]]; then
-        case $1 in *)
-    ${CMDARRAY[$1]}
-	;;
-esac
-else
+        case $1 in 
+        help) LaunchHelp
+            unset CMD
+            ;;
+        *)
+            ${CMDARRAY[$1]}
+            ;;
+        esac
+    else
         echo "We haven't got a launcher called $1 yet"
         retval=1
-fi
-
-}
-
-#Original variant
-OldLauncher() {
-    case $1 in 
-        help) LaunchHelp
-        unset CMD
-            ;;
-        digiex) SetDigiLauncher
-        ;;
-        magic) SetMagicLauncher
-        ;;
-        multi) SetMultiLauncher
-        ;;
-        skmc) SetSKMCLauncher
-        ;;
-        craft) SetCraftLauncher
-        ;;
-        ftb) SetFTBLauncher
-        ;;
-        Technic) SetTechLauncher
-        ;;
-        mvc) SetMVCLauncher
-        ;;
-        default) DefaultSettings
-        ;;
-        *) echo "We haven't got a launcher called $1 yet"
-        retval=1
-        ;;
-esac
+    fi
 }
 
 # Hopefully, pull down the RSS feed and peel the top entry
@@ -448,9 +422,9 @@ FetchMinecraft() {
             fi
             wget -O ${SERVER}/final_server_$DROPOFF.jar http://assets.minecraft.net/${DROPOFF//\./_}/minecraft_server.jar
         ;;
-##################		
+##################
 # These options to -f download various launchers, make sure we don't overwrite.
-##################		
+##################
         launcher) # default launcher, should we call this default instead of launcher?
             wget -O ${MCBase}/bin/minecraft-launcher.jar https://s3.amazonaws.com/MinecraftDownload/launcher/minecraft.jar
             ;;
@@ -753,3 +727,4 @@ if [[ ${CMD+defined} ]]; then
 fi
 exit $retval
 
+# vim:expandtab:ts=4
