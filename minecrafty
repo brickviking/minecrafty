@@ -125,8 +125,8 @@ FONA=(
 # Entries for the -l (launcher) switch
 LOA=(
 "help" LaunchHelp "provides this help screen specifically for launcher"
-"launcher" DefaultSettings "fetches the default launcher"
-"craft" SetCraftLauncher "runs the CraftLauncher, which is a frontend downloader"
+"default" DefaultSettings "executes the default launcher"
+"craft" SetCraftLauncher "runs the CraftLauncher"
 "digiex" SetDigiLauncher "execute DigiEX launcher"
 "magic" SetMagicLauncher "execute MagicLauncher"
 "multi" SetMultiMC "execute MultiMC"
