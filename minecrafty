@@ -58,24 +58,28 @@
 # 0.38: Add in the Technic launcher to FetchMinecraft and Launch, also caught typos.
 #     : incidentally, are LaunchHelpOpts or FetchHelpOpts being used any more?
 # 0.39: Rewrote Launcher()
+# 0.40: Added TerraFirmaCraft (temporary at this stage, it wants to be included in FTB)
 
 VERSION=0
-MINOR=39
+MINOR=40
 PATCH=
 ME=$(basename $0)
 # Default gamma brightness of game
 GAMMADEF=0.6
 # Default memory assign (whatever the java executable assigns)
-MEM=" "
+MEM=""
 # set this to blank too
 CMDOPT=" "
 # TODO: Fix the pulseaudio dependency
 #CMDRUN="padsp java"
 CMDRUN="java"
+# Mandatory
 MCBase="${HOME}/.minecraft"
+# Optional
 CLBase="${HOME}/.craftland"
 FTBBase="${HOME}/FTB.minecraft"
-TechBase="${HOME}/.technic"
+TechnicBase="${HOME}/.technic"
+TerraFirmaBase="${HOME}/.tfcraft"
 
 # Mandatory to declare an associative array
 declare -A FUNCARRAY
@@ -116,6 +120,7 @@ FOA=(
 "multi" Fetch "download MultiMC"
 "skmc" Fetch "download development version of SKMCLauncher.jar"
 "technic" Fetch "download beta Technic launcher"
+"terra" Fetch "download beta TerraFirmaCraft launcher (1.5.1 only)"
 "mvc" Fetch "download Minecraft Version Changer from TunkDesign"
 "bukkitrb" Fetch "download latest recommended bukkit build"
 )
@@ -136,6 +141,7 @@ LOA=(
 "skmc" SetSKMCLauncher "run development version of SKMCLauncher.jar"
 "ftb" SetFTBLauncher "run FTB launcher"
 "technic" SetTechLauncher "run Technic launcher"
+"terra" SetTerraLauncher "run beta TerraFirmaCraft launcher (1.5.1 only)"
 "mvc" SetMVCLauncher "run Minecraft Version Changer (MVC.jar)"
 )
 
@@ -475,6 +481,13 @@ FetchMinecraft() {
             # TODO: correct this for each version, scrape webpage?
             wget -O ${TechnicBase}/Technic_Loader.jar "http://mirror.technicpack.net/launcher/221/TechnicLauncher.jar"
             ;;
+        terra) # Patching in support for FTB_Launcher, one of the few to need a different root.
+            if [[ ! -d ${TerraFirmaBase} ]]; then
+                mkdir ${TerraFirmaBase}
+                # TODO: If this fails, we have bigger problems
+            fi
+            wget -O ${TerraFirmaBase}/TFCLauncher.jar "http://terrafirmacraft.com/files/TFCLauncher.jar"
+            ;;
         mvc) 
             wget -O ${MCBase}/bin/MVC.jar "http://mvc.tunkdesign.com/cgi-bin/load.cgi?dljar/MVC.jar"
             ;;
@@ -580,23 +593,21 @@ SetDigiLauncher() {
 
 SetSKMCLauncher() {
 # runs SKMClauncher
-# TODO: fix this so it's not padsp-specific
-# We don't need ${MEM} here, as SKMClauncher allows for setting specific memory when starting minecraft.
-    CMDRUN="padsp java -Xincgc"
-    CMDARG="-jar ${MCBase}/bin/SKMCLauncher.jar"
 #    CMDARG="-jar ${MCBase}/bin/SKMCLauncher-3.1.7-SNAPSHOT.jar"
     if [[ -n ${MEM} ]]; then
         echo "${ME}: ${MEM} (from -T/-B/-E) is being ignored. skmclauncher sets memory for minecraft from its own settings"
     fi
-    MEM=" "
+# TODO: fix this so it's not padsp-specific
+# We don't need ${MEM} here, as SKMClauncher allows for setting specific memory when starting minecraft.
+    CMDRUN="padsp java -Xincgc"
+    CMDARG="-jar ${MCBase}/bin/SKMCLauncher.jar"
     CMD="${CMDRUN} ${CMDOPT} ${CMDARG}"
 }
 
 SetFTBLauncher() {
     if [[ -n ${MEM} ]]; then
-        echo "${ME}: ${MEM} (from -T/-B/-E) is being ignored. skmclauncher sets memory for minecraft from its own settings"
+        echo "${ME}: ${MEM} (from -T/-B/-E) is being ignored. FTBLauncher sets memory for minecraft from its own settings"
     fi
-    MEM=" "
     CMDRUN="padsp java -Xincgc"
     CMDARG="-jar ${FTBBase}/FTB_Launcher.jar"
     CMD="${CMDRUN} ${CMDOPT} ${CMDARG}"
@@ -604,16 +615,21 @@ SetFTBLauncher() {
 
 SetTechLauncher() {
     if [[ -n ${MEM} ]]; then
-        echo "${ME}: ${MEM} (from -T/-B/-E) is being ignored. skmclauncher sets memory for minecraft from its own settings"
+        echo "${ME}: ${MEM} (from -T/-B/-E) is being ignored. TechnicLauncher sets memory for minecraft from its own settings"
     fi
-    MEM=" "
     CMDRUN="padsp java -Xincgc"
-    CMDARG="-jar ${TechBase}/TechnicLauncher.jar"
+    CMDARG="-jar ${TechnicBase}/TechnicLauncher.jar"
     CMD="${CMDRUN} ${CMDOPT} ${CMDARG}"
 }
 
-SetMVCLauncher() {
+SetTerraLauncher() {
+    CMDRUN="padsp java -Xincgc"
+    CMDARG="-jar ${TerraFirmaBase}/TFCLauncher.jar"
+    CMD="${CMDRUN} ${CMDOPT} ${MEM} ${CMDARG}"
+}
+
 # runs mvc, a minecraft version patcher
+SetMVCLauncher() {
 # TODO: fix this so it's not padsp-specific
     CMDRUN="padsp java -Xincgc"
     CMDARG="-jar ${MCBase}/bin/MVC.jar"

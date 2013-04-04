@@ -18,7 +18,6 @@ Help	minecrafty	/^Help() {$/;"	f
 LaunchHelp	minecrafty	/^LaunchHelp() {$/;"	f
 LaunchOpts	minecrafty	/^LaunchOpts() {$/;"	f
 Launcher	minecrafty	/^Launcher() {$/;"	f
-OldLauncher	minecrafty	/^OldLauncher() {$/;"	f
 ParseLatestBeta	minecrafty	/^ParseLatestBeta() {$/;"	f
 ParseLatestRB	minecrafty	/^ParseLatestRB() {$/;"	f
 ResetBright	minecrafty	/^ResetBright() {$/;"	f
@@ -42,6 +41,7 @@ SetPAPause	minecrafty	/^SetPAPause() {$/;"	f
 SetRefresh	minecrafty	/^SetRefresh() {$/;"	f
 SetSKMCLauncher	minecrafty	/^SetSKMCLauncher() {$/;"	f
 SetTechLauncher	minecrafty	/^SetTechLauncher() {$/;"	f
+SetTerraLauncher	minecrafty	/^SetTerraLauncher() {$/;"	f
 SetTinyMemory	minecrafty	/^SetTinyMemory() {$/;"	f
 ShowVersionString	minecrafty	/^ShowVersionString() {$/;"	f
 StuffCommands	minecrafty	/^StuffCommands() {$/;"	f
