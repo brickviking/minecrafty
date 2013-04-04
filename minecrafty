@@ -630,8 +630,7 @@ SetTerraLauncher() {
 
 # runs mvc, a minecraft version patcher
 SetMVCLauncher() {
-# TODO: fix this so it's not padsp-specific
-    CMDRUN="padsp java -Xincgc"
+    CMDRUN="java -Xincgc"
     CMDARG="-jar ${MCBase}/bin/MVC.jar"
     CMD="${CMDRUN} ${CMDOPT} ${MEM} ${CMDARG}"
 }
