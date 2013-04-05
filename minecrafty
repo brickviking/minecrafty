@@ -529,7 +529,7 @@ SetPAPause() {
 
 # Only of any use for running the vanilla launcher, no good for TerraFirma
 SetTinyMemory() {
-    MEM="-Xmx128M -Xms256M"
+    MEM="-Xmx256M -Xms128M"
     CMD="${CMDRUN} ${CMDOPT} ${MEM} ${CMDARG}"
 }
 
@@ -634,7 +634,7 @@ SetTechLauncher() {
 SetTerraLauncher() {
     # For some reason, this launcher needs more memory than just 256Mb
     # TODO: update this so it starts with  memory settings from -TSBE
-    MEM="-Xms512M -Xmx1024M"
+    MEM=${MEM:-"-Xms512M -Xmx1024M"}
     CMDRUN="padsp java -Xincgc"
     CMDARG="-jar ${TerraFirmaBase}/TFCLauncher.jar"
     CMD="${CMDRUN} ${CMDOPT} ${MEM} ${CMDARG}"
