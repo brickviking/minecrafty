@@ -88,9 +88,10 @@ declare -A CMDARRAY
 # New array for filling GETOPTS
 GOA=(
 "h" Help "provides this help screen (-? gets here as well)"
-"T" SetTinyMemory "assign minimal memory to the client"
-"B" SetMoreMemory "assign more memory to the client"
-"E" SetEnormousMemory "assign lots more memory to the client"
+"T" SetTinyMemory "assign minimal memory to the client (512 Mb)"
+"S" SetSmallMemory "assign normal memory to the client (512 Mb)"
+"B" SetMoreMemory "assign more memory to the client (1 Gb)"
+"E" SetEnormousMemory "assign lots more memory to the client, only on 64-bit systems (2 Gb)"
 "O" SetPADSP "create OSS-like pulseaudio device"
 "P" SetPAPause "suspends pulseaudio while minecraft runs"
 "b:" BrightInit "n.n: set the brightness. If unset, $BRIGHTDEF is used. 0.7 darker, 1.2 lighter"
@@ -526,21 +527,29 @@ SetPAPause() {
     CMD="${CMDRUN} ${CMDOPT} ${MEM} ${CMDARG}"
 }
 
-# Only of any use for running the vanilla launcher
+# Only of any use for running the vanilla launcher, no good for TerraFirma
+SetTinyMemory() {
+    MEM="-Xmx128M -Xms256M"
+    CMD="${CMDRUN} ${CMDOPT} ${MEM} ${CMDARG}"
+}
+
+# Only of any use for running the vanilla or TerraFirma launcher
+SetSmallMemory() {
+    MEM="-Xmx512M -Xms512M"
+    CMD="${CMDRUN} ${CMDOPT} ${MEM} ${CMDARG}"
+}
+
+# Only of any use for running the vanilla or TerraFirma launcher
+SetMoreMemory() {
+    MEM="-Xmx1024M -Xms512M"
+    CMD="${CMDRUN} ${CMDOPT} ${MEM} ${CMDARG}"
+}
+
+# Only of any use for running the vanilla or TerraFirma launcher
+# Also only any good on 64-bit systems.
+# TODO: how do we do that, again?
 SetEnormousMemory() {
     MEM="-Xmx2048M -Xms1024M"
-    CMD="${CMDRUN} ${CMDOPT} ${MEM} ${CMDARG}"
-}
-
-# Only of any use for running the vanilla launcher
-SetMoreMemory() {
-    MEM="-Xmx1024M -Xms1024M"
-    CMD="${CMDRUN} ${CMDOPT} ${MEM} ${CMDARG}"
-}
-
-# Only of any use for running the vanilla launcher
-SetTinyMemory() {
-    MEM="-Xmx512M -Xms512M"
     CMD="${CMDRUN} ${CMDOPT} ${MEM} ${CMDARG}"
 }
 
@@ -623,6 +632,9 @@ SetTechLauncher() {
 }
 
 SetTerraLauncher() {
+    # For some reason, this launcher needs more memory than just 256Mb
+    # TODO: update this so it starts with 
+    MEM="-Xms512M -Xmx1024M"
     CMDRUN="padsp java -Xincgc"
     CMDARG="-jar ${TerraFirmaBase}/TFCLauncher.jar"
     CMD="${CMDRUN} ${CMDOPT} ${MEM} ${CMDARG}"
