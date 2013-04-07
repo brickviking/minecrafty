@@ -59,9 +59,10 @@
 #     : incidentally, are LaunchHelpOpts or FetchHelpOpts being used any more?
 # 0.39: Rewrote Launcher()
 # 0.40: Added TerraFirmaCraft (temporary at this stage, it wants to be included in FTB)
+# 0.41: Small patch as Terrafirmacraft launcher is now supplied as a zip
 
 VERSION=0
-MINOR=40
+MINOR=41
 PATCH=
 ME=$(basename $0)
 # Default gamma brightness of game
@@ -487,7 +488,11 @@ FetchMinecraft() {
                 mkdir ${TerraFirmaBase}
                 # TODO: If this fails, we have bigger problems
             fi
-            wget -O ${TerraFirmaBase}/TFCLauncher.jar "http://terrafirmacraft.com/files/TFCLauncher.jar"
+            pushd ${TerraFirmaBase} # Don't forget to pop again
+            wget -O ${TerraFirmaBase}/TFCLauncher.zip "http://terrafirmacraft.com/files/TFCLauncher.zip"
+            # Now we need to unzip it, as it's not just a jar... now it comes with a Start.sh/bat
+            unzip TFCLauncher.zip
+            popd
             ;;
         mvc) 
             wget -O ${MCBase}/bin/MVC.jar "http://mvc.tunkdesign.com/cgi-bin/load.cgi?dljar/MVC.jar"
