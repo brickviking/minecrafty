@@ -1,0 +1,64 @@
+0.0: Initial three-liner, set gamma to 0.6, run minecraft, put gamma back.
+0.1: wrap things a bit
+0.2: add in switches -launcher, -server181
+0.3: Add functions for help, RunMe, change switches to short form -s/-l
+0.4: put in host detection, so CRT outputs get detected on a per-host basis.
+0.5: Add in -g (gamma) switch, the -d (default) switch, and do switch parsing. Some of this came from RfcShow.
+0.6: Add in function to find current gamma setting, needs work
+0.7: Got rid of GetGamma, as it ended up as a one-liner.
+0.8: Possible reinstatement as FetchGamma/GammaExit wrappers around $CMD
+0.9: Split off gamma setting into its own routine. Should we getopt this program?
+0.10: adding a -t (tiny) switch (takes up less memory) and an -e (enormous)
+switch. Also tweaked RunMe to RunMC
+0.11: reset gamma somewhat so it only fires up if we specify a gamma 
+0.12: Tidied up comments, commented out a host-specific section
+0.13: Initial try at hacking in server support, change the s parameter to accept a filename
+    : This would (of course) fail in the case of an empty -g AND -s (whether empty or not)
+    : or vice versa: empty -s with -g parameter.
+    : Other problems apply if I specify -s at all, I won't need -l or -g anyhow
+0.14: I need to add a correction for gamma at exit of mc.
+0.15: Added another launcher to the list of launchers I can execute (SKMCLauncher, by sk89q)
+    : added help line for SKMC, tweaked help to say where launchers needed to be)
+0.16: added -m option to select which monitor I want gamma raised on.
+    : Only problem with this, is it's often different from the monitor I need to correct refresh on.
+0.16a: added lines to Help describing -c
+0.16b: changed -c to -r (refreshrate)
+0.17: added an array to populate ${GETOPTS} with, so I can keep Help() and ParseOpts() in sync.
+    : ParseOpts isn't made yet.
+0.18: Complete rewrite of options parsing. Well on the way to being actually FINISHED!
+    : GammaExit renamed as ResetGamma, I should rename RefreshExit too.
+0.19: All done, I hope. One buglet found so far, order of options matters for -m and -g
+    : Now executing SetGamma from RunMC. Only the one bugette left, skmclauncher exits and relaunches,
+    : so the ResetGamma happens when it shouldn't happen until the script ends. Refresh rate's not getting reset.
+0.20: Fixed the order of -g/-m so it doesn't matter.
+    : realised that BOTH monitors are getting their refresh rate resynched to "Preferred"
+    : In addition, if I choose to reset monitors independently, I'm going to have an interesting problem separating
+    : their framerates and gammas from each other. I've also discovered a "brightness" setting.
+0.21: Rejiggered three of the switches so I can reuse their lowercase variants as separate switches
+    : Replaced MYVAR with ONECMD, added Bright_ functions and a switch. Added -? handling.
+    : Thought of something. SKMCLauncher does its own memory handling, so I should ignore -BET if I have -o
+0.22: Provided a OSS switch (-O), which provides $CMDRUN as "padsp java". Will it propagate past launchers? Don't know.
+0.23: Add proper NEW server support. Consolidate on .minecraft/server as the new home.
+0.24: Implement the xrandr as one command, not separate commands.
+0.25: Added in the fetchminecraft.sh script whole.
+0.26: Added rudimentary MinecraftLauncher support... it just launches ML, nothing else.
+0.27: Added stanza to FetchMinecraft to grab a default launcher, also commented future code for skmc and digiex.
+0.28: Also added MagicLauncher (stubbed at the moment) and enabled download of skmclauncher's snapshot build
+    : in addition, with feedback from keeperfx, decided to tiff all the launchers into ${MCBase}/bin/some-launcher.jar
+0.29: added help to -f switch
+0.30: added digiex and MultiMC (for Linux), preliminary work for -l (launcher) switch.
+0.31: padded out support for change to -l
+0.32: added bukkit to the list of available downloads
+0.33: added a switch to suspend pulseaudio
+0.34: Added _ to the patterns to grep for on -f
+0.35: Reworked the Helps for -l and -f to cough up parameters on one line
+0.36: Add FTB to list of -l and -f
+0.37: Slotted in MVC, put ftb into FOA and LOA so help works.
+0.38: Add in the Technic launcher to FetchMinecraft and Launch, also caught typos.
+    : incidentally, are LaunchHelpOpts or FetchHelpOpts being used any more?
+0.39: Rewrote Launcher()
+0.40: Added TerraFirmaCraft (temporary at this stage, it wants to be included in FTB)
+0.41: Small patch as Terrafirmacraft launcher is now supplied as a zip
+0.42: Added specific directories to change to before starting up
+Changelog stripped out of the main file, created as a separate file
+
