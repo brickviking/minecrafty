@@ -60,9 +60,10 @@
 # 0.39: Rewrote Launcher()
 # 0.40: Added TerraFirmaCraft (temporary at this stage, it wants to be included in FTB)
 # 0.41: Small patch as Terrafirmacraft launcher is now supplied as a zip
+# 0.42: Added specific directories to change to before starting up
 
 VERSION=0
-MINOR=41
+MINOR=42
 PATCH=
 ME=$(basename $0)
 # Default gamma brightness of game
@@ -302,7 +303,11 @@ SetGamma() {
 # Central one shot run engine.
 RunMC() {
 # TODO: merge these if they're both set.
-    pushd ${MCBase}
+    if [[ -n MYDIR ]]; then
+        pushd ${MYDIR}
+    else
+        pushd ${MCBase}
+    fi
 
     if [[ ${GAMMA} ]]; then
         FetchGamma
@@ -622,6 +627,7 @@ SetFTBLauncher() {
     if [[ -n ${MEM} ]]; then
         echo "${ME}: ${MEM} (from -T/-B/-E) is being ignored. FTBLauncher sets memory for minecraft from its own settings"
     fi
+    MYDIR="${FTBBase}"
     CMDRUN="padsp java -Xincgc"
     CMDARG="-jar ${FTBBase}/FTB_Launcher.jar"
     CMD="${CMDRUN} ${CMDOPT} ${CMDARG}"
@@ -631,6 +637,7 @@ SetTechLauncher() {
     if [[ -n ${MEM} ]]; then
         echo "${ME}: ${MEM} (from -T/-B/-E) is being ignored. TechnicLauncher sets memory for minecraft from its own settings"
     fi
+    MYDIR="${TechnicBase}"
     CMDRUN="padsp java -Xincgc"
     CMDARG="-jar ${TechnicBase}/TechnicLauncher.jar"
     CMD="${CMDRUN} ${CMDOPT} ${CMDARG}"
@@ -639,6 +646,7 @@ SetTechLauncher() {
 SetTerraLauncher() {
     # For some reason, this launcher needs more memory than just 256Mb
     # TODO: update this so it starts with  memory settings from -TSBE
+    MYDIR="${TerraFirmaBase}"
     MEM=${MEM:-"-Xms512M -Xmx1024M"}
     CMDRUN="padsp java -Xincgc"
     CMDARG="-jar ${TerraFirmaBase}/TFCLauncher.jar"
