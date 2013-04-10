@@ -241,7 +241,7 @@ SetGamma() {
 # Central one shot run engine.
 RunMC() {
 # TODO: merge these if they're both set.
-    if [[ -n MYDIR ]]; then
+    if [[ -n "${MYDIR}" ]]; then
         pushd ${MYDIR}
     else
         pushd ${MCBase}
