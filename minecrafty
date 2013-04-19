@@ -1,7 +1,7 @@
 #!/bin/bash
 
 VERSION=0
-MINOR=42
+MINOR=43
 PATCH=
 ME=$(basename $0)
 # Default gamma brightness of game
@@ -54,6 +54,7 @@ FOA=(
 "1.2.4" VersionCheck "download a specific final-release version"
 "13w02b" VersionCheck "download a specific snapshot version"
 "launcher" Fetch "download default launcher"
+"devlauncher" Fetch "download development launcher"
 "craft" Fetch "download Craftland installer for latest Aether prerelease"
 "digiex" Fetch "download DigiEX launcher"
 "ftb" Fetch "download FTB launcher"
@@ -75,6 +76,7 @@ FONA=(
 LOA=(
 "help" LaunchHelp "provide this screen specifically for launcher (-l) help"
 "launcher" DefaultSettings "run default launcher"
+"devlauncher" SetDevLauncher "run Mojang's development launcher"
 "craft" SetCraftLauncher "run CraftLand launcher"
 "digiex" SetDigiLauncher "run DigiEX launcher"
 "magic" SetMagicLauncher "run MagicLauncher"
@@ -379,6 +381,9 @@ FetchMinecraft() {
         launcher) # default launcher, should we call this default instead of launcher?
             wget -O ${MCBase}/bin/minecraft-launcher.jar https://s3.amazonaws.com/MinecraftDownload/launcher/minecraft.jar
             ;;
+        devlauncher) # default launcher, should we call this default instead of launcher?
+            wget -O ${MCBase}/MinecraftDev.jar https://s3.amazonaws.com/Minecraft.Download/launcher/MinecraftDev.jar
+            ;;
         skmc) # non-default launcher
             wget -O ${MCBase}/bin/SKMCLauncher.jar http://build.sk89q.com/job/SKMCLauncher/lastSuccessfulBuild/artifact/target/SKMCLauncher.jar
             ;;
@@ -515,6 +520,13 @@ ShowVersionString() {
     unset CMD
 # We need to exit
     break 
+}
+
+SetDevLauncher() {
+        CMDARG="-jar ${MCBase}/MinecraftDev.jar"
+        CMD="${CMDRUN} ${CMDOPT} ${MEM} ${CMDARG}"
+#        FetchGamma
+#        FetchBright
 }
 
 SetMagicLauncher() {

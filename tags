@@ -27,6 +27,7 @@ RunMC	minecrafty	/^RunMC() {$/;"	f
 ServerRun	minecrafty	/^ServerRun() {$/;"	f
 SetBright	minecrafty	/^SetBright() {$/;"	f
 SetCraftLauncher	minecrafty	/^SetCraftLauncher() {$/;"	f
+SetDevLauncher	minecrafty	/^SetDevLauncher() {$/;"	f
 SetDigiLauncher	minecrafty	/^SetDigiLauncher() {$/;"	f
 SetEnormousMemory	minecrafty	/^SetEnormousMemory() {$/;"	f
 SetFTBLauncher	minecrafty	/^SetFTBLauncher() {$/;"	f

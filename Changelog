@@ -62,3 +62,4 @@ switch. Also tweaked RunMe to RunMC
 0.42: Added specific directories to change to before starting up
 Changelog stripped out of the main file, created as a separate file
 
+0.43: Added in development version of Mojang's launcher.
