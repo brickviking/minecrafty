@@ -1,7 +1,7 @@
 #!/bin/bash
 
 VERSION=0
-MINOR=43
+MINOR=44
 PATCH=
 ME=$(basename $0)
 # Default gamma brightness of game
@@ -502,8 +502,17 @@ SetMoreMemory() {
 # Also only any good on 64-bit systems.
 # TODO: how do we do that, again?
 SetEnormousMemory() {
-    MEM="-Xmx2048M -Xms1024M"
-    CMD="${CMDRUN} ${CMDOPT} ${MEM} ${CMDARG}"
+    # Only do this if ${HOSTTYPE} isn't i686
+    if [[ ${HOSTTYPE} = "i686" ]]; then
+        # do we do nothing and simply refuse, or do we warn the user?
+        echo "Unable to allocate more than 1.5Gb on a 32-bit system"
+        echo "setting memory to 1Gb"
+        # call that procedure instead
+        SetMoreMemory
+    else
+        MEM="-Xmx2048M -Xms1024M"
+        CMD="${CMDRUN} ${CMDOPT} ${MEM} ${CMDARG}"
+    fi
 }
 
 SetMonitor() {

@@ -63,3 +63,6 @@ switch. Also tweaked RunMe to RunMC
 Changelog stripped out of the main file, created as a separate file
 
 0.43: Added in development version of Mojang's launcher.
+0.44: Made 1Gb maximum mandatory in 32-bit. Most people can't access more than
+      about 1.5Gb contiguously anyhow, apparently.
+
