@@ -1,7 +1,7 @@
 #!/bin/bash
 
 VERSION=0
-MINOR=45
+MINOR=46
 PATCH=
 ME=$(basename $0)
 # Default gamma brightness of game
@@ -357,7 +357,7 @@ FetchMinecraft() {
             # We need an error check. If wget returns a 1, then we erase the file we just created.
             if [[ $retval != 0 ]]; then
                 rm ${SINGLE}/snapshot_${DROPOFF}.jar
-                echo "Download failed, no such version or other error"
+                echo "Download of ${DROPOFF} jar failed, no such version or other error"
                 exit 1
             fi
             # otherwise, it succeeded, we might as well go get the server file
@@ -375,7 +375,16 @@ FetchMinecraft() {
             fi
             if [[ $retval != 0 ]]; then
                 rm "${SINGLE}/${DROPOFF}/${DROPOFF}.jar"
-                echo "Download failed, no such version or other error"
+                echo "Download of ${DROPOFF} jar failed, no such version or other error"
+                exit 1
+            fi
+            if [[ ! -f ${SINGLE}/${DROPOFF}/${DROPOFF}.json ]]; then
+                wget -O "${SINGLE}/${DROPOFF}/${DROPOFF}.json" http://s3.amazonaws.com/Minecraft.Download/versions/${DROPOFF}/${DROPOFF}.json
+                retval=$?
+            fi
+            if [[ $retval != 0 ]]; then
+                rm "${SINGLE}/${DROPOFF}/${DROPOFF}.json"
+                echo "Download of json file failed, no such version or other error"
                 exit 1
             fi
 			# Plainly, this isn't correct dropoff point any more, but then, where is?
@@ -394,7 +403,16 @@ FetchMinecraft() {
             fi
             if [[ $retval != 0 ]]; then
                 rm "${SINGLE}/${DROPOFF}/${DROPOFF}.jar"
-                echo "Download failed, no such version or other error"
+                echo "Download of ${DROPOFF} jar failed, no such version or other error"
+                exit 1
+            fi
+            if [[ ! -f ${SINGLE}/${DROPOFF}/${DROPOFF}.json ]]; then
+                wget -O "${SINGLE}/${DROPOFF}/${DROPOFF}.json" http://s3.amazonaws.com/Minecraft.Download/versions/${DROPOFF}/${DROPOFF}.json
+                retval=$?
+            fi
+            if [[ $retval != 0 ]]; then
+                rm "${SINGLE}/${DROPOFF}/${DROPOFF}.json"
+                echo "Download of json failed, no such version or other error"
                 exit 1
             fi
 			# Plainly, this isn't correct dropoff point any more, but then, where is?
@@ -408,7 +426,7 @@ FetchMinecraft() {
             fi
             if [[ $retval != 0 ]]; then
                 rm ${SINGLE}/final_${DROPOFF}.jar
-                echo "Download failed, no such version or other error"
+                echo "Download of ${DROPOFF} jar failed, no such version or other error"
                 exit 1
             fi
             wget -O ${SERVER}/final_server_$DROPOFF.jar http://assets.minecraft.net/${DROPOFF//\./_}/minecraft_server.jar
@@ -420,7 +438,7 @@ FetchMinecraft() {
         launcher) # default launcher, should we call this default instead of launcher?
             wget -O ${MCBase}/bin/minecraft-launcher.jar https://s3.amazonaws.com/MinecraftDownload/launcher/minecraft.jar
             ;;
-        devlauncher) # default launcher, should we call this default instead of launcher?
+        devlauncher) # development launcher
             wget -O ${MCBase}/MinecraftDev.jar https://s3.amazonaws.com/Minecraft.Download/launcher/MinecraftDev.jar
             ;;
         skmc) # non-default launcher
@@ -462,7 +480,7 @@ FetchMinecraft() {
             # TODO: correct this for each version, scrape webpage?
             wget -O ${FTBBase}/FTB_Loader.jar "http://www.creeperrepo.net/direct/FTB2/697ef1c4d2cb0eddfbf53c3eceba4889/launcher%5EFTB_Launcher.jar"
             ;;
-        technic) # Patching in support for FTB_Launcher, one of the few to need a different root.
+        technic) # Patching in support for Technic_Loader, one of the few to need a different root.
             if [[ ! -d ${TechnicBase} ]]; then
                 mkdir ${TechnicBase}
                 # TODO: If this fails, we have bigger problems
@@ -470,7 +488,7 @@ FetchMinecraft() {
             # TODO: correct this for each version, scrape webpage?
             wget -O ${TechnicBase}/Technic_Loader.jar "http://mirror.technicpack.net/launcher/221/TechnicLauncher.jar"
             ;;
-        terra) # Patching in support for FTB_Launcher, one of the few to need a different root.
+        terra) # Patching in support for TerraFirmaCraft, one of the few to need a different root.
             if [[ ! -d ${TerraFirmaBase} ]]; then
                 mkdir ${TerraFirmaBase}
                 # TODO: If this fails, we have bigger problems
