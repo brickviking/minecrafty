@@ -80,7 +80,7 @@ LOA=(
 "craft" SetCraftLauncher "run CraftLand launcher"
 "digiex" SetDigiLauncher "run DigiEX launcher"
 "magic" SetMagicLauncher "run MagicLauncher"
-"multi" SetMultiMC "run MultiMC"
+"multi" SetMultiLauncher "run MultiMC"
 "skmc" SetSKMCLauncher "run development version of SKMCLauncher.jar"
 "ftb" SetFTBLauncher "run FTB launcher"
 "technic" SetTechLauncher "run Technic launcher"
