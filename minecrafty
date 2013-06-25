@@ -1,7 +1,7 @@
 #!/bin/bash
 
 VERSION=0
-MINOR=46
+MINOR=47
 PATCH=
 ME=$(basename $0)
 # Default gamma brightness of game
@@ -363,7 +363,7 @@ FetchMinecraft() {
             # otherwise, it succeeded, we might as well go get the server file
             wget -O ${SERVER}/snapshot_server_$DROPOFF.jar http://assets.minecraft.net/${DROPOFF//\./_}/minecraft_server.jar
         ;;
-		1.5.[2-9]) # New form of final release
+		1.5.[2-9]|1.[6-9]|1.[6789].[0-9]) # New form of final release, covers everything up to just under 2.x
             SINGLE="${MCBase}/versions" # A new home for the release
     SERVER="${MCBase}/server/stash" # hmm? Does this remain the same?
             if [[ ! -d ${SINGLE}/${DROPOFF} ]]; then
