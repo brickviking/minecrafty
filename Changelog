@@ -71,5 +71,8 @@ Changelog stripped out of the main file, created as a separate file
       lwjgl as well, is .... problematic. I haven't decided yet.
 0.47: Modified FetchMinecraft to download full versions up to 1.9.9 as well as
       snapshots, corrected SetMultiMC to SetMultiLauncher
+0.48: Tweaked FetchMinecraft so it'll back up the current version of
+      SKMCLauncher, I need to do the same for other launchers. I've also
+	  made a note that devlauncher is now the main launcher.
 
 
