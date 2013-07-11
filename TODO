@@ -1,0 +1,6 @@
+Well, a wee while since I did one of these and ever followed through on it.
+
+Anyhow, I need to tweak further. We need to create a .desktop file, and some
+sort of install.sh file. It could do stuff like creating a ~/.minecraft,
+copying minecrafty into run location, and putting .desktop into suitable location.
+Hey, how about an icon?
