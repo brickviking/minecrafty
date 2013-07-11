@@ -524,7 +524,7 @@ FetchMinecraft() {
 }
 
 DefaultSettings() {
-        CMDARG="-cp ${MCBase}/bin/minecraft-launcher.jar net.minecraft.LauncherFrame"
+        CMDARG="-jar ${MCBase}/bin/minecraft-launcher.jar"
         CMD="${CMDRUN} ${CMDOPT} ${MEM} ${CMDARG}"
 #        FetchGamma
 #        FetchBright
