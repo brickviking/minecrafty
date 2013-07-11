@@ -74,5 +74,7 @@ Changelog stripped out of the main file, created as a separate file
 0.48: Tweaked FetchMinecraft so it'll back up the current version of
       SKMCLauncher, I need to do the same for other launchers. I've also
 	  made a note that devlauncher is now the main launcher.
+0.49: Altered download link for default launcher so it grabs the new one. I've
+      disabled the devlauncher in FetchMinecraft.
 
 

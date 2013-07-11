@@ -1,7 +1,7 @@
 #!/bin/bash
 
 VERSION=0
-MINOR=48
+MINOR=49
 PATCH=
 ME=$(basename $0)
 # Default gamma brightness of game
@@ -436,11 +436,12 @@ FetchMinecraft() {
 # These options to -f download various launchers, make sure we don't overwrite.
 ##################
         launcher) # default launcher, should we call this default instead of launcher?
-            wget -O ${MCBase}/bin/minecraft-launcher.jar https://s3.amazonaws.com/MinecraftDownload/launcher/minecraft.jar
+#            wget -O ${MCBase}/bin/minecraft-launcher.jar https://s3.amazonaws.com/MinecraftDownload/launcher/minecraft.jar
+            wget -O ${MCBase}/bin/minecraft-launcher.jar https://s3.amazonaws.com/Minecraft.Download/launcher/Minecraft.jar
             ;;
-        devlauncher) # development launcher, which may need to be removed as it has been moved to the default
-            wget -O ${MCBase}/MinecraftDev.jar https://s3.amazonaws.com/Minecraft.Download/launcher/MinecraftDev.jar
-            ;;
+#        devlauncher) # development launcher, which may need to be removed as it has been moved to the default
+#            wget -O ${MCBase}/MinecraftDev.jar https://s3.amazonaws.com/Minecraft.Download/launcher/MinecraftDev.jar
+#            ;;
         skmc) # non-default launcher, we should probably back up the last version
             # TODO: Must do the backup last launcher thing for all the rest of them
             mv "${MCBase}/bin/SKMCLauncher.jar" "${MCBase}/bin/SKMCLauncher-last.jar"
