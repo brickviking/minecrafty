@@ -69,4 +69,7 @@ Changelog stripped out of the main file, created as a separate file
       fetch them from has changed.
 0.46: Corrected some comments, added json to the downloads. Whether I grab the
       lwjgl as well, is .... problematic. I haven't decided yet.
+0.47: Modified FetchMinecraft to download full versions up to 1.9.9 as well as
+      snapshots, corrected SetMultiMC to SetMultiLauncher
+
 
