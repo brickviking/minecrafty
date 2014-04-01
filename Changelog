@@ -76,5 +76,7 @@ Changelog stripped out of the main file, created as a separate file
 	  made a note that devlauncher is now the main launcher.
 0.49: Altered download link for default launcher so it grabs the new one. I've
       disabled the devlauncher in FetchMinecraft.
+0.50: Added code to insert padsp/pasuspender where necessary. I've also made
+      the location of java a variable that's reused.
 
 

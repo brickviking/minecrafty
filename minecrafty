@@ -1,18 +1,18 @@
 #!/bin/bash
 
 VERSION=0
-MINOR=49
+MINOR=50
 PATCH=
 ME=$(basename $0)
 # Default gamma brightness of game
-GAMMADEF=0.6
+GAMMADEF=1.0
 # Default memory assign (whatever the java executable assigns)
 MEM=""
 # set this to blank too
 CMDOPT=" "
-# TODO: Fix the pulseaudio dependency
-#CMDRUN="padsp java"
-CMDRUN="java"
+# Set this to your favourite java location, whether openjdk or oracle
+JAVARUN="java"
+CMDRUN="$JAVARUN"
 # Mandatory
 MCBase="${HOME}/.minecraft"
 # Optional
@@ -28,8 +28,8 @@ declare -A CMDARRAY
 # New array for filling GETOPTS
 GOA=(
 "h" Help "provides this help screen (-? gets here as well)"
-"T" SetTinyMemory "assign minimal memory to the client (512 Mb)"
-"S" SetSmallMemory "assign normal memory to the client (512 Mb)"
+"T" SetTinyMemory "assign minimal memory to the client (256 Mb)"
+"S" SetSmallMemory "assign normal amount of memory to the client (512 Mb)"
 "B" SetMoreMemory "assign more memory to the client (1 Gb)"
 "E" SetEnormousMemory "assign lots more memory to the client, only on 64-bit systems (2 Gb)"
 "O" SetPADSP "create OSS-like pulseaudio device"
@@ -166,7 +166,7 @@ BrightInit() {
     if [[ -z $MON ]]; then MON=0; fi # set a default if one hasn't been set already
     if [[ ${1} == ${1//[^[:digit:]\.]/} ]]; then
         if [[ ! $BRIGHT ]]; then # Only set if it hasn't already been
-            BRIGHT=${1:-${BRIGHTDEF}}  # This looks good for my screen, might not be useful for anyone else
+            BRIGHT=${1:-${BRIGHTDEF}}
         else
             echo "Brightness has been set to $BRIGHT already, ignoring $1"
         fi
@@ -199,7 +199,7 @@ GammaInit() {
     if [[ -z $MON ]]; then MON=0; fi # set a default if one hasn't been set already
     if [[ ${1} == ${1//[^[:digit:]\.]/} ]]; then
         if [[ ! $GAMMA ]]; then # Only set if it hasn't already been
-            GAMMA=${1:-${GAMMADEF}}  # This looks good for my screen, might not be useful for anyone else
+            GAMMA=${1:-${GAMMADEF}}
         else
             echo "Gamma has been set to $GAMMA already, ignoring $1"
         fi
@@ -235,7 +235,8 @@ echo "Inside ResetGamma, with ${GAMMA}"
 
 ResetRefresh() {
 # TODO: It seems if the gamma never got loaded, then this function always fails
-# The game had a habit of resetting the other screen to 60Hz. Not nice. Only set on fatty for now
+# The game had a habit of resetting the other screen to 60Hz. Not nice.
+# TODO: we really should leave things as we found them and reset mode to what it was.
     xrandr --output ${GARRAY[2]} --rate ${Refresh} --mode 1024x768
 #    fi
 }
@@ -280,7 +281,7 @@ ServerRun() {
     ServerPlace="${MCBase}/server"
     echo "ServerName now set to ${ServerName}"
     if [[ -f ${ServerPlace}/${ServerName} ]]; then
-        CMD="java -Xmx1024M -Xincgc -jar ${ServerPlace}/${ServerName}"
+        CMD="$JAVARUN -Xmx1024M -Xincgc -jar ${ServerPlace}/${ServerName}"
     else
         echo "We don't have the $1 server here, please download from www.minecraft.net"
         retval=1 #bad doggie, bad, there's no point in continuing any further
@@ -502,6 +503,7 @@ FetchMinecraft() {
             wget -O ${TechnicBase}/Technic_Loader.jar "http://mirror.technicpack.net/launcher/221/TechnicLauncher.jar"
             ;;
         terra) # Patching in support for TerraFirmaCraft, one of the few to need a different root.
+            # TODO: Remove this really soon, as TerraFirmaCraft now uses the default launcher
             if [[ ! -d ${TerraFirmaBase} ]]; then
                 mkdir ${TerraFirmaBase}
                 # TODO: If this fails, we have bigger problems
@@ -541,13 +543,15 @@ DefaultSettings() {
 }
 
 SetPADSP() {
-    CMDRUN="padsp java"
+    PARUN="padsp "
+    CMDRUN="$PARUN $JAVARUN"
     CMD="${CMDRUN} ${CMDOPT} ${MEM} ${CMDARG}"
 }
 
 SetPAPause() {
     # This command isn't always the same name
-    CMDRUN="pasuspender -- java"
+    PARUN="pasuspender -- "
+    CMDRUN="$PARUN $JAVARUN"
     CMD="${CMDRUN} ${CMDOPT} ${MEM} ${CMDARG}"
 }
 
@@ -612,31 +616,28 @@ SetDevLauncher() {
 
 SetMagicLauncher() {
 # queue this up so it runs the MagicLauncher.
-# TODO: fix this so it's not padsp-specific
-    CMDRUN="padsp java -Xincgc"
+    CMDRUN="$PARUN $JAVARUN -Xincgc"
     CMDARG="-jar ${MCBase}/bin/MagicLauncher_1.0.0.jar"
     CMD="${CMDRUN} ${CMDOPT} ${MEM} ${CMDARG}"
 }
 
 SetMultiLauncher() {
 # queue this up so it runs MultiMC.
-# TODO: fix this so it's not padsp-specific
-    CMDRUN="padsp ${MCBase}/bin/MultiMC"
+    CMDRUN="${MCBase}/bin/MultiMC"
     CMDARG=""
     CMD="${CMDRUN} ${CMDOPT} ${CMDARG}"
 }
 
 # !! This executes the craftland loader, which requires an INSTALLED craftland
 SetCraftLauncher() {
-    CMDRUN="padsp java"
+    CMDRUN="$PARUN $JAVARUN"
     CMDARG="-Xincgc -jar ${CLBase}/loader.jar"
     CMD="${CMDRUN} ${CMDOPT} ${CMDARG}"
 }
 
 SetDigiLauncher() {
 # runs mclauncher
-# TODO: fix this so it's not padsp-specific
-    CMDRUN="padsp java -Xincgc"
+    CMDRUN="$PARUN $JAVARUN -Xincgc"
     CMDARG="-jar ${MCBase}/bin/mclauncher.jar"
     CMD="${CMDRUN} ${CMDOPT} ${MEM} ${CMDARG}"
 }
@@ -647,9 +648,8 @@ SetSKMCLauncher() {
     if [[ -n ${MEM} ]]; then
         echo "${ME}: ${MEM} (from -T/-B/-E) is being ignored. skmclauncher sets memory for minecraft from its own settings"
     fi
-# TODO: fix this so it's not padsp-specific
 # We don't need ${MEM} here, as SKMClauncher allows for setting specific memory when starting minecraft.
-    CMDRUN="padsp java -Xincgc"
+    CMDRUN="$PARUN $JAVARUN -Xincgc"
     CMDARG="-jar ${MCBase}/bin/SKMCLauncher.jar"
     CMD="${CMDRUN} ${CMDOPT} ${CMDARG}"
 }
@@ -659,7 +659,7 @@ SetFTBLauncher() {
         echo "${ME}: ${MEM} (from -T/-B/-E) is being ignored. FTBLauncher sets memory for minecraft from its own settings"
     fi
     MYDIR="${FTBBase}"
-    CMDRUN="padsp java -Xincgc"
+    CMDRUN="$PARUN $JAVARUN -Xincgc"
     CMDARG="-jar ${FTBBase}/FTB_Launcher.jar"
     CMD="${CMDRUN} ${CMDOPT} ${CMDARG}"
 }
@@ -669,8 +669,7 @@ SetTechLauncher() {
         echo "${ME}: ${MEM} (from -T/-B/-E) is being ignored. TechnicLauncher sets memory for minecraft from its own settings"
     fi
     MYDIR="${TechnicBase}"
-# TODO: fix this so it's not padsp-specific
-    CMDRUN="padsp java -Xincgc"
+    CMDRUN="$PARUN $JAVARUN -Xincgc"
     CMDARG="-jar ${TechnicBase}/TechnicLauncher.jar"
     CMD="${CMDRUN} ${CMDOPT} ${CMDARG}"
 }
@@ -680,14 +679,14 @@ SetTerraLauncher() {
     # TODO: update this so it starts with  memory settings from -TSBE, strip out T
     MYDIR="${TerraFirmaBase}"
     MEM=${MEM:-"-Xms512M -Xmx1024M"}
-    CMDRUN="padsp java -Xincgc"
+    CMDRUN="$PARUN $JAVARUN -Xincgc"
     CMDARG="-jar ${TerraFirmaBase}/TFCLauncher.jar"
     CMD="${CMDRUN} ${CMDOPT} ${MEM} ${CMDARG}"
 }
 
 # runs mvc, a minecraft version patcher
 SetMVCLauncher() {
-    CMDRUN="java -Xincgc"
+    CMDRUN="$PARUN $JAVARUN -Xincgc"
     CMDARG="-jar ${MCBase}/bin/MVC.jar"
     CMD="${CMDRUN} ${CMDOPT} ${MEM} ${CMDARG}"
 }
