@@ -1,11 +1,14 @@
 #!/bin/bash
 
 VERSION=0
-MINOR=50
+MINOR=51
 PATCH=
 ME=$(basename $0)
 # Default gamma brightness of game
 GAMMADEF=1.0
+# Rabbit
+RESOLUTION=1920x1080
+MYRES=
 # Default memory assign (whatever the java executable assigns)
 MEM=""
 # set this to blank too
@@ -38,6 +41,7 @@ GOA=(
 "g:" GammaInit "n.n: set the gamma offset. If unset, $GAMMADEF is used. 0.7 lighter, 1.2 darker"
 "m:" SetMonitor "select monitor to apply gamma correction to"
 "r:" SetRefresh "nn.n: set a valid refresh rate for the second monitor, as minecraft has a habit of setting this to the recommended value instead of the value used originally."
+"z:" FetchResolution "set required resolution"
 "f:" FetchMinecraft "retrieves minecraft.jar or launcher from remote host, '-f help' for more details"
 "l:" Launcher "starts specified launcher, -l help for more details"
 "s:" ServerRun "starts the latest server, supply a filename"
@@ -73,6 +77,7 @@ FONA=(
 "bukkitdevel" Fetch "download absolutely latest bukkit"
 "devlauncher" Fetch "download development launcher"
 )
+# I could also have entry for spigot in there
 
 # Entries for the -l (launcher) switch
 LOA=(
@@ -224,6 +229,40 @@ FetchRefresh() {
   RARRAY=( $(xrandr --verbose ) )
 }
 
+FetchResolution() {
+# This routine fetches the default resolution at the time of first running the program
+# TODO: what if we have multiple screens? A virtual desktop of a different size?
+# RES=$(xdpyinfo | grep dimension | egrep -o "[[:digit:]]{3,4}x[[:digit:]]{3,4}" | head -n 1)
+read RES < <(xdpyinfo | sed -rn 's/.*dimension.* ([0-9]+x[0-9]+).*/\1/p')
+# Better feed the BARRAY, as it holds my available monitors
+FetchBright
+# TODO: Please PLEASE find out how to sanity check this one
+MYRES=${1}
+}
+
+ResetResolution() {
+# Now we put the resolution back to normal, a call to SetResolution with desired RESOLUTION
+# TODO: what about multiple screens?
+MYRES=${RES}
+xrandr --output ${BARRAY[${MON}]} --mode ${MYRES}
+}
+
+SetResolution() {
+# Just like it says on the tin, sir
+# Only change if there's a reason to do so
+# TODO: Figure out what $MON is supposed to be
+if [[ ${RES} != ${MYRES} ]]; then
+    if [[ ${BARRAY} ]]; then
+# WARNING: Ouch, multiple monitors???
+        xrandr --output ${BARRAY[${MON}]} --mode ${MYRES}
+    else
+        xrandr --output ${MON} --mode ${MYRES}
+    fi
+else
+    unset MYRES # means we don't reset it later
+fi
+}
+
 ResetGamma() {
 # TODO: Remove host dependency, pretty hard to do without having X involved anyhow.
 # Now we put the brightness back to normal, on the first screen
@@ -256,12 +295,17 @@ RunMC() {
     fi
 
     if [[ ${GAMMA} ]]; then
+# We already did GammaInit
         FetchGamma
         SetGamma $GAMMA
     fi
     if [[ ${BRIGHT} ]]; then
+# We already did BrightInit
         FetchBright
         SetBright $BRIGHT
+    fi
+    if [[ ${MYRES} ]]; then
+        SetResolution
     fi
 # Run the command we got earlier, finishing by peeling the return value
     ${CMD}
@@ -798,6 +842,9 @@ if [[ ${CMD+defined} ]]; then
   fi
   if [[ ${Refresh} ]]; then
     ResetRefresh
+  fi
+  if [[ ${MYRES} ]]; then
+    ResetResolution
   fi
 fi
 exit $retval

@@ -12,6 +12,7 @@ FetchHelp	minecrafty	/^FetchHelp() {$/;"	f
 FetchMinecraft	minecrafty	/^FetchMinecraft() {$/;"	f
 FetchOpts	minecrafty	/^FetchOpts() { # both FetchOpts and LaunchOpts can't use getopts, as getopts under bash doesn't use words as options$/;"	f
 FetchRefresh	minecrafty	/^FetchRefresh() {$/;"	f
+FetchResolution	minecrafty	/^FetchResolution() {$/;"	f
 GammaInit	minecrafty	/^GammaInit() {$/;"	f
 GetOpts	minecrafty	/^GetOpts() {$/;"	f
 Help	minecrafty	/^Help() {$/;"	f
@@ -23,6 +24,7 @@ ParseLatestRB	minecrafty	/^ParseLatestRB() {$/;"	f
 ResetBright	minecrafty	/^ResetBright() {$/;"	f
 ResetGamma	minecrafty	/^ResetGamma() {$/;"	f
 ResetRefresh	minecrafty	/^ResetRefresh() {$/;"	f
+ResetResolution	minecrafty	/^ResetResolution() {$/;"	f
 RunMC	minecrafty	/^RunMC() {$/;"	f
 ServerRun	minecrafty	/^ServerRun() {$/;"	f
 SetBright	minecrafty	/^SetBright() {$/;"	f
@@ -40,6 +42,7 @@ SetMultiLauncher	minecrafty	/^SetMultiLauncher() {$/;"	f
 SetPADSP	minecrafty	/^SetPADSP() {$/;"	f
 SetPAPause	minecrafty	/^SetPAPause() {$/;"	f
 SetRefresh	minecrafty	/^SetRefresh() {$/;"	f
+SetResolution	minecrafty	/^SetResolution() {$/;"	f
 SetSKMCLauncher	minecrafty	/^SetSKMCLauncher() {$/;"	f
 SetSmallMemory	minecrafty	/^SetSmallMemory() {$/;"	f
 SetTechLauncher	minecrafty	/^SetTechLauncher() {$/;"	f
