@@ -41,7 +41,7 @@ GOA=(
 "g:" GammaInit "n.n: set the gamma offset. If unset, $GAMMADEF is used. 0.7 lighter, 1.2 darker"
 "m:" SetMonitor "select monitor to apply gamma correction to"
 "r:" SetRefresh "nn.n: set a valid refresh rate for the second monitor, as minecraft has a habit of setting this to the recommended value instead of the value used originally."
-"z:" FetchResolution "set required resolution"
+"z:" FetchResolution "XxY: set required resolution (1920x1080 default)"
 "f:" FetchMinecraft "retrieves minecraft.jar or launcher from remote host, '-f help' for more details"
 "l:" Launcher "starts specified launcher, -l help for more details"
 "s:" ServerRun "starts the latest server, supply a filename"
