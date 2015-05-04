@@ -1,7 +1,7 @@
 #!/bin/bash
 
 VERSION=0
-MINOR=51
+MINOR=52
 PATCH=
 ME=$(basename $0)
 # Default gamma brightness of game
@@ -23,6 +23,7 @@ CLBase="${HOME}/.craftland"
 FTBBase="${HOME}/FTB.minecraft"
 TechnicBase="${HOME}/.technic"
 TerraFirmaBase="${HOME}/.tfcraft"
+ATLauncherBase="${HOME}/ATLauncher"
 
 # Mandatory to declare an associative array
 declare -A FUNCARRAY
@@ -70,6 +71,7 @@ FOA=(
 "terra" Fetch "download beta TerraFirmaCraft launcher (1.5.1 only)"
 "mvc" Fetch "download Minecraft Version Changer from TunkDesign"
 "bukkitrb" Fetch "download latest recommended bukkit build"
+"atl" Fetch "download AT Launcher for Linux"
 )
 
 # Unused -f entries
@@ -94,6 +96,7 @@ LOA=(
 "technic" SetTechLauncher "run Technic launcher"
 "terra" SetTerraLauncher "run beta TerraFirmaCraft launcher (1.5.1 only)"
 "mvc" SetMVCLauncher "run Minecraft Version Changer (MVC.jar)"
+"atl" SetATLauncher "run AT Launcher"
 )
 
 
@@ -573,6 +576,13 @@ FetchMinecraft() {
             FetchHelp
             break # leaves the case switch
             ;;
+        atl) # Only true for Linux, at least currently. Windows has an exe, Mac has an app.
+            if [[ ! -d ${ATLauncherBase} ]]; then
+                mkdir ${ATLauncherBase}
+                # TODO: If this fails, we have bigger problems
+            fi
+            wget -O ${ATLauncherBase}/ATLauncher.jar https://www.atlauncher.com/download/jar
+            ;;
         *) echo "Can't recognise $1 (yet). minecrafty -f help for further details."
             exit 1
             ;;
@@ -732,6 +742,13 @@ SetTerraLauncher() {
 SetMVCLauncher() {
     CMDRUN="$PARUN $JAVARUN -Xincgc"
     CMDARG="-jar ${MCBase}/bin/MVC.jar"
+    CMD="${CMDRUN} ${CMDOPT} ${MEM} ${CMDARG}"
+}
+
+# runs ATLauncher, a minecraft version patcher
+SetATLauncher() {
+    CMDRUN="$PARUN $JAVARUN -Xincgc"
+    CMDARG="-jar ${ATLauncherBase}/ATLauncher.jar"
     CMD="${CMDRUN} ${CMDOPT} ${MEM} ${CMDARG}"
 }
 

@@ -27,6 +27,7 @@ ResetRefresh	minecrafty	/^ResetRefresh() {$/;"	f
 ResetResolution	minecrafty	/^ResetResolution() {$/;"	f
 RunMC	minecrafty	/^RunMC() {$/;"	f
 ServerRun	minecrafty	/^ServerRun() {$/;"	f
+SetATLauncher	minecrafty	/^SetATLauncher() {$/;"	f
 SetBright	minecrafty	/^SetBright() {$/;"	f
 SetCraftLauncher	minecrafty	/^SetCraftLauncher() {$/;"	f
 SetDevLauncher	minecrafty	/^SetDevLauncher() {$/;"	f

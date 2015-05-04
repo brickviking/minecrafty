@@ -105,5 +105,6 @@ Changelog stripped out of the main file, created as a separate file
 0.51: Added code to change resolution for the game, and change it back when
       the game has finished. I also noted that -BEM aren't relevant for the
       main launcher any more.
+0.52: Added the ATLauncher
 
 
