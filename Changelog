@@ -106,5 +106,7 @@ Changelog stripped out of the main file, created as a separate file
       the game has finished. I also noted that -BEM aren't relevant for the
       main launcher any more.
 0.52: Added the ATLauncher
-
+0.53: twiddled final downloading patterns to be good to the end of 2019 and
+      1.99.9, corrected older patterns. Also updated README.md slightly.
+	  Initial idea for log file for minecrafty.
 
