@@ -1,7 +1,7 @@
 #!/bin/bash
 
 VERSION=0
-MINOR=53
+MINOR=54
 PATCH=
 ME=$(basename $0)
 # Default gamma brightness of game
@@ -18,12 +18,13 @@ JAVARUN="java"
 CMDRUN="$JAVARUN"
 # Mandatory
 MCBase="${HOME}/.minecraft"
-# Optional
+# Optional, if you add launchers, set a path here, add a SetXyzLauncher() function, add a line to ${FOA} and ${LOA} and a stanza in FetchMinecraft()
 CLBase="${HOME}/.craftland"
 FTBBase="${HOME}/FTB.minecraft"
 TechnicBase="${HOME}/.technic"
 TerraFirmaBase="${HOME}/.tfcraft"
 ATLauncherBase="${HOME}/ATLauncher"
+AetherLauncherBase="${HOME}/Aether Launcher"
 
 # Mandatory to declare an associative array
 declare -A FUNCARRAY
@@ -73,6 +74,7 @@ FOA=(
 "mvc" Fetch "download Minecraft Version Changer from TunkDesign"
 "bukkitrb" Fetch "download latest recommended bukkit build"
 "atl" Fetch "download AT Launcher for Linux"
+"aether" Fetch "download Aether Launcher"
 )
 
 # Unused -f entries
@@ -98,11 +100,13 @@ LOA=(
 "terra" SetTerraLauncher "run beta TerraFirmaCraft launcher (1.5.1 only)"
 "mvc" SetMVCLauncher "run Minecraft Version Changer (MVC.jar)"
 "atl" SetATLauncher "run AT Launcher"
+"aether" SetAetherLauncher "run Aether Launcher"
 )
 
 
 # Unused -l entries
 LONA=(
+# devlauncher was rendered totally irrelevant when it became the default launcher
 #"devlauncher" SetDevLauncher "run Mojang's development launcher"
 )
 
@@ -340,7 +344,14 @@ ServerRun() {
 
 # designed to assign CMD the correct launcher
 Launcher() {
+    if [[ "$1" == "?" ]]; then
+      LaunchHelp
+      unset CMD
+      retval=1
+      return
+    fi
     if [[ ${CMDARRAY[$1]+set} ]]; then
+        echo "Boo"
         case $1 in 
         help) LaunchHelp
             unset CMD
@@ -403,6 +414,11 @@ FetchMinecraft() {
     if [[ -z $DROPOFF ]]; then
         echo "Can't save something I don't know the name of!"
         exit 1
+    fi
+    if [[ $DROPOFF = "?" ]]; then
+        FetchHelp
+        retval=1
+        return
     fi
     # Okay, we have a $1, do we cardinalise it?
     # Not yet, as I don't know how to match it up against certain patterns.
@@ -469,7 +485,7 @@ FetchMinecraft() {
 		;;
         # New form of snapshot release, good up to end of 2019, almost completely replaced by default launcher's fetching
         # TODO: never seems to cover week 53, do we ever need it?
-        13w1[6-9][a-f_]|13w[234][0-9][a-f_]|13w5[012][a-f_]|1[456789]w[0-4][0-9][a-f_]|1[456789]w5[0-2][a-f_]) 
+        13w1[6-9][a-f_]|13w[234][0-9][a-f_]|13w5[012][a-f_]|1[456789]w[0-4][0-9][a-l_]|1[456789]w5[0-3][a-l_]|2[0123456789]w[0-4][0-9][a-l_]|2[0123456789]w5[0-3][a-l_]) 
             SINGLE="${MCBase}/versions" # A new home for the release
             SERVER="${MCBase}/server/stash" # hmm? Does this remain the same?
             if [[ ! -d ${SINGLE}/${DROPOFF} ]]; then
@@ -593,6 +609,14 @@ FetchMinecraft() {
                 # TODO: If this fails, we have bigger problems
             fi
             wget -O ${ATLauncherBase}/ATLauncher.jar https://www.atlauncher.com/download/jar
+            ;;
+        aether) # I don't know if this has different values for Windows/OSX
+            # Incidentally, this possibly doesn't take care of the rest of the files
+            if [[ ! -d ${AetherLauncherBase} ]]; then
+                mkdir ${AetherLauncherBase}
+                # TODO: If this fails, we have bigger problems
+            fi
+            wget -O ${AetherLauncherBase}/aether-launcher-bootstrap.jar https://files.gildedgames.com/minecraft/aether/dist/launcher/aether-launcher-bootstrap.jar
             ;;
         *) echo "Can't recognise $1 (yet). minecrafty -f help for stuff I can fetch."
             exit 1
@@ -760,6 +784,13 @@ SetMVCLauncher() {
 SetATLauncher() {
     CMDRUN="$PARUN $JAVARUN -Xincgc"
     CMDARG="-jar ${ATLauncherBase}/ATLauncher.jar"
+    CMD="${CMDRUN} ${CMDOPT} ${MEM} ${CMDARG}"
+}
+
+# runs Aether Launcher (for Aether II, NOT Aether Classic)
+SetAetherLauncher() {
+    CMDRUN="$PARUN $JAVARUN -Xincgc"
+    CMDARG="-jar ${AetherLauncherBase}/aether-launcher-bootstrap.jar"
     CMD="${CMDRUN} ${CMDOPT} ${MEM} ${CMDARG}"
 }
 

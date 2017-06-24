@@ -7,7 +7,7 @@ launchers, it's more a tool to help out with starting them up.
 Features:
 * Download commonly available launchers:
   * Default launcher (minecraft.net)
-  * SKMCLauncher (sk89q.com)
+  * SKMCLauncher (sk89q.com, obsolete)
   * Digiex (obsolete and not kept up to date)
   * MagicLauncher
   * MultiMC
@@ -15,6 +15,7 @@ Features:
   * Craftland
   * Technic
   * Minecraft Version Changer (TunkDesign)
+  * Aether Launcher
 * Download available release and snapshot versions of the minecraft client and server
 * Execute any installed minecraft launcher, even the default one
   * Allocate memory
@@ -33,7 +34,8 @@ Requirements:
 * wget (to fetch files.)
 * Java (either OpenJDK, Oracle JDK or equivalents.)
 * Other minecraft requirements (decent video card, recent machine, enough memory.)
-* Some terminal, to run this script and see its output.
+* Some terminal, to run this script and see its output. Not absolutely mandatory, but you'll
+  thank me if something goes wrong and you can see it.
 
 Who this is for:
 * People who use modified jars.
