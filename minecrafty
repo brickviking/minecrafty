@@ -1,7 +1,7 @@
 #!/bin/bash
 
 VERSION=0
-MINOR=54
+MINOR=55
 PATCH=
 ME=$(basename $0)
 # Default gamma brightness of game
@@ -24,7 +24,7 @@ FTBBase="${HOME}/FTB.minecraft"
 TechnicBase="${HOME}/.technic"
 TerraFirmaBase="${HOME}/.tfcraft"
 ATLauncherBase="${HOME}/ATLauncher"
-AetherLauncherBase="${HOME}/Aether Launcher"
+AetherLauncherBase="${HOME}/.aether_launcher"
 
 # Mandatory to declare an associative array
 declare -A FUNCARRAY
@@ -297,9 +297,9 @@ SetGamma() {
 RunMC() {
 # TODO: merge these if they're both set.
     if [[ -n "${MYDIR}" ]]; then
-        pushd ${MYDIR}
+        pushd "${MYDIR}"
     else
-        pushd ${MCBase}
+        pushd "${MCBase}"
     fi
 
     if [[ ${GAMMA} ]]; then
@@ -351,7 +351,6 @@ Launcher() {
       return
     fi
     if [[ ${CMDARRAY[$1]+set} ]]; then
-        echo "Boo"
         case $1 in 
         help) LaunchHelp
             unset CMD
@@ -582,7 +581,7 @@ FetchMinecraft() {
                 mkdir ${TerraFirmaBase}
                 # TODO: If this fails, we have bigger problems
             fi
-            pushd ${TerraFirmaBase} # Don't forget to pop again
+            pushd "${TerraFirmaBase}" # Don't forget to pop again
             wget -O ${TerraFirmaBase}/TFCLauncher.zip "http://terrafirmacraft.com/files/TFCLauncher.zip"
             # Now we need to unzip it, as it's not just a jar... now it comes with a Start.sh/bat
             unzip TFCLauncher.zip
@@ -610,13 +609,13 @@ FetchMinecraft() {
             fi
             wget -O ${ATLauncherBase}/ATLauncher.jar https://www.atlauncher.com/download/jar
             ;;
-        aether) # I don't know if this has different values for Windows/OSX
+        aether) # This has different values of launcher home for Windows/OSX. This is one of the few to need a different root.
             # Incidentally, this possibly doesn't take care of the rest of the files
-            if [[ ! -d ${AetherLauncherBase} ]]; then
-                mkdir ${AetherLauncherBase}
+            if [[ ! -d "${AetherLauncherBase}" ]]; then
+                mkdir "${AetherLauncherBase}"
                 # TODO: If this fails, we have bigger problems
             fi
-            wget -O ${AetherLauncherBase}/aether-launcher-bootstrap.jar https://files.gildedgames.com/minecraft/aether/dist/launcher/aether-launcher-bootstrap.jar
+            wget -O "${AetherLauncherBase}/aether-launcher-bootstrap.jar" https://files.gildedgames.com/minecraft/aether/dist/launcher/aether-launcher-bootstrap.jar
             ;;
         *) echo "Can't recognise $1 (yet). minecrafty -f help for stuff I can fetch."
             exit 1

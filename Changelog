@@ -112,4 +112,4 @@ Changelog stripped out of the main file, created as a separate file
 0.54: Added the Aether Launcher, tweaked -l help and -f help to accept ?, 
       twiddled final downloading patterns to be good to the end of 2029 and
 	  snapshots to 29w53l. Yes, there's a very occasional chance of week 53.
-
+0.55: Corrected a bad assumption and modified aether location under $HOME.
