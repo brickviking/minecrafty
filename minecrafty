@@ -1,7 +1,7 @@
 #!/bin/bash
 
 VERSION=0
-MINOR=55
+MINOR=56
 PATCH=
 ME=$(basename $0)
 # Default gamma brightness of game
@@ -337,6 +337,7 @@ ServerRun() {
         CMD="$JAVARUN -Xmx1024M -Xincgc -jar ${ServerPlace}/${ServerName}"
     else
         echo "We don't have the $1 server here, please download from www.minecraft.net, getbukkit.org or spigotmc.org"
+#        echo "I can fetch default server versions, $0 -f 1.7.10 (example) will fetch client and server together"
         retval=1 #bad doggie, bad, there's no point in continuing any further
         echo "Instead, here's a default launcher"
     fi
@@ -389,9 +390,11 @@ FetchMinecraft() {
     #      : i.e.  final_$VER or snapshot_$VER.  Also shifted the initial cd outside the case switch.
     # 0.1.1: no idea why I upgraded to this number, but hey.
     # 0.1.9: folded this directly into minecrafty, also added another two years of snapshots
+    # 0.2.0: modified newfetch pattern to cover up to 1.99.99
     # ==========================================
-    # NB: this functionality has been (mostly) superceded by the new vanilla launcher's fetching
+    # NB: this functionality has been (mostly) superceded by the new vanilla launcher's fetching client versions
     # ==========================================
+    # NB: Should we have a "fetch server" switch? Currently we fetch both.
 
     # $1 ought to be something like 12w32a or 1.3.2, as it'll get used to name save files.
     unset CMD # we need to unset this, so that we don't accidentally start minecraft
@@ -420,7 +423,6 @@ FetchMinecraft() {
         return
     fi
     # Okay, we have a $1, do we cardinalise it?
-    # Not yet, as I don't know how to match it up against certain patterns.
     # somepattern is 1[12]w[12345][0-9][a-f], somepattern2 is [12].[0-9].[0-9]
     case $DROPOFF in 
         ########## Older releases ########
@@ -452,11 +454,10 @@ FetchMinecraft() {
             wget -O ${SERVER}/final_server_$DROPOFF.jar http://assets.minecraft.net/${DROPOFF//\./_}/minecraft_server.jar
         ;;
         ########## Newer releases ########
-        # New form of final release, covers every single 1.x (1.6 - 1.9) and double digit 1.xx.yy version (1.5.2 up to 1.39.9)
+        # New form of final release, covers every single 1.x (1.6 - 1.9) and double digit 1.xx.yy version (1.5.2 up to 1.99.99)
         # almost completely replaced by default launcher's fetching of every version including ancient ones
-        1.5.[2-9]|1.[6-9]|1.[6789].[0-9]|1.[123][0-9]|1.[123][0-9].[0-9])
+        1.5.[2-9]|1.[6-9]|1.[6-9].[0-9]|1.[6-9].[1-9][0-9]|1.[1-9][0-9]|1.[1-9][0-9].[0-9]|1.[1-9][0-9].[0-9][0-9])
             SINGLE="${MCBase}/versions" # A new home for the release
-            SERVER="${MCBase}/server/stash" # hmm? Does this remain the same?
             if [[ ! -d ${SINGLE}/${DROPOFF} ]]; then
 			    mkdir -p "${SINGLE}/${DROPOFF}"  # catch the "no .minecraft/versions dir" error
             fi
@@ -482,9 +483,8 @@ FetchMinecraft() {
             wget -O ${SERVER}/final_server_${DROPOFF}.jar http://s3.amazonaws.com/Minecraft.Download/versions/${DROPOFF}/minecraft_server.${DROPOFF}.jar
 
 		;;
-        # New form of snapshot release, good up to end of 2019, almost completely replaced by default launcher's fetching
-        # TODO: never seems to cover week 53, do we ever need it?
-        13w1[6-9][a-f_]|13w[234][0-9][a-f_]|13w5[012][a-f_]|1[456789]w[0-4][0-9][a-l_]|1[456789]w5[0-3][a-l_]|2[0123456789]w[0-4][0-9][a-l_]|2[0123456789]w5[0-3][a-l_]) 
+        # New form of snapshot release, good up to end of 2029, almost completely replaced by default launcher's fetching
+        13w1[6-9][a-f_]|13w[234][0-9][a-f_]|13w5[012][a-f_]|1[4-9]w[0-4][0-9][a-l_]|1[4-9]w5[0-3][a-l_]|2[0-9]w[0-4][0-9][a-l_]|2[0-9]w5[0-3][a-l_]) 
             SINGLE="${MCBase}/versions" # A new home for the release
             SERVER="${MCBase}/server/stash" # hmm? Does this remain the same?
             if [[ ! -d ${SINGLE}/${DROPOFF} ]]; then
@@ -517,7 +517,6 @@ FetchMinecraft() {
 # These options to -f download various launchers, make sure we don't overwrite.
 ##################
         launcher|default|vanilla) # default launcher, should we call this default instead of launcher?
-#            wget -O ${MCBase}/bin/minecraft-launcher.jar https://s3.amazonaws.com/MinecraftDownload/launcher/minecraft.jar
             wget -O ${MCBase}/bin/minecraft-launcher.jar https://s3.amazonaws.com/Minecraft.Download/launcher/Minecraft.jar
             ;;
 #        devlauncher) # development launcher, which may need to be removed as it has been moved to the default
@@ -534,20 +533,21 @@ FetchMinecraft() {
         digiex) # non-default launcher, definitely ancient
             wget -O ${MCBase}/bin/mclauncher.jar http://minecraft.digiex.org/dlfiles/mclauncher.jar
             ;;
-        multi) #yet another non-default, we can't normally download this one directly, it's adfly'd
+#        multi) #yet another non-default, we can't normally download this one directly, it's adfly'd
+# This hostname no longer resolves
         # seems we should only do the below if the build status is successful
         # TODO: get the correct arch binary, currently this is locked to x86
-            wget -O jobstatus "http://ci.forkk.net/job/MultiMC4Linux/arch=x86/lastBuild/consoleText"
-            grep -qi SUCCESS jobstatus
-            retval=$?
-            rm jobstatus
+#            wget -O jobstatus "http://ci.forkk.net/job/MultiMC4Linux/arch=x86/lastBuild/consoleText"
+#            grep -qi SUCCESS jobstatus
+#            retval=$?
+#            rm jobstatus
             # TODO: do we need to cover x86_64 too?
-            if [[ retval -eq 0 ]]; then
-                wget -O ${MCBase}/bin/MultiMC "http://ci.forkk.net/job/MultiMC4Linux/arch=x86/lastBuild/artifact/MultiMC"
-            else
-                echo "last build of MultiMC for Linux-x86 failed"
-            fi
-            ;;
+#            if [[ retval -eq 0 ]]; then
+#                wget -O ${MCBase}/bin/MultiMC "http://ci.forkk.net/job/MultiMC4Linux/arch=x86/lastBuild/artifact/MultiMC"
+#            else
+#                echo "last build of MultiMC for Linux-x86 failed"
+#            fi
+#            ;;
         craft) # Patching in support for craftlauncher, one of the few to need a different root.
             if [[ ! -d ${CLBase} ]]; then
                 mkdir ${CLBASE}
@@ -617,6 +617,9 @@ FetchMinecraft() {
             fi
             wget -O "${AetherLauncherBase}/aether-launcher-bootstrap.jar" https://files.gildedgames.com/minecraft/aether/dist/launcher/aether-launcher-bootstrap.jar
             ;;
+#        server) echo "can't (yet) fetch server on its own"
+#            exit 1
+#            ;;
         *) echo "Can't recognise $1 (yet). minecrafty -f help for stuff I can fetch."
             exit 1
             ;;

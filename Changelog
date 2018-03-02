@@ -106,10 +106,15 @@ Changelog stripped out of the main file, created as a separate file
       the game has finished. I also noted that -BEM aren't relevant for the
       main launcher any more.
 0.52: Added the ATLauncher
-0.53: twiddled final downloading patterns to be good to the end of 2029 and
+0.53: twiddled final downloading patterns to be good to the end of 2019 and
       1.99.9, corrected older patterns. Also updated README.md slightly.
 	  Initial idea for log file for minecrafty.
 0.54: Added the Aether Launcher, tweaked -l help and -f help to accept ?, 
-      twiddled final downloading patterns to be good to the end of 2029 and
-	  snapshots to 29w53l. Yes, there's a very occasional chance of week 53.
+      twiddled final downloading patterns to be good to the end of 2019 and
+	  snapshots to 19w53l. Yes, there's a very occasional chance of week 53.
 0.55: Corrected a bad assumption and modified aether location under $HOME.
+0.56: Expanded fetch pattern to 1.99.99 instead of 1.39.9, partly because we
+      had a 1.7.10 version which wasn't covered by this pattern. Also did some
+      tidying up of old comments. Patched out MultiLauncher too.
+      FINALLY twiddled final downloading patterns to be good to the end of 2029 and
+      snapshots to 29w53l. Modified changelog entries for 0.53 and 0.54.
