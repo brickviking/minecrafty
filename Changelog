@@ -118,3 +118,4 @@ Changelog stripped out of the main file, created as a separate file
       tidying up of old comments. Patched out MultiLauncher too.
       FINALLY twiddled final downloading patterns to be good to the end of 2029 and
       snapshots to 29w53l. Modified changelog entries for 0.53 and 0.54.
+0.57: Corrected download link for FTB, should probably check others

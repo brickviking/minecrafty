@@ -1,7 +1,7 @@
 #!/bin/bash
 
 VERSION=0
-MINOR=56
+MINOR=57
 PATCH=
 ME=$(basename $0)
 # Default gamma brightness of game
@@ -565,7 +565,8 @@ FetchMinecraft() {
             fi
             # TODO: correct this for each version, scrape webpage?
             # NB: launcher updates itself, and there's now a new version, not yet compat with Linux as of 2015
-            wget -O ${FTBBase}/FTB_Loader.jar "http://www.creeperrepo.net/direct/FTB2/697ef1c4d2cb0eddfbf53c3eceba4889/launcher%5EFTB_Launcher.jar"
+#            wget -O ${FTBBase}/FTB_Loader.jar "http://www.creeperrepo.net/direct/FTB2/697ef1c4d2cb0eddfbf53c3eceba4889/launcher%5EFTB_Launcher.jar"
+            wget -O ${FTBBase}/FTB_Loader.jar "http://ftb.cursecdn.com/FTB2/launcher/FTB_Launcher.jar"
             ;;
         technic) # Patching in support for Technic_Loader, one of the few to need a different root.
             if [[ ! -d ${TechnicBase} ]]; then
