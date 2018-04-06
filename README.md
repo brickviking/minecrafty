@@ -10,16 +10,17 @@ Features:
   * SKMCLauncher (sk89q.com, obsolete)
   * Digiex (obsolete and not kept up to date)
   * MagicLauncher
-  * MultiMC
+  * MultiMC (disabled for the moment until I find another download)
   * FeedTheBeast
   * Craftland
   * Technic
-  * Minecraft Version Changer (TunkDesign)
+  * Minecraft Version Changer (TunkDesign) (probably obsolete)
   * Aether Launcher
 * Download available release and snapshot versions of the minecraft client and server
 * Execute any installed minecraft launcher, even the default one
-  * Allocate memory
-  * Change screen brightness/gamma
+  * Allocate memory for the launcher
+  * Change screen brightness/gamma/resolution
+  * Send output to a logfile
 * Reset refresh rate on monitors after minecraft finishes
 * Downloads the latest bukkit Recommended Build
 * Starts a selected installed server

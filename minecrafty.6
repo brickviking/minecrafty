@@ -21,8 +21,8 @@
 .\" website or write to the Free Software Foundation, Inc., 59 Temple Place,
 .\" Suite 330, Boston, MA 02111, USA.
 .\"
-.\" Version 0.1.1 for minecrafty 0.58.
-.\" TODO: fix up the Launcher Options section the same as the Fetch Options section
+.\" Version 0.1.2 for minecrafty 0.58.
+.\" TODO: fix the Aether reference
 .\" 
 .TH MINECRAFTY 6 2018-10-23 "Linux" "Java games"
 .SH NAME
@@ -50,6 +50,64 @@ is started with no arguments, it runs the Minecraft launcher found in
 if you have already downloaded and installed it in the above location.
 Optionally, you can download or start Minecraft launchers or download
 java versions of vanilla Minecraft.
+.SH REQUIREMENTS
+.TP
+.B Linux
+Any recent version of Linux will do, I've tested this under Ubuntu and
+Fedora, both work fine. I cannot confirm if this script or its dependencies will even work under Cygwin.
+.TP
+.B Xorg
+Linux running in graphical (Xorg) mode on a local screen. Your desktop
+can be GDM, KDM, or whatever. I don't know if Wayland will work.
+.TP
+.B A recent machine
+.RS
+.TP
+.B Memory
+You should have at least 4 Gb, but preferably more especially for FTB.
+.TP
+.B 3-D Video card
+You should have a recent 3-D video card that can play Minecraft, preferably
+with 512 MB of video memory or more. Laptop video and integrated video
+chipsets may or may not work well for Minecraft, as they are often slower
+or may have less memory for video.
+.TP
+.B Intel or AMD CPU
+This should be from 2008 or later, as earlier CPUs simply won't run
+Minecraft well, if at all. Anything that's a Core/2 Quad or later, i3/i5/i7
+would be better. A 32-bit CPU can run Minecraft, but to get the best performance,
+your CPU and Linux should be running in 64-bit mode.
+.RE
+.TP
+.B xrandr
+This is available in most Linux distributions.
+.TP
+.B bash4
+You need bash installed, preferably bash4 or later. I don't think this
+script will work under dash or most other shells.
+.TP
+.B java
+A version of java, either JavaSE or SDK will do. OpenJDK will also do fine.
+If Minecraft will run using your java, you're good. 
+.TP
+.B Minecraft
+A paid account for Minecraft. The unpaid version won't work, or at best you'll have a
+demo that lasts you 100 minutes (about five in-game days).
+You can purchase Minecraft from the
+.I minecraft.net
+website. Some local stores may sell a Minecraft card you can redeem at 
+.I minecraft.net.
+.TP
+.B awk
+This should be available in most Linux distributions.
+.TP
+.B wget
+This does the fetching of launchers and client jar files. I haven't tested
+this with curl or other web page fetching programs.
+.TP
+.B terminal
+Not an absolute requirement, but is a good idea so you can see output.
+Terminal examples include Gnome Terminal, Konsole, or even xterm.
 .SH OPTIONS
 .SS General options
 Options for minecrafty are as follows:
@@ -250,39 +308,47 @@ run Aether Launcher
 .RE
 .SS Starting a server
 .TP
-.BI -s " server_name"
+.BI -s " server_name.jar"
 starts the latest server from 
-.I "${HOME}/.minecraft/server",
-supply a correct filename.
+.I "${HOME}/.minecraft/server/server_name.jar",
+you will need to supply a correct filename.
 
 .SH EXAMPLES
 .TP
 .B minecrafty
-executes the default launcher with default amount of memory assigned to it.
+executes the default launcher with the default amount of memory assigned to it.
 .TP
 .B minecrafty -l ftb
-executes the FTB launcher with default amount of memory assigned to it.
+executes the FTB launcher with the default amount of memory assigned to it.
 .TP
 .B minecrafty -f 1.12.2
 fetch the jar file for the 1.12.2 client, saving it in the correct place.
+.TP
+.B minecrafty -f 18w11a
+fetch the jar file for the 18w11a snapshot (development version) client file.
 .TP
 .B minecrafty -m 1 -g 1.3 -z 1360x768 -r 75 -G
 execute the default launcher, setting the screensize, refresh rate and gamma
 for the second monitor. Console output will be in
 .I ${HOME}/.minecraft/minecrafty.output.txt
 for you to look at if you have problems later.
+.TP
+.B minecrafty -s craftbukkit-1.7.2.jar
+This runs the craftbukkit server file. You'll need to get a server jar file
+and put it into
+.I ${HOME}/.minecraft/server/
 
 .SH BUGS
 No doubt there are some, I still haven't winkled out all the bugs in the
 graphics options yet, and most of the launchers aren't around any more.
+Thankfully, I can recommend the FTB launcher, which is kept up to date.
+This seems to take no notice of an existing MCBASE.
 The return value from minecrafty will be different if you use the logfile
 option
 .B -G
 as the exit value will actually be from the program used to capture the output.
-Thankfully, I can recommend the FTB launcher, which is kept up to date.
 
 .SH AUTHORS
 Me, of course (brickviking@gmail.com). I've had a little bit of help from others too.
 
-.SH ############ End of page
-
+.\"# vim:expandtab:ts=4
