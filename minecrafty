@@ -1,7 +1,7 @@
 #!/bin/bash
 
 VERSION=0
-MINOR=57
+MINOR=58
 PATCH=
 ME=$(basename $0)
 # Default gamma brightness of game
@@ -18,6 +18,8 @@ JAVARUN="java"
 CMDRUN="$JAVARUN"
 # Mandatory
 MCBase="${HOME}/.minecraft"
+# Set the logfile to empty string initially
+OUTFILE=""
 # Optional, if you add launchers, set a path here, add a SetXyzLauncher() function, add a line to ${FOA} and ${LOA} and a stanza in FetchMinecraft()
 CLBase="${HOME}/.craftland"
 FTBBase="${HOME}/FTB.minecraft"
@@ -33,6 +35,8 @@ declare -A CMDARRAY
 # New array for filling GETOPTS
 GOA=(
 "h" Help "provides this help screen (-? gets here as well)"
+"v" ShowVersionString "show version string"
+"G" LogFile "Capture output into a log file"
 "T" SetTinyMemory "assign minimal memory to the client (256 Mb)"
 "S" SetSmallMemory "assign normal amount of memory to the client (512 Mb)"
 "B" SetMoreMemory "assign more memory to the client (1 Gb)"
@@ -46,13 +50,11 @@ GOA=(
 "z:" FetchResolution "XxY: set required resolution (1920x1080 default)"
 "f:" FetchMinecraft "retrieves minecraft.jar or launcher from remote host, \`-f help' for more details"
 "l:" Launcher "starts specified launcher, \`-l help' for more details"
-"s:" ServerRun "starts the latest server from \`${MCBASE}/server', supply a filename"
-"v" ShowVersionString "show version string"
+"s:" ServerRun "starts the latest server from \`${MCBase}/server', supply a filename"
 )
 
 # Entries that aren't used at the moment, they're obsolete, I think.
 GONA=(
-"G" LogFile "Capture output into a log file"
 )
 
 # Entries for the -f (fetch) switch
@@ -67,20 +69,20 @@ FOA=(
 "digiex" Fetch "download DigiEX launcher (obsolete, may not work)"
 "ftb" Fetch "download FTB launcher"
 "magic" Fetch "download MagicLauncher"
-"multi" Fetch "download MultiMC"
 "skmc" Fetch "download development version of SKMCLauncher.jar (obsolete, may not work)"
 "technic" Fetch "download beta Technic launcher"
 "terra" Fetch "download beta TerraFirmaCraft launcher (1.5.1 only)"
 "mvc" Fetch "download Minecraft Version Changer from TunkDesign"
 "bukkitrb" Fetch "download latest recommended bukkit build"
 "atl" Fetch "download AT Launcher for Linux"
-"aether" Fetch "download Aether Launcher"
+"aether" Fetch "download classic Aether Launcher"
 )
 
 # Unused -f entries
 FONA=(
 "bukkitdevel" Fetch "download absolutely latest bukkit"
 "devlauncher" Fetch "download development launcher"
+"multi" Fetch "download MultiMC"
 )
 # I could also have entry for spigot in there
 
@@ -100,7 +102,7 @@ LOA=(
 "terra" SetTerraLauncher "run beta TerraFirmaCraft launcher (1.5.1 only)"
 "mvc" SetMVCLauncher "run Minecraft Version Changer (MVC.jar)"
 "atl" SetATLauncher "run AT Launcher"
-"aether" SetAetherLauncher "run Aether Launcher"
+"aether" SetAetherLauncher "run classic Aether Launcher"
 )
 
 
@@ -133,7 +135,7 @@ StuffLaunchOpts() {
 
 }
 
-StuffFetchOpts() {
+StuffFetchOpts() { #Set this up for launchers
 # Apparently bash now supports ( [string]="value" ) arrays.
     for (( i=0, p=0; i< ${#FOA[@]}; i+=3, p++ )); do
         FETCHOPTARRAY+=( "${FOA[i]}" )
@@ -172,6 +174,12 @@ FetchHelp() {
     for (( i=0, p=0; p<${#FETCHOPTARRAY[@]}; i+=3, p++ )); do
         echo "-f ${FETCHOPTARRAY[p]}    ${FOA[i+2]}"
     done
+}
+
+LogFile() {
+# Set output file for stdout/stderr to minecrafty.output.txt
+# WARNING: this should be the last option processed
+OUTFILE="${MCBase}/minecrafty.output.txt"
 }
 
 # Hopefully sets brightness, separate from the gamma
@@ -316,7 +324,13 @@ RunMC() {
         SetResolution
     fi
 # Run the command we got earlier, finishing by peeling the return value
-    ${CMD}
+    if [[ -z "${OUTFILE}" ]]; then
+      ${CMD}
+    else
+# Run the command we got earlier, outputting the command through tee.
+# return value will be from tee
+      ${CMD} 2>&1 | tee ${OUTFILE}
+    fi
     retval=$?
     popd
 }
@@ -403,7 +417,7 @@ FetchMinecraft() {
     SINGLE="${MCBase}/bin"
     SERVER="${MCBase}/server/stash"
     if [[ ! -d $SINGLE ]]; then
-        echo "Can't save, you don't seem to have a valid minecraft installation at ${MCBASE}!"
+        echo "Can't save, you don't seem to have a valid minecraft installation at ${MCBase}!"
         # TODO: This needs fixing, so the bash script will create the directory for us.
         exit 1
     fi
@@ -533,6 +547,7 @@ FetchMinecraft() {
         digiex) # non-default launcher, definitely ancient
             wget -O ${MCBase}/bin/mclauncher.jar http://minecraft.digiex.org/dlfiles/mclauncher.jar
             ;;
+# TODO: what the? We supply it on the commandline but not in here?
 #        multi) #yet another non-default, we can't normally download this one directly, it's adfly'd
 # This hostname no longer resolves
         # seems we should only do the below if the build status is successful
@@ -612,6 +627,7 @@ FetchMinecraft() {
             ;;
         aether) # This has different values of launcher home for Windows/OSX. This is one of the few to need a different root.
             # Incidentally, this possibly doesn't take care of the rest of the files
+            # TODO: we seriously need to update this from classic to Aether II
             if [[ ! -d "${AetherLauncherBase}" ]]; then
                 mkdir "${AetherLauncherBase}"
                 # TODO: If this fails, we have bigger problems
@@ -791,6 +807,8 @@ SetATLauncher() {
 }
 
 # runs Aether Launcher (for Aether II, NOT Aether Classic)
+# TODO: there's an anomaly here for Aether, I should resolve it
+# 20180301 Aether-launcher-bootstrap no longer works
 SetAetherLauncher() {
     CMDRUN="$PARUN $JAVARUN -Xincgc"
     CMDARG="-jar ${AetherLauncherBase}/aether-launcher-bootstrap.jar"
