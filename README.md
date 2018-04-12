@@ -7,23 +7,26 @@ launchers, it's more a tool to help out with starting them up.
 Features:
 * Download commonly available launchers:
   * Default launcher (minecraft.net)
-  * SKMCLauncher (sk89q.com, obsolete)
-  * Digiex (obsolete and not kept up to date)
-  * MagicLauncher
-  * MultiMC (disabled for the moment until I find another download)
+  * ATL
   * FeedTheBeast
-  * Craftland
+  * MagicLauncher
+  * MultiMC
   * Technic
-  * Minecraft Version Changer (TunkDesign) (probably obsolete)
-  * Aether Launcher
-* Download available release and snapshot versions of the minecraft client and server
+* Download available release and snapshot versions of the minecraft client
 * Execute any installed minecraft launcher, even the default one
   * Allocate memory for the launcher
   * Change screen brightness/gamma/resolution
   * Send output to a logfile
 * Reset refresh rate on monitors after minecraft finishes
-* Downloads the latest bukkit Recommended Build
 * Starts a selected installed server
+
+Recently removed launchers:
+  * Aether Launcher
+  * Craftland
+  * Digiex (obsolete and not kept up to date)
+  * Minecraft Version Changer (TunkDesign) (probably obsolete)
+  * SKMCLauncher (sk89q.com, obsolete)
+  * Download of the latest bukkit Recommended Build
 
 Requirements:
 * A paid account for minecraft. Unpaid won't work, or at best you will have demo.
