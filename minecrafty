@@ -1,7 +1,7 @@
 #!/bin/bash
 
 VERSION=0
-MINOR=58
+MINOR=59
 PATCH=
 ME=$(basename $0)
 # Default gamma brightness of game
@@ -21,12 +21,15 @@ MCBase="${HOME}/.minecraft"
 # Set the logfile to empty string initially
 OUTFILE=""
 # Optional, if you add launchers, set a path here, add a SetXyzLauncher() function, add a line to ${FOA} and ${LOA} and a stanza in FetchMinecraft()
-CLBase="${HOME}/.craftland"
 FTBBase="${HOME}/FTB.minecraft"
 TechnicBase="${HOME}/.technic"
-TerraFirmaBase="${HOME}/.tfcraft"
 ATLauncherBase="${HOME}/ATLauncher"
 AetherLauncherBase="${HOME}/.aether_launcher"
+MultiMCBase="${MCBase}/MultiMC"
+
+#Obsolete launchers
+CLBase="${HOME}/.craftland"
+TerraFirmaBase="${HOME}/.tfcraft" # currently at 1.7.10 (20180412)
 
 # Mandatory to declare an associative array
 declare -A FUNCARRAY
@@ -42,11 +45,11 @@ GOA=(
 "B" SetMoreMemory "assign more memory to the client (1 Gb)"
 "E" SetEnormousMemory "assign lots more memory to the client, only on 64-bit systems (2 Gb)"
 "O" SetPADSP "create OSS-like pulseaudio device"
-"P" SetPAPause "suspends pulseaudio while minecraft runs"
+"P" SetPAPause "suspends pulseaudio while Minecraft runs"
 "b:" BrightInit "n.n: set the brightness. If unset, $BRIGHTDEF is used. 0.7 darker, 1.2 lighter"
 "g:" GammaInit "n.n: set the gamma offset. If unset, $GAMMADEF is used. 0.7 lighter, 1.2 darker"
 "m:" SetMonitor "select monitor to apply gamma correction to"
-"r:" SetRefresh "nn.n: set a valid refresh rate for the second monitor, as minecraft has a habit of setting this to the recommended value instead of the value used originally."
+"r:" SetRefresh "nn.n: set a valid refresh rate for the second monitor, as Minecraft has a habit of setting this to the recommended value instead of the value used originally."
 "z:" FetchResolution "XxY: set required resolution (1920x1080 default)"
 "f:" FetchMinecraft "retrieves minecraft.jar or launcher from remote host, \`-f help' for more details"
 "l:" Launcher "starts specified launcher, \`-l help' for more details"
@@ -60,29 +63,29 @@ GONA=(
 # Entries for the -f (fetch) switch
 FOA=(
 "help" FetchHelp "provide this help screen specifically for version and launcher downloading"
-"1.2.4" VersionCheck "download a specific final-release version"
-"13w02b" VersionCheck "download a specific snapshot version"
+"1.2.4" VersionCheck "download a specific final-release client"
+"13w02b" VersionCheck "download a specific snapshot client"
 "launcher" Fetch "download default launcher"
 "default" Fetch "download default launcher"
 "vanilla" Fetch "download default launcher"
-"craft" Fetch "download Craftland installer for latest Aether prerelease"
-"digiex" Fetch "download DigiEX launcher (obsolete, may not work)"
+"atl" Fetch "download AT Launcher for Linux"
 "ftb" Fetch "download FTB launcher"
 "magic" Fetch "download MagicLauncher"
-"skmc" Fetch "download development version of SKMCLauncher.jar (obsolete, may not work)"
+"multi" Fetch "download MultiMC"
 "technic" Fetch "download beta Technic launcher"
-"terra" Fetch "download beta TerraFirmaCraft launcher (1.5.1 only)"
-"mvc" Fetch "download Minecraft Version Changer from TunkDesign"
-"bukkitrb" Fetch "download latest recommended bukkit build"
-"atl" Fetch "download AT Launcher for Linux"
-"aether" Fetch "download classic Aether Launcher"
+"terra" Fetch "download TerraFirmaCraft launcher (1.7.10 only)"
 )
 
-# Unused -f entries
+# Unused and obsoleted -f entries
 FONA=(
+"aether" Fetch "download classic Aether Launcher"
+"bukkitrb" Fetch "download latest recommended bukkit build"
 "bukkitdevel" Fetch "download absolutely latest bukkit"
+"craft" Fetch "download Craftland installer for latest Aether prerelease"
 "devlauncher" Fetch "download development launcher"
-"multi" Fetch "download MultiMC"
+"digiex" Fetch "download DigiEX launcher (discontinued because of obsolescence, unavailable for download)"
+"mvc" Fetch "download Minecraft Version Changer from TunkDesign"
+"skmc" Fetch "download development version of SKMCLauncher.jar (obsolete, may not work)"
 )
 # I could also have entry for spigot in there
 
@@ -92,17 +95,12 @@ LOA=(
 "default" DefaultSettings "run default launcher"
 "launcher" DefaultSettings "run default launcher"
 "vanilla" DefaultSettings "run default launcher"
-"craft" SetCraftLauncher "run CraftLand launcher"
-"digiex" SetDigiLauncher "run DigiEX launcher"
+"atl" SetATLauncher "run AT Launcher"
+"ftb" SetFTBLauncher "run FTB launcher"
 "magic" SetMagicLauncher "run MagicLauncher"
 "multi" SetMultiLauncher "run MultiMC"
-"skmc" SetSKMCLauncher "run development version of SKMCLauncher.jar"
-"ftb" SetFTBLauncher "run FTB launcher"
 "technic" SetTechLauncher "run Technic launcher"
-"terra" SetTerraLauncher "run beta TerraFirmaCraft launcher (1.5.1 only)"
-"mvc" SetMVCLauncher "run Minecraft Version Changer (MVC.jar)"
-"atl" SetATLauncher "run AT Launcher"
-"aether" SetAetherLauncher "run classic Aether Launcher"
+"terra" SetTerraLauncher "run beta TerraFirmaCraft launcher (1.7.10 only)"
 )
 
 
@@ -110,6 +108,11 @@ LOA=(
 LONA=(
 # devlauncher was rendered totally irrelevant when it became the default launcher
 #"devlauncher" SetDevLauncher "run Mojang's development launcher"
+"aether" SetAetherLauncher "run classic Aether Launcher"
+"craft" SetCraftLauncher "run CraftLand launcher"
+"digiex" SetDigiLauncher "run DigiEX launcher"
+"mvc" SetMVCLauncher "run Minecraft Version Changer (MVC.jar)"
+"skmc" SetSKMCLauncher "run development version of SKMCLauncher.jar"
 )
 
 # This routine "stuffs" values into GETOPTS for later use by the getopts routine
@@ -132,7 +135,6 @@ StuffLaunchOpts() {
         FUNCARRAY+=( ["${LAUNCHOPTARRAY[p]}"]="${LOA[i+1]}" )
         LAUNCHHELPOPTS+=( "${LOA[i+2]}" )
     done
-
 }
 
 StuffFetchOpts() { #Set this up for launchers
@@ -143,7 +145,6 @@ StuffFetchOpts() { #Set this up for launchers
         FUNCARRAY+=( ["${FETCHOPTARRAY[p]}"]="${FOA[i+1]}" )
         FETCHHELPOPTS+=( "${FOA[i+2]}" )
     done
-
 }
 
 Help() {
@@ -329,6 +330,7 @@ RunMC() {
     else
 # Run the command we got earlier, outputting the command through tee.
 # return value will be from tee
+# TODO: should we assess appending instead of overwriting?
       ${CMD} 2>&1 | tee ${OUTFILE}
     fi
     retval=$?
@@ -417,7 +419,7 @@ FetchMinecraft() {
     SINGLE="${MCBase}/bin"
     SERVER="${MCBase}/server/stash"
     if [[ ! -d $SINGLE ]]; then
-        echo "Can't save, you don't seem to have a valid minecraft installation at ${MCBase}!"
+        echo "Can't save, you don't seem to have a valid Minecraft installation at ${MCBase}!"
         # TODO: This needs fixing, so the bash script will create the directory for us.
         exit 1
     fi
@@ -439,7 +441,11 @@ FetchMinecraft() {
     # Okay, we have a $1, do we cardinalise it?
     # somepattern is 1[12]w[12345][0-9][a-f], somepattern2 is [12].[0-9].[0-9]
     case $DROPOFF in 
-        ########## Older releases ########
+        help) 
+            FetchHelp
+            break # leaves the case switch
+            ;;
+        ########## Older client/server releases ########
         1[12]w[012345][0-9][a-f_]) # snapshot version, should be good for snapshots up to the end of 2012
             if [[ ! -f ${SINGLE}/snapshot_${DROPOFF}.jar ]]; then # only fetch if we haven't got it already
                 wget -O ${SINGLE}/snapshot_$DROPOFF.jar http://assets.minecraft.net/${DROPOFF//\./_}/minecraft.jar
@@ -467,7 +473,7 @@ FetchMinecraft() {
             fi
             wget -O ${SERVER}/final_server_$DROPOFF.jar http://assets.minecraft.net/${DROPOFF//\./_}/minecraft_server.jar
         ;;
-        ########## Newer releases ########
+        ########## Newer client/server releases ########
         # New form of final release, covers every single 1.x (1.6 - 1.9) and double digit 1.xx.yy version (1.5.2 up to 1.99.99)
         # almost completely replaced by default launcher's fetching of every version including ancient ones
         1.5.[2-9]|1.[6-9]|1.[6-9].[0-9]|1.[6-9].[1-9][0-9]|1.[1-9][0-9]|1.[1-9][0-9].[0-9]|1.[1-9][0-9].[0-9][0-9])
@@ -536,42 +542,12 @@ FetchMinecraft() {
 #        devlauncher) # development launcher, which may need to be removed as it has been moved to the default
 #            wget -O ${MCBase}/MinecraftDev.jar https://s3.amazonaws.com/Minecraft.Download/launcher/MinecraftDev.jar
 #            ;;
-        skmc) # non-default launcher, we should probably back up the last version
-            # TODO: Must do the backup last launcher thing for all the rest of them
-            mv "${MCBase}/bin/SKMCLauncher.jar" "${MCBase}/bin/SKMCLauncher-last.jar"
-            wget -O ${MCBase}/bin/SKMCLauncher.jar http://build.sk89q.com/job/SKMCLauncher/lastSuccessfulBuild/artifact/target/SKMCLauncher.jar
-            ;;
-        magic) # another non-default launcher
-            wget -O ${MCBase}/bin/MagicLauncher-1.0.0.jar http://magiclauncher.com/download.php?f=MagicLauncher_1.0.0.jar
-            ;;
-        digiex) # non-default launcher, definitely ancient
-            wget -O ${MCBase}/bin/mclauncher.jar http://minecraft.digiex.org/dlfiles/mclauncher.jar
-            ;;
-# TODO: what the? We supply it on the commandline but not in here?
-#        multi) #yet another non-default, we can't normally download this one directly, it's adfly'd
-# This hostname no longer resolves
-        # seems we should only do the below if the build status is successful
-        # TODO: get the correct arch binary, currently this is locked to x86
-#            wget -O jobstatus "http://ci.forkk.net/job/MultiMC4Linux/arch=x86/lastBuild/consoleText"
-#            grep -qi SUCCESS jobstatus
-#            retval=$?
-#            rm jobstatus
-            # TODO: do we need to cover x86_64 too?
-#            if [[ retval -eq 0 ]]; then
-#                wget -O ${MCBase}/bin/MultiMC "http://ci.forkk.net/job/MultiMC4Linux/arch=x86/lastBuild/artifact/MultiMC"
-#            else
-#                echo "last build of MultiMC for Linux-x86 failed"
-#            fi
-#            ;;
-        craft) # Patching in support for craftlauncher, one of the few to need a different root.
-            if [[ ! -d ${CLBase} ]]; then
-                mkdir ${CLBASE}
+        atl) # Only true for Linux, at least currently. Windows has an exe, Mac has an app.
+            if [[ ! -d ${ATLauncherBase} ]]; then
+                mkdir ${ATLauncherBase}
                 # TODO: If this fails, we have bigger problems
             fi
-            wget -O ${CLBase}/craftlandloader.jar "http://craftland.org/mod/craftlandloader.jar"
-            # TODO: how the heck do we execute this? we need loader.jar, not craftlandloader.jar
-            echo "Please execute 'java -jar '${CLBase}/craftlandloader.jar"
-            echo "This will prepare craftland for execution later, with ${ME} -l craft"
+            wget -O ${ATLauncherBase}/ATLauncher.jar https://www.atlauncher.com/download/jar
             ;;
         ftb) # Patching in support for FTB_Launcher, one of the few to need a different root.
             if [[ ! -d ${FTBBase} ]]; then
@@ -583,13 +559,40 @@ FetchMinecraft() {
 #            wget -O ${FTBBase}/FTB_Loader.jar "http://www.creeperrepo.net/direct/FTB2/697ef1c4d2cb0eddfbf53c3eceba4889/launcher%5EFTB_Launcher.jar"
             wget -O ${FTBBase}/FTB_Loader.jar "http://ftb.cursecdn.com/FTB2/launcher/FTB_Launcher.jar"
             ;;
+        magic) # another non-default launcher
+            wget -O ${MCBase}/bin/MagicLauncher-1.0.0.jar http://magiclauncher.com/download.php?f=MagicLauncher_1.0.0.jar
+            ;;
+# it seems MultiMC is arch-dependent. I now have a download link. Woo hoo!
+# TODO: check if dir exists, create if it doesn't
+        multi) # a kept-up-to-date launcher
+            # First, grab the arch
+            MYARCH=$(arch)
+            case MYARCH in
+              x86_64)
+                DL_ARCH=lin64
+              ;;
+              i686)
+                 DL_ARCH=lin32
+              ;;
+              *)
+               echo "Sometihng broek. Please fix the multi) section of FetchMinecraft"
+               retval=1
+               break # Better exit early
+            esac
+            # go download it (TODO: we need to check for failures to download)
+            wget -O ${MCSTASH}/mmc-stable-${DL_ARCH}.tar.gz "https://files.multimc.org/downloads/mmc-stable-${DL_ARCH}.tar.gz"
+            # Now we extract it to somewhere
+            tar xvf ${MCSTASH}/mmc-stable-${DL_ARCH}.tar.gz
+            unset DL_ARCH
+          ;; # End of multi) section
         technic) # Patching in support for Technic_Loader, one of the few to need a different root.
             if [[ ! -d ${TechnicBase} ]]; then
                 mkdir ${TechnicBase}
                 # TODO: If this fails, we have bigger problems
             fi
             # TODO: correct this for each version, scrape webpage?
-            wget -O ${TechnicBase}/Technic_Loader.jar "http://mirror.technicpack.net/launcher/221/TechnicLauncher.jar"
+# Previous link at "http://mirror.technicpack.net/launcher/221/TechnicLauncher.jar" 
+            wget -O ${TechnicBase}/TechnicLauncher.jar "http://launcher.technicpack.net/launcher4/360/TechnicLauncher.jar"
             ;;
         terra) # Patching in support for TerraFirmaCraft, one of the few to need a different root.
             # TODO: Remove this really soon, as TerraFirmaCraft now uses the default launcher
@@ -603,40 +606,48 @@ FetchMinecraft() {
             unzip TFCLauncher.zip
             popd
             ;;
-        mvc) 
-            wget -O ${MCBase}/bin/MVC.jar "http://mvc.tunkdesign.com/cgi-bin/load.cgi?dljar/MVC.jar"
-            ;;
-        bukkitrb) 
-            ParseLatestRB
-            wget -O ${MCBase}/server/craftbukkit-${BUKKITVER}.jar http://dl.bukkit.org/latest-rb/craftbukkit.jar
-            ;;
-#        bukkitbeta) 
-#            ParseLatestBeta
-#            wget -O ${MCBase}/server/craftbukkit-beta.jar http://cbukk.it/craftbukkit-beta.jar
-#            ;;
-        help) 
-            FetchHelp
-            break # leaves the case switch
-            ;;
-        atl) # Only true for Linux, at least currently. Windows has an exe, Mac has an app.
-            if [[ ! -d ${ATLauncherBase} ]]; then
-                mkdir ${ATLauncherBase}
-                # TODO: If this fails, we have bigger problems
-            fi
-            wget -O ${ATLauncherBase}/ATLauncher.jar https://www.atlauncher.com/download/jar
-            ;;
+#################### Obsolete entries ####################
         aether) # This has different values of launcher home for Windows/OSX. This is one of the few to need a different root.
             # Incidentally, this possibly doesn't take care of the rest of the files
             # TODO: we seriously need to update this from classic to Aether II
-            if [[ ! -d "${AetherLauncherBase}" ]]; then
+            if [[ ! -d ${AetherLauncherBase} ]]; then
                 mkdir "${AetherLauncherBase}"
                 # TODO: If this fails, we have bigger problems
             fi
             wget -O "${AetherLauncherBase}/aether-launcher-bootstrap.jar" https://files.gildedgames.com/minecraft/aether/dist/launcher/aether-launcher-bootstrap.jar
             ;;
+#        bukkitrb) # craftbukkit server, disabled while DCMA claim works its way out
+#            ParseLatestRB
+#            wget -O ${MCBase}/server/craftbukkit-${BUKKITVER}.jar http://dl.bukkit.org/latest-rb/craftbukkit.jar
+#            ;;
+#        bukkitbeta) 
+#            ParseLatestBeta
+#            wget -O ${MCBase}/server/craftbukkit-beta.jar http://cbukk.it/craftbukkit-beta.jar
+#            ;;
+        craft) # Patching in support for craftlauncher, one of the few to need a different root.
+            if [[ ! -d ${CLBase} ]]; then
+                mkdir ${CLBASE}
+                # TODO: If this fails, we have bigger problems
+            fi
+            wget -O ${CLBase}/craftlandloader.jar "http://craftland.org/mod/craftlandloader.jar"
+            # TODO: how the heck do we execute this? we need loader.jar, not craftlandloader.jar
+            echo "Please execute 'java -jar '${CLBase}/craftlandloader.jar"
+            echo "This will prepare craftland for execution later, with ${ME} -l craft"
+            ;;
+        digiex) # non-default launcher, definitely ancient
+            wget -O ${MCBase}/bin/mclauncher.jar http://minecraft.digiex.org/dlfiles/mclauncher.jar
+            ;;
 #        server) echo "can't (yet) fetch server on its own"
 #            exit 1
 #            ;;
+        mvc) # Minecraft Version Changer, now obsolete (1.6.2-prerelease), unsupported and deprecated
+            wget -O ${MCBase}/bin/MVC.jar "http://mvc.tunkdesign.com/cgi-bin/load.cgi?dljar/MVC.jar"
+            ;;
+        skmc) # non-default launcher, we should probably back up the last version
+            # TODO: Must do the backup last launcher thing for all the rest of them
+            mv "${MCBase}/bin/SKMCLauncher.jar" "${MCBase}/bin/SKMCLauncher-last.jar"
+            wget -O ${MCBase}/bin/SKMCLauncher.jar http://build.sk89q.com/job/SKMCLauncher/lastSuccessfulBuild/artifact/target/SKMCLauncher.jar
+            ;;
         *) echo "Can't recognise $1 (yet). minecrafty -f help for stuff I can fetch."
             exit 1
             ;;
@@ -658,7 +669,11 @@ SetPADSP() {
 
 SetPAPause() {
     # This command isn't always the same name
-    PARUN="pasuspender -- "
+    if which pasuspend >/dev/null; then 
+      PARUN="pasuspend -- "
+    elif which pasuspender >/dev/null; then
+      PARUN="pasuspender -- "
+    fi
     CMDRUN="$PARUN $JAVARUN"
     CMD="${CMDRUN} ${CMDOPT} ${MEM} ${CMDARG}"
 }
@@ -731,7 +746,11 @@ SetMagicLauncher() {
 
 SetMultiLauncher() {
 # queue this up so it runs MultiMC.
-    CMDRUN="${MCBase}/bin/MultiMC"
+    if [[ -n ${MEM} ]]; then
+        echo "${ME}: ${MEM} (from -T/-B/-E) is being ignored. FTBLauncher sets memory for Minecraft from its own settings"
+    fi
+    MYDIR="${MultiMCBase}"
+    CMDRUN="${MCBase}/MultiMC/MultiMC"
     CMDARG=""
     CMD="${CMDRUN} ${CMDOPT} ${CMDARG}"
 }
@@ -744,17 +763,17 @@ SetCraftLauncher() {
 }
 
 SetDigiLauncher() {
-# runs  digiexs' mclauncher
+# runs  digiexs' mclauncher, now obsolete, unsupported and deprecated
     CMDRUN="$PARUN $JAVARUN -Xincgc"
     CMDARG="-jar ${MCBase}/bin/mclauncher.jar"
     CMD="${CMDRUN} ${CMDOPT} ${MEM} ${CMDARG}"
 }
 
 SetSKMCLauncher() {
-# runs SKMClauncher
+# runs SKMClauncher, now obsolete, unsupported and deprecated
 #    CMDARG="-jar ${MCBase}/bin/SKMCLauncher-3.1.7-SNAPSHOT.jar"
     if [[ -n ${MEM} ]]; then
-        echo "${ME}: ${MEM} (from -T/-B/-E) is being ignored. skmclauncher sets memory for minecraft from its own settings"
+        echo "${ME}: ${MEM} (from -T/-B/-E) is being ignored. skmclauncher sets memory for Minecraft from its own settings"
     fi
 # We don't need ${MEM} here, as SKMClauncher allows for setting specific memory when starting minecraft.
     CMDRUN="$PARUN $JAVARUN -Xincgc"
@@ -764,7 +783,7 @@ SetSKMCLauncher() {
 
 SetFTBLauncher() {
     if [[ -n ${MEM} ]]; then
-        echo "${ME}: ${MEM} (from -T/-B/-E) is being ignored. FTBLauncher sets memory for minecraft from its own settings"
+        echo "${ME}: ${MEM} (from -T/-B/-E) is being ignored. FTBLauncher sets memory for Minecraft from its own settings"
     fi
     MYDIR="${FTBBase}"
     CMDRUN="$PARUN $JAVARUN -Xincgc"
@@ -774,7 +793,7 @@ SetFTBLauncher() {
 
 SetTechLauncher() {
     if [[ -n ${MEM} ]]; then
-        echo "${ME}: ${MEM} (from -T/-B/-E) is being ignored. TechnicLauncher sets memory for minecraft from its own settings"
+        echo "${ME}: ${MEM} (from -T/-B/-E) is being ignored. TechnicLauncher sets memory for Minecraft from its own settings"
     fi
     MYDIR="${TechnicBase}"
     CMDRUN="$PARUN $JAVARUN -Xincgc"
@@ -792,14 +811,14 @@ SetTerraLauncher() {
     CMD="${CMDRUN} ${CMDOPT} ${MEM} ${CMDARG}"
 }
 
-# runs mvc, a minecraft version patcher
+# runs mvc, a Minecraft version patcher
 SetMVCLauncher() {
     CMDRUN="$PARUN $JAVARUN -Xincgc"
     CMDARG="-jar ${MCBase}/bin/MVC.jar"
     CMD="${CMDRUN} ${CMDOPT} ${MEM} ${CMDARG}"
 }
 
-# runs ATLauncher, a minecraft version patcher
+# runs ATLauncher, a Minecraft version patcher
 SetATLauncher() {
     CMDRUN="$PARUN $JAVARUN -Xincgc"
     CMDARG="-jar ${ATLauncherBase}/ATLauncher.jar"
@@ -828,54 +847,6 @@ GetOpts() {
 # handle the getopts error here. This stops the script on an incorrect switch.
 # An alternative would have been to check ${OPTARG} against "-?"|"-h" in a case switch specifically for the help switch
             Help
-            unset CMD
-            break
-            ;;
-#        "f") FetchOpts
-#            ;;
-#        "l") LaunchOpts
-#            ;;
-        esac
-
-#        fi
-        for (( t=0; t<"${#GETOPTARRAY[@]}"; t++ )); do
-            if [[ "${ONECMD}:" == "${GETOPTARRAY[$t]}" ]]; then 
-                ONECMD="${ONECMD}:"
-            fi
-        done
-        ${FUNCARRAY[$ONECMD]} ${OPTARG}
-    done
-}
-
-FetchOpts() { # both FetchOpts and LaunchOpts can't use getopts, as getopts under bash doesn't use words as options
-    while getopts ${FETCHOPTS} ONECMD; do
-#        if [[ "${ONECMD}" == "?" ]]; then
-        case ${ONECMD} in "?"|"h")
-# handle the getopts error here. This stops the script on an incorrect switch.
-# An alternative would have been to check ${OPTARG} against "-?"|"-h" in a case switch specifically for the help switch
-            FetchHelp
-            unset CMD
-            break
-            ;;
-        esac
-
-#        fi
-        for (( t=0; t<"${#FETCHOPTARRAY[@]}"; t++ )); do
-            if [[ "${ONECMD}:" == "${FETCHOPTARRAY[$t]}" ]]; then 
-                ONECMD="${ONECMD}:"
-            fi
-        done
-        ${FUNCARRAY[$ONECMD]} ${OPTARG}
-    done
-}
-
-LaunchOpts() {
-    while getopts ${LAUNCHOPTS} ONECMD; do
-#        if [[ "${ONECMD}" == "?" ]]; then
-        case ${ONECMD} in "?"|"h")
-# handle the getopts error here. This stops the script on an incorrect switch.
-# An alternative would have been to check ${OPTARG} against "-?"|"-h" in a case switch specifically for the help switch
-            LaunchHelp
             unset CMD
             break
             ;;
