@@ -443,7 +443,6 @@ FetchMinecraft() {
     case $DROPOFF in 
         help) 
             FetchHelp
-            break # leaves the case switch
             ;;
         ########## Older client/server releases ########
         1[12]w[012345][0-9][a-f_]) # snapshot version, should be good for snapshots up to the end of 2012
@@ -577,7 +576,6 @@ FetchMinecraft() {
               *)
                echo "Sometihng broek. Please fix the multi) section of FetchMinecraft"
                retval=1
-               break # Better exit early
             esac
             # go download it (TODO: we need to check for failures to download)
             wget -O ${MCSTASH}/mmc-stable-${DL_ARCH}.tar.gz "https://files.multimc.org/downloads/mmc-stable-${DL_ARCH}.tar.gz"
@@ -847,7 +845,6 @@ GetOpts() {
 # An alternative would have been to check ${OPTARG} against "-?"|"-h" in a case switch specifically for the help switch
             Help
             unset CMD
-            break
             ;;
         esac
 
