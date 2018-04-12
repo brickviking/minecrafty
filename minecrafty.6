@@ -1,5 +1,5 @@
 .\" Copyright (c) 2018 brickviking (brickviking@gmail.com),
-.\"     Fri Apr  6 10:54:00 NZST 2018
+.\"     Thu Apr 12 17:05:00 NZST 2018
 .\"
 .\" This is free documentation; you can redistribute it and/or
 .\" modify it under the terms of the GNU General Public License as
@@ -21,10 +21,10 @@
 .\" website or write to the Free Software Foundation, Inc., 59 Temple Place,
 .\" Suite 330, Boston, MA 02111, USA.
 .\"
-.\" Version 0.1.2 for minecrafty 0.58.
-.\" TODO: fix the Aether reference
+.\" Version 0.1.3 for minecrafty 0.59.
+.\" TODO: fix the Aether reference, remove all the obsolete entries
 .\" 
-.TH MINECRAFTY 6 2018-10-23 "Linux" "Java games"
+.TH MINECRAFTY 6 2018-04-12 "Linux" "Java games"
 .SH NAME
 minecrafty \- A Minecraft launcher front end.
 .SH SYNOPSIS
@@ -35,49 +35,73 @@ minecrafty \- A Minecraft launcher front end.
 .BI "[-r " "nn.n"]
 .BI "[-z " "XxY" "] ..."
 .TP
-.BI minecrafty " " "[-f " launcher_name "] ..."
+.BI minecrafty " " "[-f " launcher_name|help "] ..."
 .TP
-.BI minecrafty " " "[-l " launcher_name "] ..."
+.BI minecrafty " " "[-l " launcher_name|help "] ..."
 .TP
 .BI minecrafty " " "[-s" " servername" "] ..."
 .SH DESCRIPTION
 .B minecrafty
-executes a java launcher for the computer game Minecraft.
+executes a java launcher for the computer game Minecraft (Java Edition).
+Optionally, you can download or start Minecraft launchers or download
+java clients and servers for vanilla Minecraft. 
+
 When
 .B minecrafty
 is started with no arguments, it runs the Minecraft launcher found in
 .I "${HOME}/.minecraft/bin/minecraft_launcher.jar"
-if you have already downloaded and installed it in the above location.
-Optionally, you can download or start Minecraft launchers or download
-java versions of vanilla Minecraft.
+if you have already downloaded and installed it in that location.
+
+It is
+.I not
+for the Bedrock edition of Minecraft; that already has its own launcher
+and only works under Windows 10.
 .SH REQUIREMENTS
-.TP
-.B Linux
-Any recent version of Linux will do, I've tested this under Ubuntu and
-Fedora, both work fine. I cannot confirm if this script or its dependencies will even work under Cygwin.
-.TP
-.B Xorg
-Linux running in graphical (Xorg) mode on a local screen. Your desktop
-can be GDM, KDM, or whatever. I don't know if Wayland will work.
-.TP
-.B A recent machine
-.RS
+Most of these requirements actually relate to the ability to run Minecraft,
+not specifically the minecrafty front end.
+.SS Hardware
 .TP
 .B Memory
-You should have at least 4 Gb, but preferably more especially for FTB.
+Your machine should have an absolute minimum of 4 Gb to play Minecraft.
+It should ideally have more memory than this, especially for recent FTB
+modpacks and other modpack collections.
 .TP
 .B 3-D Video card
-You should have a recent 3-D video card that can play Minecraft, preferably
-with 512 MB of video memory or more. Laptop video and integrated video
+You should have a recent PCI Express 3-D video card that can play Minecraft, preferably
+with 512 Mb of video memory or more. Laptop video and integrated video
 chipsets may or may not work well for Minecraft, as they are often slower
-or may have less memory for video.
+or may have less memory for video. AGP video cards aren't powerful enough,
+and are far too old.
 .TP
 .B Intel or AMD CPU
 This should be from 2008 or later, as earlier CPUs simply won't run
-Minecraft well, if at all. Anything that's a Core/2 Quad or later, i3/i5/i7
-would be better. A 32-bit CPU can run Minecraft, but to get the best performance,
-your CPU and Linux should be running in 64-bit mode.
-.RE
+Minecraft well, if at all. Anything that's a Core/2 Quad or later works,
+but an i3/i5/i7 or an AMD equivalent would be better. A 32-bit CPU can run
+Minecraft, but to get the best performance, your CPU and Linux should be
+running in 64-bit mode.
+.SS Software
+.TP
+.B Minecraft
+A paid account for Minecraft. The unpaid version won't work, or at best
+you'll have a demo that lasts you 100 minutes (about five in-game days).
+You can purchase Minecraft from the
+.I minecraft.net
+website. Some local stores may sell a Minecraft prepaid card with a code
+you can redeem at 
+.I minecraft.net.
+.TP
+.B java
+A recent version of java 8, either JavaSE or SDK will do. OpenJDK will also do fine.
+If Minecraft will run using your java, you're good. 
+.TP
+.B Linux
+Any recent up-to-date version of Linux later than 2014 will do, I've tested
+this under Ubuntu and Fedora, both work fine. I cannot confirm if this script
+or its dependencies will even work under Cygwin, let alone wine.
+.TP
+.B Xorg
+Linux running in graphical (Xorg) mode on a local screen, in 3-D accelerated mode. Your desktop
+can be GDM, KDM, or whatever. I don't know if Wayland will work.
 .TP
 .B xrandr
 This is available in most Linux distributions.
@@ -86,24 +110,13 @@ This is available in most Linux distributions.
 You need bash installed, preferably bash4 or later. I don't think this
 script will work under dash or most other shells.
 .TP
-.B java
-A version of java, either JavaSE or SDK will do. OpenJDK will also do fine.
-If Minecraft will run using your java, you're good. 
-.TP
-.B Minecraft
-A paid account for Minecraft. The unpaid version won't work, or at best you'll have a
-demo that lasts you 100 minutes (about five in-game days).
-You can purchase Minecraft from the
-.I minecraft.net
-website. Some local stores may sell a Minecraft card you can redeem at 
-.I minecraft.net.
-.TP
 .B awk
-This should be available in most Linux distributions.
+The gawk package should provide awk, and should be available in most Linux
+distributions.
 .TP
 .B wget
 This does the fetching of launchers and client jar files. I haven't tested
-this with curl or other web page fetching programs.
+this with curl or other web fetching programs.
 .TP
 .B terminal
 Not an absolute requirement, but is a good idea so you can see output.
@@ -115,6 +128,9 @@ Options for minecrafty are as follows:
 .B -h
 prints the main help screen for 
 .BR minecrafty .
+You can also use
+.B -?
+to view the same help.
 Further help details are described under the
 .B Launcher options
 and
@@ -125,14 +141,16 @@ sections.
 show minecrafty's version string
 .TP
 .B -G
-sets the output file to
+sets the output logging file to
 .I ${HOME}/.minecraft/minecrafty.output.txt
 .SS Memory options
 These options affect how much memory the launcher will start with. This does
 .I not
 affect how much memory that Minecraft itself will start with, just the amount
 assigned to the launcher. Historically (previous to 1.5.2) the amount assigned
-on the commandline affected how much memory the Minecraft game started with.
+on the commandline affected how much memory the Minecraft client started with.
+In addition, some launchers (the ones that don't use Java to start themselves)
+don't require a specific memory setting, so these options are ignored for them.
 .TP
 .B -T
 runs launcher with a tiny amount of memory (256 mb).
@@ -147,13 +165,14 @@ runs launcher with a larger amount of memory (1024 mb).
 .B -E
 runs launcher with heaps of memory, only on 64-bit systems (2 Gb).
 .SS Audio options
-These are needed if you need pulseaudio to be tweaked or simply get out of the way.
+These are needed if you need pulseaudio to be tweaked or simply get out of
+the way.
 .TP
 .B -O
 create OSS-like pulseaudio device.
 .TP
 .B -P
-suspends pulseaudio while minecraft runs.
+suspends pulseaudio while Minecraft runs.
 .SS Graphical options
 These affect what you see on your screen.
 .TP
@@ -167,49 +186,52 @@ If unset, 1.0 is used. 0.7 darker, 1.2 lighter.
 .BI -g " n.n"
 set the gamma offset. If unset, 1.0 is used. 0.7 lighter, 1.2 darker.
 .TP
-.B -m <0|1|2|3>
-select monitor to apply gamma correction to
+.BI -m " <0|1|2|3>"
+select monitor to apply gamma correction to.
 .TP
-.BI -r nn.n
-set a valid refresh rate for the second monitor, as minecraft has a habit
+.BI -r " nn.n"
+set a valid refresh rate for the second monitor, as Minecraft has a habit
 of setting this to the recommended value (often 60 Hz) instead of the
 value used when your screen started. This applies to people who have
 specifically set 75 Hz or some other refresh rate.
 .TP 
-.BI -z XxY
+.BI -z " XxY"
 set required resolution (1920x1080 default).
 .SS Fetching options
 .TP
 .B -f help
-produces help for fetching launchers and minecraft versions.
+produces help for fetching launchers and Minecraft versions.
 .TP
 .BI "-f <" "n.n" " |" n.n.n ">"
-retrieves a release version of 
-.I minecraft.jar,
-examples of this are
+retrieves a release version of the
+.I minecraft.jar
+client, examples of this are
 .B 1.0
 or
 .BR 1.10.2 .
-This script doesn't fetch versions earlier than 1.0, but the default launcher
-will now fetch earlier versions such as alpha and beta.
+This script doesn't fetch versions earlier than 1.0 or pre-release client
+versions, but the default launcher will now fetch earlier versions such as
+alpha and beta.
 .TP
 .B -f <YEARwWEEKx>
 retrieves a snapshot version of minecraft.jar, such as 17w49b.
 .B Year
-starts from 11, and (so far) goes to 18 but will eventually range up to
+starts from 11, and (so far) goes to 18 but will possibly range up to
 29. 
 .B WEEK
 ranges from 01 to 53,
 .B x
-is a letter from a to m. The earliest snapshot version that exists in this format is 11w47a;
-although there were earlier snapshot versions, they don't folllow this
-naming convention.
+is a letter from a to m. The earliest snapshot version that exists in this
+format is 11w47a; although there were earlier snapshot versions, they don't
+follow this naming convention.
 .TP
 .BI -f " launcher_name"
 retrieves
 .I launcher_name
-from the relevant remote host such as the FTB launcher.
-The valid choices are:
+from the relevant remote host such as the FTB website.
+The valid 
+.I launcher_name
+choices are:
 .RS
 .B launcher
 .br
@@ -218,53 +240,56 @@ The valid choices are:
 .B vanilla
 downloads the default launcher.
 .TP
-.B craft
-download Craftland installer for latest Aether prerelease.
-.TP
-.B digiex
-download DigiEX launcher (obsolete, may not work).
-.TP
-.B ftb
-download FTB launcher
-.TP
-.B magic
-download MagicLauncher
-.\" .TP
-.\" .B multi
-.\" download MultiMC (commented out until I find a new host for MultiMC)
-.TP
-.B skmc
-download development version of SKMCLauncher.jar (obsolete, may not work).
-.TP
-.B technic
-download beta Technic launcher.
-.TP
-.B terra
-download beta TerraFirmaCraft launcher (1.5.1 only).
-.TP
-.B mvc
-download Minecraft Version Changer from TunkDesign. (probably obsolete)
-.\" .TP
-.\" .B bukkitrb
-.\" download latest recommended bukkit build (obsolete due to a DMCA claim)
-.TP
 .B atl
 download AT Launcher for Linux.
 .TP
-.B aether
-download Aether Launcher. This seems to be the latest Aether II project.
-Currently it doesn't work, and development versions of 1.10.2 and 1.11.2
-are using a profile created on the default launcher.
+.B ftb
+download FTB launcher.
+.TP
+.B magic
+download MagicLauncher.
+.TP
+.B multi
+download MultiMC, this requires a recent version of Linux and glibc.
+.TP
+.B technic
+download Technic launcher.
+.TP
+.B terra
+download TerraFirmaCraft launcher (1.7.10 only).
+.\" ### Obsoleted entries ###
+.\" .B aether
+.\" download Aether Launcher. This seems to be the latest Aether II project.
+.\" Currently the launcher doesn't work, and development versions of 1.10.2 and
+.\" 1.11.2 use a profile created on the default launcher.
+.\" .TP
+.\" .B bukkitrb
+.\" download latest recommended bukkit build (obsolete due to a DMCA claim)
+.\" .TP
+.\" .B craft
+.\" download Craftland installer for latest Aether prerelease.
+.\" .TP
+.\" .B digiex
+.\" download DigiEX launcher (obsolete, may not work).
+.\" .TP
+.\" .B mvc
+.\" download Minecraft Version Changer from TunkDesign. (probably obsolete)
+.\" .TP
+.\" .B skmc
+.\" download development version of SKMCLauncher.jar (obsolete, may not work).
+.\" .TP
 .RE
 .SS Launcher options
 .TP
 .B -l help
-produces help for starting minecraft launchers.
+produces help for starting Minecraft launchers.
 .TP
 .BI -l " launcher_name"
 starts specified launcher. So does simply typing
 .B minecrafty
-at the prompt. The valid choices are:
+at the prompt. The valid
+.I launcher_name
+choices are:
 .RS
 .B default
 .br
@@ -273,11 +298,11 @@ at the prompt. The valid choices are:
 .B vanilla
 run default launcher
 .TP
-.B craft
-run CraftLand launcher
+.B atl
+run AT Launcher
 .TP
-.B digiex
-run DigiEX launcher
+.B ftb
+run FTB launcher
 .TP
 .B magic
 run MagicLauncher
@@ -285,26 +310,27 @@ run MagicLauncher
 .B multi
 run MultiMC
 .TP
-.B skmc
-run development version of SKMCLauncher.jar
-.TP
-.B ftb
-run FTB launcher
-.TP
 .B technic
 run Technic launcher
 .TP
 .B terra
 run beta TerraFirmaCraft launcher (1.5.1 only)
-.TP
-.B mvc
-run Minecraft Version Changer (MVC.jar)
-.TP
-.B atl
-run AT Launcher
-.TP
-.B aether
-run Aether Launcher
+.\" ### Obsoleted entries ###
+.\" .TP
+.\" .B aether
+.\" run Aether Launcher
+.\" .TP
+.\" .B craft
+.\" run CraftLand launcher
+.\" .TP
+.\" .B digiex
+.\" run DigiEX launcher
+.\" .TP
+.\" .B mvc
+.\" run Minecraft Version Changer (MVC.jar)
+.\" .TP
+.\" .B skmc
+.\" run development version of SKMCLauncher.jar
 .RE
 .SS Starting a server
 .TP
@@ -316,7 +342,8 @@ you will need to supply a correct filename.
 .SH EXAMPLES
 .TP
 .B minecrafty
-executes the default launcher with the default amount of memory assigned to it.
+executes the default launcher with the default amount of memory assigned
+to it.
 .TP
 .B minecrafty -l ftb
 executes the FTB launcher with the default amount of memory assigned to it.
@@ -324,14 +351,16 @@ executes the FTB launcher with the default amount of memory assigned to it.
 .B minecrafty -f 1.12.2
 fetch the jar file for the 1.12.2 client, saving it in the correct place.
 .TP
-.B minecrafty -f 18w11a
-fetch the jar file for the 18w11a snapshot (development version) client file.
+.B minecrafty -f 18w15a
+fetch the jar file for the 18w15a snapshot (development version) client file.
 .TP
 .B minecrafty -m 1 -g 1.3 -z 1360x768 -r 75 -G
 execute the default launcher, setting the screensize, refresh rate and gamma
 for the second monitor. Console output will be in
 .I ${HOME}/.minecraft/minecrafty.output.txt
-for you to look at if you have problems later.
+for you to look at if you have problems later. The user's probably going to
+have to put the minecraft window on the second monitor and deal with all that
+lovely desktop manager jazz for themselves.
 .TP
 .B minecrafty -s craftbukkit-1.7.2.jar
 This runs the craftbukkit server file. You'll need to get a server jar file
@@ -342,7 +371,8 @@ and put it into
 No doubt there are some, I still haven't winkled out all the bugs in the
 graphics options yet, and most of the launchers aren't around any more.
 Thankfully, I can recommend the FTB launcher, which is kept up to date.
-This seems to take no notice of an existing MCBASE.
+This seems to take no notice of an existing MCBase or Minecraft home where
+that differs from the normal user's home directory.
 The return value from minecrafty will be different if you use the logfile
 option
 .B -G
@@ -350,5 +380,28 @@ as the exit value will actually be from the program used to capture the output.
 
 .SH AUTHORS
 Me, of course (brickviking@gmail.com). I've had a little bit of help from others too.
+
+.SH ACKNOWLEDGEMENTS
+.TP
+.B Mojang
+for the game that got seriously popular. Yes, Infiniminer got there
+first, but Mojang made Minecraft what it is today.
+.TP
+.B The writers of Java
+If it wasn't for Java, then Minecraft might have been written in C#. Oh wait,
+Microsoft already did that.
+.TP
+.B Microsoft
+for continuing to support Minecraft when Mojang was bought by them.
+.TP
+.B Youtube Minecraft channels
+These most certainly helped bring Minecraft into prominence, and must surely
+have had a hand in making Minecraft the most wanted game for ages.
+.TP
+.B Minecraft players and server owners
+These are the real reason Minecraft has remained popular. Yes, it's had
+several changes and additions, multiple platforms has become a thing, and
+Youtube channels devoted to Minecraft have both come and gone. But without
+the users, Minecraft would have disappeared into the Mysts of time.
 
 .\"# vim:expandtab:ts=4
