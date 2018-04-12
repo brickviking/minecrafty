@@ -24,12 +24,12 @@ OUTFILE=""
 FTBBase="${HOME}/FTB.minecraft"
 TechnicBase="${HOME}/.technic"
 ATLauncherBase="${HOME}/ATLauncher"
-AetherLauncherBase="${HOME}/.aether_launcher"
 MultiMCBase="${MCBase}/MultiMC"
 
 #Obsolete launchers
 CLBase="${HOME}/.craftland"
 TerraFirmaBase="${HOME}/.tfcraft" # currently at 1.7.10 (20180412)
+AetherLauncherBase="${HOME}/.aether_launcher"
 
 # Mandatory to declare an associative array
 declare -A FUNCARRAY
@@ -726,7 +726,6 @@ ShowVersionString() {
     echo "$ME: ${VERSION}.${MINOR}.${PATCH}"
     unset CMD
 # We need to exit
-    break 
 }
 
 # Now rendered irrelevant
