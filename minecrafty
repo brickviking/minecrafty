@@ -566,7 +566,7 @@ FetchMinecraft() {
         multi) # a kept-up-to-date launcher
             # First, grab the arch
             MYARCH=$(arch)
-            case MYARCH in
+            case ${MYARCH} in
               x86_64)
                 DL_ARCH=lin64
               ;;
