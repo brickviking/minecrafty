@@ -10,15 +10,14 @@ FetchBright	minecrafty	/^FetchBright() {$/;"	f
 FetchGamma	minecrafty	/^FetchGamma() {$/;"	f
 FetchHelp	minecrafty	/^FetchHelp() {$/;"	f
 FetchMinecraft	minecrafty	/^FetchMinecraft() {$/;"	f
-FetchOpts	minecrafty	/^FetchOpts() { # both FetchOpts and LaunchOpts can't use getopts, as getopts under bash doesn't use words as options$/;"	f
 FetchRefresh	minecrafty	/^FetchRefresh() {$/;"	f
 FetchResolution	minecrafty	/^FetchResolution() {$/;"	f
 GammaInit	minecrafty	/^GammaInit() {$/;"	f
 GetOpts	minecrafty	/^GetOpts() {$/;"	f
 Help	minecrafty	/^Help() {$/;"	f
 LaunchHelp	minecrafty	/^LaunchHelp() {$/;"	f
-LaunchOpts	minecrafty	/^LaunchOpts() {$/;"	f
 Launcher	minecrafty	/^Launcher() {$/;"	f
+LogFile	minecrafty	/^LogFile() {$/;"	f
 ParseLatestBeta	minecrafty	/^ParseLatestBeta() {$/;"	f
 ParseLatestRB	minecrafty	/^ParseLatestRB() {$/;"	f
 ResetBright	minecrafty	/^ResetBright() {$/;"	f
@@ -52,6 +51,6 @@ SetTerraLauncher	minecrafty	/^SetTerraLauncher() {$/;"	f
 SetTinyMemory	minecrafty	/^SetTinyMemory() {$/;"	f
 ShowVersionString	minecrafty	/^ShowVersionString() {$/;"	f
 StuffCommands	minecrafty	/^StuffCommands() {$/;"	f
-StuffFetchOpts	minecrafty	/^StuffFetchOpts() {$/;"	f
+StuffFetchOpts	minecrafty	/^StuffFetchOpts() { #Set this up for launchers$/;"	f
 StuffGetOpts	minecrafty	/^StuffGetOpts() {$/;"	f
 StuffLaunchOpts	minecrafty	/^StuffLaunchOpts() {$/;"	f
