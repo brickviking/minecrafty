@@ -564,6 +564,10 @@ FetchMinecraft() {
 # it seems MultiMC is arch-dependent. I now have a download link. Woo hoo!
 # TODO: check if dir exists, create if it doesn't
         multi) # a kept-up-to-date launcher
+            pushd "${MCBase}"
+            if [[ ! -d ${MultiMCBase} ]]; then
+                mkdir "${MultiMCBase}" # If this fails, we've got bigger problems
+            fi
             # First, grab the arch
             MYARCH=$(arch)
             case ${MYARCH} in
@@ -578,10 +582,11 @@ FetchMinecraft() {
                retval=1
             esac
             # go download it (TODO: we need to check for failures to download)
-            wget -O ${MCSTASH}/mmc-stable-${DL_ARCH}.tar.gz "https://files.multimc.org/downloads/mmc-stable-${DL_ARCH}.tar.gz"
+            wget -O ${MultiMCBase}/mmc-stable-${DL_ARCH}.tar.gz "https://files.multimc.org/downloads/mmc-stable-${DL_ARCH}.tar.gz"
             # Now we extract it to somewhere
-            tar xvf ${MCSTASH}/mmc-stable-${DL_ARCH}.tar.gz
+            tar xvf ${MultiMCBase}/mmc-stable-${DL_ARCH}.tar.gz
             unset DL_ARCH
+            popd
           ;; # End of multi) section
         technic) # Patching in support for Technic_Loader, one of the few to need a different root.
             if [[ ! -d ${TechnicBase} ]]; then
@@ -747,7 +752,7 @@ SetMultiLauncher() {
         echo "${ME}: ${MEM} (from -T/-B/-E) is being ignored. FTBLauncher sets memory for Minecraft from its own settings"
     fi
     MYDIR="${MultiMCBase}"
-    CMDRUN="${MCBase}/MultiMC/MultiMC"
+    CMDRUN="${MultiMCBase}/MultiMC"
     CMDARG=""
     CMD="${CMDRUN} ${CMDOPT} ${CMDARG}"
 }
