@@ -39,6 +39,8 @@ declare -A CMDARRAY
 GOA=(
 "h" Help "provides this help screen (-? gets here as well)"
 "v" ShowVersionString "show version string"
+"a" AppendLogFile "Append output into a log file"
+"c" LogFile "Capture output into a log file"
 "T" SetTinyMemory "assign minimal memory to the client (256 Mb)"
 "S" SetSmallMemory "assign normal amount of memory to the client (512 Mb)"
 "B" SetMoreMemory "assign more memory to the client (1 Gb)"
@@ -50,8 +52,6 @@ GOA=(
 "m:" SetMonitor "select monitor to apply gamma correction to"
 "r:" SetRefresh "nn.n: set a valid refresh rate for the second monitor, as Minecraft has a habit of setting this to the recommended value instead of the value used originally."
 "z:" FetchResolution "XxY: set required resolution (1920x1080 default)"
-"a" AppendLogFile "Append output into a log file"
-"c" LogFile "Capture output into a log file"
 "f:" FetchMinecraft "retrieves minecraft.jar or launcher from remote host, \`-f help' for more details"
 "l:" Launcher "starts specified launcher, \`-l help' for more details"
 "s:" ServerRun "starts the latest server from \`${MCBase}/server', supply a filename"
