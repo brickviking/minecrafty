@@ -28,7 +28,7 @@
 .SH NAME
 minecrafty \- A Minecraft launcher front end.
 .SH SYNOPSIS
-.B minecrafty " " [-hvGTSBEOP] 
+.B minecrafty " " [-hvacTSBEOP] 
 .BI "[-b " "n.n"]
 .BI "[-g " "n.n"]
 .B [-m " " 0|1|2]
@@ -140,9 +140,18 @@ sections.
 .B -v
 show minecrafty's version string
 .TP
-.B -G
-sets the output logging file to
+.B -a
+appends launcher output to
+.I ${HOME}/.minecraft/minecrafty.output.txt,
+creating it if it doesn't exist. You should probably
+trim this file from time to time, or use the
+.B -c
+switch instead.
+.TP
+.B -c
+creates 
 .I ${HOME}/.minecraft/minecrafty.output.txt
+for logging launcher output, emptying the file first if it already exists.
 .SS Memory options
 These options affect how much memory the launcher will start with. This does
 .I not
@@ -314,7 +323,7 @@ run MultiMC
 run Technic launcher
 .TP
 .B terra
-run beta TerraFirmaCraft launcher (1.5.1 only)
+run TerraFirmaCraft launcher (1.7.10 only)
 .\" ### Obsoleted entries ###
 .\" .TP
 .\" .B aether
@@ -335,9 +344,9 @@ run beta TerraFirmaCraft launcher (1.5.1 only)
 .SS Starting a server
 .TP
 .BI -s " server_name.jar"
-starts the latest server from 
+starts
 .I "${HOME}/.minecraft/server/server_name.jar",
-you will need to supply a correct filename.
+you will need to download the server of your choice into this location.
 
 .SH EXAMPLES
 .TP
@@ -354,28 +363,33 @@ fetch the jar file for the 1.12.2 client, saving it in the correct place.
 .B minecrafty -f 18w15a
 fetch the jar file for the 18w15a snapshot (development version) client file.
 .TP
-.B minecrafty -m 1 -g 1.3 -z 1360x768 -r 75 -G
+.B minecrafty -m 1 -g 1.3 -z 1360x768 -r 75 -c
 execute the default launcher, setting the screensize, refresh rate and gamma
-for the second monitor. Console output will be in
+for the second monitor. Console output from the launcher will be in
 .I ${HOME}/.minecraft/minecrafty.output.txt
 for you to look at if you have problems later. The user's probably going to
 have to put the minecraft window on the second monitor and deal with all that
 lovely desktop manager jazz for themselves.
 .TP
-.B minecrafty -s craftbukkit-1.7.2.jar
-This runs the craftbukkit server file. You'll need to get a server jar file
+.B minecrafty -s spigot-1.12.2.jar
+This runs the spigot server file. You'll need to get a server jar file
 and put it into
 .I ${HOME}/.minecraft/server/
 
 .SH BUGS
-No doubt there are some, I still haven't winkled out all the bugs in the
-graphics options yet, and most of the launchers aren't around any more.
-Thankfully, I can recommend the FTB launcher, which is kept up to date.
+No doubt there are plenty, I still haven't winkled out all the bugs in the
+graphics options yet, and most of the launchers that I used to support
+downloads for aren't around any more. Thankfully, I can recommend the FTB
+launcher, which is kept up to date.
+
 This seems to take no notice of an existing MCBase or Minecraft home where
 that differs from the normal user's home directory.
+
 The return value from minecrafty will be different if you use the logfile
 option
-.B -G
+.B -a
+or
+.B -c
 as the exit value will actually be from the program used to capture the output.
 
 .SH AUTHORS
