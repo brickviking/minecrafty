@@ -1,7 +1,7 @@
 #!/bin/bash
 
 VERSION=0
-MINOR=59
+MINOR=60
 PATCH=
 ME=$(basename $0)
 # Default gamma brightness of game
@@ -39,7 +39,6 @@ declare -A CMDARRAY
 GOA=(
 "h" Help "provides this help screen (-? gets here as well)"
 "v" ShowVersionString "show version string"
-"G" LogFile "Capture output into a log file"
 "T" SetTinyMemory "assign minimal memory to the client (256 Mb)"
 "S" SetSmallMemory "assign normal amount of memory to the client (512 Mb)"
 "B" SetMoreMemory "assign more memory to the client (1 Gb)"
@@ -51,6 +50,8 @@ GOA=(
 "m:" SetMonitor "select monitor to apply gamma correction to"
 "r:" SetRefresh "nn.n: set a valid refresh rate for the second monitor, as Minecraft has a habit of setting this to the recommended value instead of the value used originally."
 "z:" FetchResolution "XxY: set required resolution (1920x1080 default)"
+"a" AppendLogFile "Append output into a log file"
+"c" LogFile "Capture output into a log file"
 "f:" FetchMinecraft "retrieves minecraft.jar or launcher from remote host, \`-f help' for more details"
 "l:" Launcher "starts specified launcher, \`-l help' for more details"
 "s:" ServerRun "starts the latest server from \`${MCBase}/server', supply a filename"
@@ -179,8 +180,14 @@ FetchHelp() {
 
 LogFile() {
 # Set output file for stdout/stderr to minecrafty.output.txt
-# WARNING: this should be the last option processed
-OUTFILE="${MCBase}/minecrafty.output.txt"
+if [[ -z ${OUTFILE} ]]; then # don't hammer the -a (OverWrite) switch
+  OUTFILE="${MCBase}/minecrafty.output.txt"
+fi
+}
+
+AppendLogFile() {
+# Set output file for stdout/stderr to minecrafty.output.txt
+OUTFILE="-a ${MCBase}/minecrafty.output.txt"
 }
 
 # Hopefully sets brightness, separate from the gamma
@@ -327,13 +334,13 @@ RunMC() {
 # Run the command we got earlier, finishing by peeling the return value
     if [[ -z "${OUTFILE}" ]]; then
       ${CMD}
+      retval=$?
     else
 # Run the command we got earlier, outputting the command through tee.
 # return value will be from tee
-# TODO: should we assess appending instead of overwriting?
       ${CMD} 2>&1 | tee ${OUTFILE}
+      retval=$?
     fi
-    retval=$?
     popd
 }
 
