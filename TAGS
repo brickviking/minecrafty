@@ -1,0 +1,11 @@
+
+minecrafty,184
+VERSION=3,13
+StuffLaunchOpts(135,5455
+StuffFetchOpts(145,5788
+Help(155,6142
+LaunchHelp(163,6327
+FetchHelp(174,6641
+LogFile(185,6949
+AppendLogFile(192,7142
+BrightInit(198,7322
