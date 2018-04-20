@@ -493,7 +493,7 @@ FetchMinecraft() {
         ########## Newer client/server releases ########
         # New form of final release, covers every single 1.x (1.6 - 1.9) and double digit 1.xx.yy version (1.5.2 up to 1.99.99)
         # almost completely replaced by default launcher's fetching of every version including ancient ones
-        1.5.[2-9]|1.[6-9]|1.[6-9].[0-9]|1.[6-9].[1-9][0-9]|1.[1-9][0-9]|1.[1-9][0-9].[0-9]|1.[1-9][0-9].[0-9][0-9]|1.5.2a)
+        1.5.[2-9]|1.[6-9]|1.[6-9].[0-9]|1.[6-9].[1-9][0-9]|1.[1-9][0-9]|1.[1-9][0-9].[0-9]|1.[1-9][0-9].[0-9][0-9])
             SINGLE="${MCBase}/versions" # A new home for the release
             if [[ ! -d ${SINGLE}/${DROPOFF} ]]; then
 			    mkdir -p "${SINGLE}/${DROPOFF}"  # catch the "no .minecraft/versions dir" error
