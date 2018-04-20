@@ -1,7 +1,7 @@
 #!/bin/bash
 
 VERSION=0
-MINOR=60
+MINOR=61
 PATCH=
 ME=$(basename $0)
 # Default gamma brightness of game
@@ -14,6 +14,7 @@ MEM=""
 # set this to blank too
 CMDOPT=" "
 # Set this to your favourite java location, whether openjdk or oracle
+# If you don't have a java, then you've got problems
 JAVARUN="java"
 CMDRUN="$JAVARUN"
 # Mandatory
@@ -30,6 +31,7 @@ MultiMCBase="${MCBase}/MultiMC"
 CLBase="${HOME}/.craftland"
 TerraFirmaBase="${HOME}/.tfcraft" # currently at 1.7.10 (20180412)
 AetherLauncherBase="${HOME}/.aether_launcher"
+AncientLauncher="${HOME}/OldLauncher" # works up to 1.5.1. Maybe.
 
 # Mandatory to declare an associative array
 declare -A FUNCARRAY
@@ -80,6 +82,7 @@ FOA=(
 # Unused and obsoleted -f entries
 FONA=(
 "aether" Fetch "download classic Aether Launcher"
+"ancient" Fetch "download original Minecraft launcher (up to 1.5.1 only)"
 "bukkitrb" Fetch "download latest recommended bukkit build"
 "bukkitdevel" Fetch "download absolutely latest bukkit"
 "craft" Fetch "download Craftland installer for latest Aether prerelease"
@@ -107,10 +110,11 @@ LOA=(
 
 # Unused -l entries
 LONA=(
-# devlauncher was rendered totally irrelevant when it became the default launcher
-#"devlauncher" SetDevLauncher "run Mojang's development launcher"
 "aether" SetAetherLauncher "run classic Aether Launcher"
+"ancient" SetArchaicLauncher "run original Minecraft launcher (up to 1.5.1 only)"
 "craft" SetCraftLauncher "run CraftLand launcher"
+# devlauncher was rendered totally irrelevant when it became the default launcher
+"devlauncher" SetDevLauncher "run Mojang's development launcher"
 "digiex" SetDigiLauncher "run DigiEX launcher"
 "mvc" SetMVCLauncher "run Minecraft Version Changer (MVC.jar)"
 "skmc" SetSKMCLauncher "run development version of SKMCLauncher.jar"
@@ -211,8 +215,8 @@ FetchBright() {
     BARRAY=( $(xrandr --verbose | awk 'NR == 1 { next }; match($0, /^[[:alnum:]\-]+/) { output = substr($0,RSTART, RLENGTH) }; /Brightness:/ { print output, $2 }') )
 }
 
-# This'll brighten/darken things a bit - only thing that needs changing will be the output monitor
 SetBright() {
+# This'll brighten/darken things a bit - only thing that needs changing will be the output monitor
     xrandr --output ${BARRAY[${MON}]} --brightness "${BRIGHT}"
 }
 
@@ -222,6 +226,40 @@ ResetBright() {
     BRIGHT=${BARRAY[$MON+1]}
 #    xrandr --output ${BARRAY[$MON]} --brightness ${BARRAY[$MON+1]}
     SetBright # Might as well reuse the same function.
+}
+
+FetchResolution() {
+# This routine fetches the default resolution at the time of first running the program
+# TODO: what if we have multiple screens? A virtual desktop of a different size?
+# RES=$(xdpyinfo | grep dimension | egrep -o "[[:digit:]]{3,4}x[[:digit:]]{3,4}" | head -n 1)
+read RES < <(xdpyinfo | sed -rn 's/.*dimension.* ([0-9]+x[0-9]+).*/\1/p')
+# Better feed the BARRAY, as it holds my available monitors
+FetchBright
+# TODO: Please PLEASE find out how to sanity check this one
+MYRES=${1}
+}
+
+SetResolution() {
+# Just like it says on the tin, sir
+# Only change if there's a reason to do so
+# TODO: Figure out what $MON is supposed to be
+if [[ ${RES} != ${MYRES} ]]; then
+    if [[ ${BARRAY} ]]; then
+# WARNING: Ouch, multiple monitors???
+        xrandr --output ${BARRAY[${MON}]} --mode ${MYRES}
+    else
+        xrandr --output ${MON} --mode ${MYRES}
+    fi
+else
+    unset MYRES # means we don't reset it later
+fi
+}
+
+ResetResolution() {
+# Now we put the resolution back to normal, a call to SetResolution with desired RESOLUTION
+# TODO: what about multiple screens?
+MYRES=${RES}
+xrandr --output ${BARRAY[${MON}]} --mode ${MYRES}
 }
 
 GammaInit() {
@@ -244,47 +282,9 @@ FetchGamma() {
     GARRAY=( $(xrandr --verbose | awk 'NR == 1 { next }; match($0, /^[[:alnum:]\-]+/) { output = substr($0,RSTART, RLENGTH) }; /Gamma:/ { print output, $2 }') )
 }
 
-# This is meant to fetch the Refresh rates for each connected screen
-FetchRefresh() {
-# No idea what to tack onto the end, except that I need to look for Connected,
-# then Current, and two lines after, the refresh rate that I need.
-# I have to create entries for (possibly multiple) screens
-    #
-  RARRAY=( $(xrandr --verbose ) )
-}
-
-FetchResolution() {
-# This routine fetches the default resolution at the time of first running the program
-# TODO: what if we have multiple screens? A virtual desktop of a different size?
-# RES=$(xdpyinfo | grep dimension | egrep -o "[[:digit:]]{3,4}x[[:digit:]]{3,4}" | head -n 1)
-read RES < <(xdpyinfo | sed -rn 's/.*dimension.* ([0-9]+x[0-9]+).*/\1/p')
-# Better feed the BARRAY, as it holds my available monitors
-FetchBright
-# TODO: Please PLEASE find out how to sanity check this one
-MYRES=${1}
-}
-
-ResetResolution() {
-# Now we put the resolution back to normal, a call to SetResolution with desired RESOLUTION
-# TODO: what about multiple screens?
-MYRES=${RES}
-xrandr --output ${BARRAY[${MON}]} --mode ${MYRES}
-}
-
-SetResolution() {
-# Just like it says on the tin, sir
-# Only change if there's a reason to do so
-# TODO: Figure out what $MON is supposed to be
-if [[ ${RES} != ${MYRES} ]]; then
-    if [[ ${BARRAY} ]]; then
-# WARNING: Ouch, multiple monitors???
-        xrandr --output ${BARRAY[${MON}]} --mode ${MYRES}
-    else
-        xrandr --output ${MON} --mode ${MYRES}
-    fi
-else
-    unset MYRES # means we don't reset it later
-fi
+SetGamma() {
+# This'll brighten/darken things a bit - only thing that needs changing will be the output monitor
+    xrandr --output ${GARRAY[${MON}]} --gamma "${GAMMA}:${GAMMA}:${GAMMA}"
 }
 
 ResetGamma() {
@@ -296,17 +296,27 @@ echo "Inside ResetGamma, with ${GAMMA}"
     SetGamma # Might as well reuse the same function.
 }
 
+# This is meant to fetch the Refresh rates for each connected screen
+FetchRefresh() {
+# No idea what to tack onto the end, except that I need to look for Connected,
+# then Current, and two lines after, the refresh rate that I need.
+# I have to create entries for (possibly multiple) screens
+    #
+  RARRAY=( $(xrandr --verbose ) )
+}
+
+SetRefresh() {
+    # We need this so we can reset the gamma or refresh rate later on.
+    FetchGamma
+    Refresh=$1
+}
+
 ResetRefresh() {
 # TODO: It seems if the gamma never got loaded, then this function always fails
 # The game had a habit of resetting the other screen to 60Hz. Not nice.
 # TODO: we really should leave things as we found them and reset mode to what it was.
     xrandr --output ${GARRAY[2]} --rate ${Refresh} --mode 1024x768
 #    fi
-}
-
-# This'll brighten/darken things a bit - only thing that needs changing will be the output monitor
-SetGamma() {
-    xrandr --output ${GARRAY[${MON}]} --gamma "${GAMMA}:${GAMMA}:${GAMMA}"
 }
 
 # Central one shot run engine.
@@ -408,6 +418,7 @@ FetchMinecraft() {
     # ver 0.0.0: initial cut
     # 0.0.1: finally got the script fetching the client and server
     #      : now I just need to toggle -c/-s for fetching just the client or server
+    # (20,000 years later) -c/-s switch both used elsewhere.
     # 0.0.2: checked if we succeeded in fetching the file
     # 0.0.3: split off the two patterns, as they create two slightly different names
     #      : i.e.  final_$VER or snapshot_$VER.  Also shifted the initial cd outside the case switch.
@@ -482,7 +493,7 @@ FetchMinecraft() {
         ########## Newer client/server releases ########
         # New form of final release, covers every single 1.x (1.6 - 1.9) and double digit 1.xx.yy version (1.5.2 up to 1.99.99)
         # almost completely replaced by default launcher's fetching of every version including ancient ones
-        1.5.[2-9]|1.[6-9]|1.[6-9].[0-9]|1.[6-9].[1-9][0-9]|1.[1-9][0-9]|1.[1-9][0-9].[0-9]|1.[1-9][0-9].[0-9][0-9])
+        1.5.[2-9]|1.[6-9]|1.[6-9].[0-9]|1.[6-9].[1-9][0-9]|1.[1-9][0-9]|1.[1-9][0-9].[0-9]|1.[1-9][0-9].[0-9][0-9]|1.5.2a)
             SINGLE="${MCBase}/versions" # A new home for the release
             if [[ ! -d ${SINGLE}/${DROPOFF} ]]; then
 			    mkdir -p "${SINGLE}/${DROPOFF}"  # catch the "no .minecraft/versions dir" error
@@ -634,6 +645,11 @@ FetchMinecraft() {
 #            ParseLatestBeta
 #            wget -O ${MCBase}/server/craftbukkit-beta.jar http://cbukk.it/craftbukkit-beta.jar
 #            ;;
+        ancient) # Put back in the ability to download the original launcher, though why you
+                 # might want this is beyond me
+            wget -O ${MCBase}/original-minecraft-launcher.jar https://s3.amazonaws.com/MinecraftDownload/launcher/minecraft.jar
+            echo "This is a very old launcher, it may not work in the way you want"
+            ;;
         craft) # Patching in support for craftlauncher, one of the few to need a different root.
             if [[ ! -d ${CLBase} ]]; then
                 mkdir ${CLBASE}
@@ -645,7 +661,7 @@ FetchMinecraft() {
             echo "This will prepare craftland for execution later, with ${ME} -l craft"
             ;;
         digiex) # non-default launcher, definitely ancient
-            wget -O ${MCBase}/bin/mclauncher.jar http://minecraft.digiex.org/dlfiles/mclauncher.jar
+            wget -O ${MCBase}/bin/digiex-mclauncher.jar http://minecraft.digiex.org/dlfiles/mclauncher.jar
             ;;
 #        server) echo "can't (yet) fetch server on its own"
 #            exit 1
@@ -666,6 +682,13 @@ FetchMinecraft() {
 
 DefaultSettings() {
         CMDARG="-jar ${MCBase}/bin/minecraft-launcher.jar"
+        CMD="${CMDRUN} ${CMDOPT} ${MEM} ${CMDARG}"
+#        FetchGamma
+#        FetchBright
+}
+
+SetArchaicLauncher() {
+        CMDARG="-cp ${MCBase}/bin/original-minecraft-launcher.jar net.minecraft.LauncherFrame"
         CMD="${CMDRUN} ${CMDOPT} ${MEM} ${CMDARG}"
 #        FetchGamma
 #        FetchBright
@@ -774,7 +797,7 @@ SetCraftLauncher() {
 SetDigiLauncher() {
 # runs  digiexs' mclauncher, now obsolete, unsupported and deprecated
     CMDRUN="$PARUN $JAVARUN -Xincgc"
-    CMDARG="-jar ${MCBase}/bin/mclauncher.jar"
+    CMDARG="-jar ${MCBase}/bin/digiex-mclauncher.jar"
     CMD="${CMDRUN} ${CMDOPT} ${MEM} ${CMDARG}"
 }
 
@@ -841,12 +864,6 @@ SetAetherLauncher() {
     CMDRUN="$PARUN $JAVARUN -Xincgc"
     CMDARG="-jar ${AetherLauncherBase}/aether-launcher-bootstrap.jar"
     CMD="${CMDRUN} ${CMDOPT} ${MEM} ${CMDARG}"
-}
-
-SetRefresh() {
-    # We need this so we can reset the gamma or refresh rate later on.
-    FetchGamma
-    Refresh=$1
 }
 
 # This fetches commandline args, parses them, then fires off relevant sections of FUNCARRAY[$ONECMD] with $OPTARG

@@ -1,18 +1,18 @@
-0.0: Initial three-liner, set gamma to 0.6, run minecraft, put gamma back.
-0.1: wrap things a bit
-0.2: add in switches -launcher, -server181
-0.3: Add functions for help, RunMe, change switches to short form -s/-l
-0.4: put in host detection, so CRT outputs get detected on a per-host basis.
-0.5: Add in -g (gamma) switch, the -d (default) switch, and do switch parsing.
-     Some of this came from RfcShow.
-0.6: Add in function to find current gamma setting, needs work
-0.7: Got rid of GetGamma, as it ended up as a one-liner.
-0.8: Possible reinstatement as FetchGamma/GammaExit wrappers around $CMD
-0.9: Split off gamma setting into its own routine. Should we getopt this
-     program?
-0.10: adding a -t (tiny) switch (takes up less memory) and an -e (enormous)
-switch. Also tweaked RunMe to RunMC
-0.11: reset gamma somewhat so it only fires up if we specify a gamma 
+0.0:  Initial three-liner, set gamma to 0.6, run minecraft, put gamma back.
+0.1:  Wrap things a bit
+0.2:  Add in switches -launcher, -server181
+0.3:  Add functions for help, RunMe, change switches to short form -s/-l
+0.4:  Put in host detection, so CRT outputs get detected on a per-host basis.
+0.5:  Add in -g (gamma) switch, the -d (default) switch, and do switch parsing.
+   :  Some of this came from RfcShow.
+0.6:  Add in function to find current gamma setting, needs work
+0.7:  Got rid of GetGamma, as it ended up as a one-liner.
+0.8:  Possible reinstatement as FetchGamma/GammaExit wrappers around $CMD
+0.9:  Split off gamma setting into its own routine. Should we getopt this
+   :  program?
+0.10: Adding a -t (tiny) switch (takes up less memory) and an -e (enormous)
+switch. Also renamed RunMe to RunMC
+0.11: Reset gamma somewhat so it only fires up if we specify a gamma 
 0.12: Tidied up comments, commented out a host-specific section
 0.13: Initial try at hacking in server support, change the s parameter to
     : accept a filename.
@@ -33,13 +33,12 @@ switch. Also tweaked RunMe to RunMC
     : ParseOpts() in sync. ParseOpts isn't made yet.
 0.18: Complete rewrite of options parsing. Well on the way to being actually
     : FINISHED! GammaExit renamed as ResetGamma, I should rename RefreshExit
-too.
+    : too.
 0.19: All done, I hope. One buglet found so far, order of options matters for
     : -m and -g.
     : Now executing SetGamma from RunMC. Only the one bugette left, skmclauncher
-    : exits and relaunches,
-    : so the ResetGamma happens when it shouldn't happen until the script ends.
-    : Refresh rate's not getting reset.
+    : exits and relaunches, so the ResetGamma happens when it shouldn't happen
+    : until the script ends. Refresh rate's not getting reset.
 0.20: Fixed the order of -g/-m so it doesn't matter.
     : realised that BOTH monitors are getting their refresh rate resynched to
     : "Preferred"
@@ -65,12 +64,12 @@ too.
 0.28: Also added MagicLauncher (stubbed at the moment) and enabled download of
       skmclauncher's snapshot build. In addition, with feedback from keeperfx, 
       decided to tiff all the launchers into ${MCBase}/bin/some-launcher.jar
-0.29: added help to -f switch
-0.30: added digiex and MultiMC (for Linux), preliminary work for -l (launcher)
+0.29: Added help to -f switch
+0.30: Added digiex and MultiMC (for Linux), preliminary work for -l (launcher)
     : switch.
-0.31: padded out support for change to -l
-0.32: added bukkit to the list of available downloads
-0.33: added a switch to suspend pulseaudio
+0.31: Padded out support for change to -l
+0.32: Added bukkit to the list of available downloads
+0.33: Added a switch to suspend pulseaudio
 0.34: Added _ to the patterns to grep for on -f
 0.35: Reworked the Helps for -l and -f to cough up parameters on one line
 0.36: Add FTB to list of -l and -f
@@ -106,7 +105,7 @@ Changelog stripped out of the main file, created as a separate file
       the game has finished. I also noted that -BEM aren't relevant for the
       main launcher any more.
 0.52: Added the ATLauncher
-0.53: twiddled final downloading patterns to be good to the end of 2019 and
+0.53: Twiddled final downloading patterns to be good to the end of 2019 and
       1.99.9, corrected older patterns. Also updated README.md slightly.
 	  Initial idea for log file for minecrafty.
 0.54: Added the Aether Launcher, tweaked -l help and -f help to accept ?, 
@@ -126,3 +125,9 @@ Changelog stripped out of the main file, created as a separate file
 0.59: Added MultiMC back into the mix. Pushed off the FetchMinecraft rewrite
       to later. Removed craftbukkit download for now. Removed obsolete
       entries. Massaged man page.
+0.60: Added AppendLogFile function, and changed the switches used from -G to
+      -a (append) and -c (create).
+0.61: Added the original launcher back, but added it into the non-downloadable
+      and non-launchable sections.I've done this more for archival reasons than
+      working. I've also rearranged the order of certain functions by task to
+      make them easier for me to find later.
