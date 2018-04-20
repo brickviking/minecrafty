@@ -4,6 +4,7 @@
 !_TAG_PROGRAM_NAME	Exuberant Ctags	//
 !_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
 !_TAG_PROGRAM_VERSION	5.8	//
+AppendLogFile	minecrafty	/^AppendLogFile() {$/;"	f
 BrightInit	minecrafty	/^BrightInit() {$/;"	f
 DefaultSettings	minecrafty	/^DefaultSettings() {$/;"	f
 FetchBright	minecrafty	/^FetchBright() {$/;"	f
@@ -28,6 +29,7 @@ RunMC	minecrafty	/^RunMC() {$/;"	f
 ServerRun	minecrafty	/^ServerRun() {$/;"	f
 SetATLauncher	minecrafty	/^SetATLauncher() {$/;"	f
 SetAetherLauncher	minecrafty	/^SetAetherLauncher() {$/;"	f
+SetArchaicLauncher	minecrafty	/^SetArchaicLauncher() {$/;"	f
 SetBright	minecrafty	/^SetBright() {$/;"	f
 SetCraftLauncher	minecrafty	/^SetCraftLauncher() {$/;"	f
 SetDevLauncher	minecrafty	/^SetDevLauncher() {$/;"	f
