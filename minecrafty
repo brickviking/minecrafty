@@ -55,9 +55,9 @@ GOA=(
 "m:" SetMonitor "select monitor to apply gamma correction to"
 "r:" SetRefresh "nn.n: set a valid refresh rate for the second monitor"
 "z:" FetchResolution "XxY: set required resolution (1920x1080 default)"
-"f:" FetchMinecraft "retrieves minecraft.jar or launcher from remote host, \`-f help' for more details"
+"f:" FetchMinecraft "retrieves minecraft.jar or launcher, \`-f help' for more details"
 "l:" Launcher "starts specified launcher, \`-l help' for more details"
-"s:" ServerRun "starts the latest server from \`${MCBase}/server', supply a filename"
+"s:" ServerRun "starts server from \`${MCBase}/server', supply filename"
 )
 
 # Entries that aren't used at the moment, they're obsolete, I think.
@@ -66,7 +66,7 @@ GONA=(
 
 # Entries for the -f (fetch) switch
 FOA=(
-"help" FetchHelp "provide this help screen specifically for version and launcher downloading"
+"help" FetchHelp "help screen for version and launcher downloading"
 "1.2.4" VersionCheck "download a specific final-release client"
 "13w02b" VersionCheck "download a specific snapshot client"
 "launcher" Fetch "download default launcher"
@@ -97,7 +97,7 @@ download DigiEX launcher (discontinued, obsolete, unavailable for download)"
 
 # Entries for the -l (launcher) switch
 LOA=(
-"help" LaunchHelp "provide this screen specifically for launcher (-l) help"
+"help" LaunchHelp "help screen for launcher starting"
 "default" DefaultSettings "run default launcher"
 "launcher" DefaultSettings "run default launcher"
 "vanilla" DefaultSettings "run default launcher"
@@ -781,7 +781,7 @@ SetMagicLauncher() {
 SetMultiLauncher() {
 # queue this up so it runs MultiMC.
     if [[ -n ${MEM} ]]; then
-        echo -e "${ME}: ${MEM} (from -T/-B/-E) is being ignored. FTBLauncher sets memory\nfor Minecraft from its own settings"
+        echo -e "${ME}: ${MEM} (from -T/-B/-E) is being ignored. FTBLauncher sets memory\n           for Minecraft from its own settings"
     fi
     MYDIR="${MultiMCBase}"
     CMDRUN="${MultiMCBase}/MultiMC"
@@ -807,7 +807,7 @@ SetSKMCLauncher() {
 # runs SKMClauncher, now obsolete, unsupported and deprecated
 #    CMDARG="-jar ${MCBase}/bin/SKMCLauncher-3.1.7-SNAPSHOT.jar"
     if [[ -n ${MEM} ]]; then
-        echo "${ME}: ${MEM} (from -T/-B/-E) is being ignored. skmclauncher sets memory\nfor Minecraft from its own settings"
+        echo "${ME}: ${MEM} (from -T/-B/-E) is being ignored. skmclauncher sets memory\n           for Minecraft from its own settings"
     fi
 # We don't need ${MEM} here, as SKMClauncher allows for setting specific memory when starting minecraft.
     CMDRUN="$PARUN $JAVARUN -Xincgc"
@@ -817,7 +817,7 @@ SetSKMCLauncher() {
 
 SetFTBLauncher() {
     if [[ -n ${MEM} ]]; then
-        echo "${ME}: ${MEM} (from -T/-B/-E) is being ignored. FTBLauncher sets memory\nfor Minecraft from its own settings"
+        echo "${ME}: ${MEM} (from -T/-B/-E) is being ignored. FTBLauncher sets memory\n           for Minecraft from its own settings"
     fi
     MYDIR="${FTBBase}"
     CMDRUN="$PARUN $JAVARUN -Xincgc"
@@ -827,7 +827,7 @@ SetFTBLauncher() {
 
 SetTechLauncher() {
     if [[ -n ${MEM} ]]; then
-        echo "${ME}: ${MEM} (from -T/-B/-E) is being ignored. TechnicLauncher sets memory\nfor Minecraft from its own settings"
+        echo "${ME}: ${MEM} (from -T/-B/-E) is being ignored. TechnicLauncher sets memory\n           for Minecraft from its own settings"
     fi
     MYDIR="${TechnicBase}"
     CMDRUN="$PARUN $JAVARUN -Xincgc"
