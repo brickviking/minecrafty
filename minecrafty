@@ -371,8 +371,8 @@ ServerRun() {
         # TODO: how do we decide if server requires any more memory?
         CMD="$JAVARUN -Xmx1024M -Xincgc -jar ${ServerPlace}/${ServerName}"
     else
-        echo "We don't have the $1 server here, please download from www.minecraft.net, getbukkit.org or spigotmc.org"
-#        echo "I can fetch default server versions, $0 -f 1.7.10 (example) will fetch client and server together"
+        echo -e "We don't have the $1 server here, please download from www.minecraft.net,\ngetbukkit.org or spigotmc.org"
+#        echo -e "I can fetch default server versions, $0 -f 1.7.10 (example) will fetch\nclient and server together"
         retval=1 #bad doggie, bad, there's no point in continuing any further
         echo "Instead, here's a default launcher"
     fi
@@ -781,7 +781,7 @@ SetMagicLauncher() {
 SetMultiLauncher() {
 # queue this up so it runs MultiMC.
     if [[ -n ${MEM} ]]; then
-        echo "${ME}: ${MEM} (from -T/-B/-E) is being ignored. FTBLauncher sets memory for Minecraft from its own settings"
+        echo -e "${ME}: ${MEM} (from -T/-B/-E) is being ignored. FTBLauncher sets memory\nfor Minecraft from its own settings"
     fi
     MYDIR="${MultiMCBase}"
     CMDRUN="${MultiMCBase}/MultiMC"
@@ -807,7 +807,7 @@ SetSKMCLauncher() {
 # runs SKMClauncher, now obsolete, unsupported and deprecated
 #    CMDARG="-jar ${MCBase}/bin/SKMCLauncher-3.1.7-SNAPSHOT.jar"
     if [[ -n ${MEM} ]]; then
-        echo "${ME}: ${MEM} (from -T/-B/-E) is being ignored. skmclauncher sets memory for Minecraft from its own settings"
+        echo "${ME}: ${MEM} (from -T/-B/-E) is being ignored. skmclauncher sets memory\nfor Minecraft from its own settings"
     fi
 # We don't need ${MEM} here, as SKMClauncher allows for setting specific memory when starting minecraft.
     CMDRUN="$PARUN $JAVARUN -Xincgc"
@@ -817,7 +817,7 @@ SetSKMCLauncher() {
 
 SetFTBLauncher() {
     if [[ -n ${MEM} ]]; then
-        echo "${ME}: ${MEM} (from -T/-B/-E) is being ignored. FTBLauncher sets memory for Minecraft from its own settings"
+        echo "${ME}: ${MEM} (from -T/-B/-E) is being ignored. FTBLauncher sets memory\nfor Minecraft from its own settings"
     fi
     MYDIR="${FTBBase}"
     CMDRUN="$PARUN $JAVARUN -Xincgc"
@@ -827,7 +827,7 @@ SetFTBLauncher() {
 
 SetTechLauncher() {
     if [[ -n ${MEM} ]]; then
-        echo "${ME}: ${MEM} (from -T/-B/-E) is being ignored. TechnicLauncher sets memory for Minecraft from its own settings"
+        echo "${ME}: ${MEM} (from -T/-B/-E) is being ignored. TechnicLauncher sets memory\nfor Minecraft from its own settings"
     fi
     MYDIR="${TechnicBase}"
     CMDRUN="$PARUN $JAVARUN -Xincgc"
