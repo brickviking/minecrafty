@@ -53,7 +53,7 @@ GOA=(
 "b:" BrightInit "n.n: set the brightness. If unset, $BRIGHTDEF is used. 0.7 darker, 1.2 lighter"
 "g:" GammaInit "n.n: set the gamma offset. If unset, $GAMMADEF is used. 0.7 lighter, 1.2 darker"
 "m:" SetMonitor "select monitor to apply gamma correction to"
-"r:" SetRefresh "nn.n: set a valid refresh rate for the second monitor, as Minecraft has a habit of setting this to the recommended value instead of the value used originally."
+"r:" SetRefresh "nn.n: set a valid refresh rate for the second monitor"
 "z:" FetchResolution "XxY: set required resolution (1920x1080 default)"
 "f:" FetchMinecraft "retrieves minecraft.jar or launcher from remote host, \`-f help' for more details"
 "l:" Launcher "starts specified launcher, \`-l help' for more details"
@@ -88,7 +88,8 @@ FONA=(
 "bukkitdevel" Fetch "download absolutely latest bukkit"
 "craft" Fetch "download Craftland installer for latest Aether prerelease"
 "devlauncher" Fetch "download development launcher"
-"digiex" Fetch "download DigiEX launcher (discontinued because of obsolescence, unavailable for download)"
+"digiex" Fetch "
+download DigiEX launcher (discontinued, obsolete, unavailable for download)"
 "mvc" Fetch "download Minecraft Version Changer from TunkDesign"
 "skmc" Fetch "download development version of SKMCLauncher.jar (obsolete, may not work)"
 )
