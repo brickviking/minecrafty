@@ -21,7 +21,8 @@ CMDRUN="$JAVARUN"
 MCBase="${HOME}/.minecraft"
 # Set the logfile to empty string initially
 OUTFILE=""
-# Optional, if you add launchers, set a path here, add a SetXyzLauncher() function, add a line to ${FOA} and ${LOA} and a stanza in FetchMinecraft()
+# Optional, if you add launchers, set a path here, add a SetXyzLauncher()
+# function, add a line to ${FOA} and ${LOA} and a stanza in FetchMinecraft()
 FTBBase="${HOME}/FTB.minecraft"
 TechnicBase="${HOME}/.technic"
 ATLauncherBase="${HOME}/ATLauncher"
@@ -546,7 +547,7 @@ FetchMinecraft() {
                 exit 1
             fi
 			# Plainly, this isn't correct dropoff point any more, but then, where is?
-            wget -O ${SERVER}/final_server_${DROPOFF}.jar http://s3.amazonaws.com/Minecraft.Download/versions/${DROPOFF}/minecraft_server.${DROPOFF}.jar
+            wget -O ${SERVER}/snapshot_server_${DROPOFF}.jar http://s3.amazonaws.com/Minecraft.Download/versions/${DROPOFF}/minecraft_server.${DROPOFF}.jar
 
 		;;
 
