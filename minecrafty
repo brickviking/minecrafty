@@ -167,7 +167,9 @@ LaunchHelp() {
     for (( i=3, p=1; p<${#LAUNCHOPTARRAY[@]}; i+=3, p++ )); do
         LOTA+="|${LAUNCHOPTARRAY[p]}"
     done
+    # Print short option list
     echo "$ME -l [${LOTA}]"
+    # Print long option list
     for (( i=0, p=0; p<${#LAUNCHOPTARRAY[@]}; i+=3, p++ )); do
         echo "-l ${LAUNCHOPTARRAY[p]}    ${LOA[i+2]}"
     done
@@ -178,7 +180,9 @@ FetchHelp() {
     for (( i=3, p=1; p<${#FETCHOPTARRAY[@]}; i+=3, p++ )); do
         FOTA+="|${FETCHOPTARRAY[p]}"
     done
+    # Print short option list
     echo "$ME -f [${FOTA}]"
+    # Print long option list
     for (( i=0, p=0; p<${#FETCHOPTARRAY[@]}; i+=3, p++ )); do
         echo "-f ${FETCHOPTARRAY[p]}    ${FOA[i+2]}"
     done
@@ -479,7 +483,7 @@ FetchMinecraft() {
             # otherwise, it succeeded, we might as well go get the server file
             wget -O ${SERVER}/snapshot_server_$DROPOFF.jar http://assets.minecraft.net/${DROPOFF//\./_}/minecraft_server.jar
         ;;
-        # older final version, account for x.y and x.y.z from 1.0 to 1.5.1, different home than below's new version
+        # older final version, account for x.y and x.y.z from 1.0 to 1.5.1, different home than below's new version. Clients only below 1.2
         1.[01234].[0-9]|1.[0-5]|1.5.[01]) 
             if [[ ! -f ${SINGLE}/final_${DROPOFF}.jar ]]; then
                 wget -O ${SINGLE}/final_$DROPOFF.jar http://assets.minecraft.net/${DROPOFF//\./_}/minecraft.jar
@@ -597,9 +601,6 @@ FetchMinecraft() {
               i686)
                  DL_ARCH=lin32
               ;;
-              *)
-               echo "Sometihng broek. Please fix the multi) section of FetchMinecraft"
-               retval=1
             esac
             # go download it (TODO: we need to check for failures to download)
             wget -O ${MultiMCBase}/mmc-stable-${DL_ARCH}.tar.gz "https://files.multimc.org/downloads/mmc-stable-${DL_ARCH}.tar.gz"
