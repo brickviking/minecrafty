@@ -684,6 +684,7 @@ FetchMinecraft() {
 }
 
 DefaultSettings() {
+        # We should perhaps unset ${MEM}? Problem is, this is called before Set*Launch is.
         CMDARG="-jar ${MCBase}/bin/minecraft-launcher.jar"
         CMD="${CMDRUN} ${CMDOPT} ${MEM} ${CMDARG}"
 #        FetchGamma
