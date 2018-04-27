@@ -1,11 +1,54 @@
 
-minecrafty,184
-VERSION=3,13
-StuffLaunchOpts(135,5455
-StuffFetchOpts(145,5788
-Help(155,6142
-LaunchHelp(163,6327
-FetchHelp(174,6641
-LogFile(185,6949
-AppendLogFile(192,7142
-BrightInit(198,7322
+minecrafty,2121
+StuffGetOpts() {StuffGetOpts126,4948
+StuffLaunchOpts() {StuffLaunchOpts137,5261
+StuffFetchOpts() { #Set this up for launchersStuffFetchOpts147,5594
+Help() {Help157,5948
+LaunchHelp() {LaunchHelp165,6133
+FetchHelp() {FetchHelp178,6506
+LogFile() {LogFile191,6873
+AppendLogFile() {AppendLogFile198,7066
+BrightInit() {BrightInit204,7246
+FetchBright() {FetchBright218,7772
+SetBright() {SetBright224,8094
+ResetBright() {ResetBright229,8273
+FetchResolution() {FetchResolution237,8592
+SetResolution() {SetResolution248,9094
+ResetResolution() {ResetResolution264,9519
+GammaInit() {GammaInit271,9734
+FetchGamma() {FetchGamma285,10250
+SetGamma() {SetGamma291,10566
+ResetGamma() {ResetGamma296,10756
+FetchRefresh() {FetchRefresh306,11176
+SetRefresh() {SetRefresh314,11441
+ResetRefresh() {ResetRefresh320,11560
+RunMC() {RunMC329,11924
+ServerRun() {ServerRun363,12665
+Launcher() {Launcher386,13648
+ParseLatestRB() {ParseLatestRB410,14163
+ParseLatestBeta() {ParseLatestBeta416,14470
+FetchMinecraft() {FetchMinecraft422,14762
+DefaultSettings() {DefaultSettings686,29438
+SetArchaicLauncher() {SetArchaicLauncher693,29612
+SetPADSP() {SetPADSP700,29825
+SetPAPause() {SetPAPause706,29936
+SetTinyMemory() {SetTinyMemory718,30301
+SetSmallMemory() {SetSmallMemory724,30462
+SetMoreMemory() {SetMoreMemory730,30624
+SetEnormousMemory() {SetEnormousMemory738,30860
+SetMonitor() {SetMonitor752,31307
+ShowVersionString() {ShowVersionString761,31492
+SetDevLauncher() {SetDevLauncher768,31620
+SetMagicLauncher() {SetMagicLauncher775,31783
+SetMultiLauncher() {SetMultiLauncher782,31993
+SetCraftLauncher() {SetCraftLauncher794,32423
+SetDigiLauncher() {SetDigiLauncher800,32563
+SetSKMCLauncher() {SetSKMCLauncher807,32794
+SetFTBLauncher() {SetFTBLauncher819,33347
+SetTechLauncher() {SetTechLauncher829,33686
+SetTerraLauncher() {SetTerraLauncher839,34041
+SetMVCLauncher() {SetMVCLauncher850,34462
+SetATLauncher() {SetATLauncher857,34655
+SetAetherLauncher() {SetAetherLauncher866,34987
+GetOpts() {GetOpts873,35280
+StuffCommands() {StuffCommands894,35947
