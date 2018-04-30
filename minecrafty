@@ -1,7 +1,7 @@
 #!/bin/bash
 
 VERSION=0
-MINOR=62
+MINOR=63
 PATCH=
 ME=$(basename $0)
 # Default gamma brightness of game
@@ -79,6 +79,7 @@ FOA=(
 "technic" Fetch "download beta Technic launcher"
 "terra" Fetch "download TerraFirmaCraft launcher (1.7.10 only)"
 )
+# TODO: I could also have entry for spigot in there
 
 # Unused and obsoleted -f entries
 FONA=(
@@ -88,12 +89,10 @@ FONA=(
 "bukkitdevel" Fetch "download absolutely latest bukkit"
 "craft" Fetch "download Craftland installer for latest Aether prerelease"
 "devlauncher" Fetch "download development launcher"
-"digiex" Fetch "
-download DigiEX launcher (discontinued, obsolete, unavailable for download)"
+"digiex" Fetch "download DigiEX launcher (discontinued, obsolete, unavailable for download)"
 "mvc" Fetch "download Minecraft Version Changer from TunkDesign"
 "skmc" Fetch "download development version of SKMCLauncher.jar (obsolete, may not work)"
 )
-# I could also have entry for spigot in there
 
 # Entries for the -l (launcher) switch
 LOA=(
@@ -510,6 +509,7 @@ FetchMinecraft() {
             fi
             if [[ $retval != 0 ]]; then
                 rm "${SINGLE}/${DROPOFF}/${DROPOFF}.jar"
+		rmdir "${SINGLE}/${DROPOFF}/"
                 echo "Download of ${DROPOFF} jar failed, no such version or other error"
                 exit 1
             fi
@@ -517,6 +517,7 @@ FetchMinecraft() {
                 wget -O "${SINGLE}/${DROPOFF}/${DROPOFF}.json" http://s3.amazonaws.com/Minecraft.Download/versions/${DROPOFF}/${DROPOFF}.json
                 retval=$?
             fi
+	    # Would we ever have a naked jar? (i.e. no .json)
             if [[ $retval != 0 ]]; then
                 rm "${SINGLE}/${DROPOFF}/${DROPOFF}.json"
                 echo "Download of json file failed, no such version or other error"
@@ -539,6 +540,7 @@ FetchMinecraft() {
             fi
             if [[ $retval != 0 ]]; then
                 rm "${SINGLE}/${DROPOFF}/${DROPOFF}.jar"
+		rmdir "${SINGLE}/${DROPOFF}/"
                 echo "Download of snapshot ${DROPOFF} jar failed, no such version or other error"
                 exit 1
             fi
