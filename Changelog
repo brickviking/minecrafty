@@ -131,4 +131,6 @@ Changelog stripped out of the main file, created as a separate file
       and non-launchable sections.I've done this more for archival reasons than
       working. I've also rearranged the order of certain functions by task to
       make them easier for me to find later.
-0.62: Shortened several help and error strings. Changed note about server jars pre-1.2
+0.62: Shortened several help and error strings. Changed note about server jars
+      pre-1.2
+0.63: Added removal of directory if we can't download the jar.
