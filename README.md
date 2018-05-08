@@ -1,17 +1,9 @@
----
-author:
-- brickviking
-title: Minecraft
----
-
-Minecraft {#minecraft}
+Minecraft
 =========
 
-•This is the one-stop script for starting Minecraft. This isn’t a
-replacement for current launchers, it’s more a tool to help out with
-starting them up.
+•This is the one-stop script for starting Minecraft. This isn’t a replacement for current launchers, it’s more a tool to help out with starting them up.
 
-Features {#features}
+Features
 --------
 
 -   Download commonly available launchers:
@@ -28,8 +20,7 @@ Features {#features}
 
     -   Technic
 
--   Download available release and snapshot versions of the Minecraft
-    client
+-   Download available release and snapshot versions of the Minecraft client
 
 -   Execute any installed Minecraft launcher, even the default one
 
@@ -43,10 +34,9 @@ Features {#features}
 
 -   Starts a selected installed server
 
-### Recently removed launchers {#recently-removed-launchers}
+### Recently removed launchers
 
-These launchers have all been removed from minecrafty because they’re
-either obsolete or in some cases, have been removed by their authors.
+These launchers have all been removed from minecrafty because they’re either obsolete or in some cases, have been removed by their authors.
 
 -   Aether Launcher (superceded by Aether development version)
 
@@ -54,28 +44,22 @@ either obsolete or in some cases, have been removed by their authors.
 
 -   Digiex (obsolete and not kept up to date)
 
--   Minecraft Version Changer (TunkDesign) (obsolete, though still
-    available)
+-   Minecraft Version Changer (TunkDesign) (obsolete, though still available)
 
 -   SKMCLauncher (sk89q.com, obsolete)
 
 -   Download of the latest bukkit Recommended Build (DCMA issues)
 
-Requirements {#requirements}
+Requirements
 ------------
 
--   A paid account for Minecraft. Unpaid won’t work, or at best you will
-    have demo.
+-   A paid account for Minecraft. Unpaid won’t work, or at best you will have demo.
 
--   One or more of the Minecraft launchers referred to in the list
-    above.
+-   One or more of the Minecraft launchers referred to in the list above.
 
--   Linux running in graphical (Xorg) mode with 3-D acceleration.
-    Minecraft won’t work otherwise.
+-   Linux running in graphical (Xorg) mode with 3-D acceleration. Minecraft won’t work otherwise.
 
--   Any version of Linux with bash 4 (FreeBSD may work, but only if you
-    have bash 4 installed.) This has NOT been tested with cygwin, as
-    Windows has its own launcher.
+-   Any version of Linux with bash 4 (FreeBSD may work, but only if you have bash 4 installed.) This has NOT been tested with cygwin, as Windows has its own launcher.
 
 -   xrandr (available in most Linuxes.)
 
@@ -85,14 +69,11 @@ Requirements {#requirements}
 
 -   Java 8 (either OpenJDK, Oracle JDK or equivalents.)
 
--   Other Minecraft requirements (decent video card, recent machine,
-    enough memory.)
+-   Other Minecraft requirements (decent video card, recent machine, enough memory.)
 
--   Some terminal, to run this script and see its output. Not absolutely
-    mandatory, but you’ll thank me if something goes wrong and you can
-    see it.
+-   Some terminal, to run this script and see its output. Not absolutely mandatory, but you’ll thank me if something goes wrong and you can see it.
 
-Who this is for {#who-this-is-for}
+Who this is for
 ---------------
 
 -   People who use modified jars.
@@ -101,23 +82,15 @@ Who this is for {#who-this-is-for}
 
 -   People who wish to tweak how Minecraft starts up.
 
--   Dual/multi-monitor setups where the second screen gets its refresh
-    rate reset every time Minecraft quits.
+-   Dual/multi-monitor setups where the second screen gets its refresh rate reset every time Minecraft quits.
 
--   People who want a single file to start whatever variant of Minecraft
-    they have, whether client or server.
+-   People who want a single file to start whatever variant of Minecraft they have, whether client or server.
 
--   People who are reasonably comfortable with using a commandline. This
-    program works well enough from .desktop files, but then you don’t
-    see any text information.
+-   People who are reasonably comfortable with using a commandline. This program works well enough from .desktop files, but then you don’t see any text information.
 
-Who this is NOT for {#who-this-is-not-for}
+Who this is NOT for
 -------------------
 
--   People with no computer experience, who just want to run Minecraft
-    without any changes, additions or hassles. If the base launcher does
-    what you want, then this script is not for you.
+-   People with no computer experience, who just want to run Minecraft without any changes, additions or hassles. If the base launcher does what you want, then this script is not for you.
 
--   People trying to run Minecraft without having paid for it. This
-    script will not help you. Minecraft is not overly expensive in
-    comparison to some other games, and is most definitely worth it.
+-   People trying to run Minecraft without having paid for it. This script will not help you. Minecraft is not overly expensive in comparison to some other games, and is most definitely worth it.
