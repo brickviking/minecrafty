@@ -1,0 +1,416 @@
+% -*-LaTeX-*-
+% Converted automatically from troff to LaTeX
+% by tr2latex 2.5
+% on Fri May  4 17:23:46 2018
+% tr2latex was written by Kamal Al-Yahya at Stanford University <Kamal%Hanauma@SU-SCORE.ARPA>
+% and substantially enhanced by Christian Engel at RWTH Aachen <krischan@informatik.rwth-aachen.de>
+% it is currently maintained by Dirk Jagdmann <doj@cubic.org>
+% visit http://www.ctan.org/pkg/tr2latex for details.
+%
+% troff input files: minecrafty.6
+% ECG: we'll see if the conversion is invertable by latex2man
+
+\documentclass[]{article}
+
+\usepackage{troffman}
+
+\begin{document}
+%--------------------------------------------------
+% start of input file: minecrafty.6
+%
+% Copyright (c) 2018 brickviking (brickviking@gmail.com),
+%     Thu Apr 12 17:05:00 NZST 2018
+%
+% Permission is granted to copy, distribute and/or modify this document
+% under the terms of the GNU Free Documentation License, Version 1.3
+% or any later version published by the Free Software Foundation;
+% with no Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts.
+% A copy of the license is included in the separate document entitled "GNU
+% Free Documentation License".
+%
+% This manual is distributed in the hope that it will be useful,
+% but WITHOUT ANY WARRANTY; without even the implied warranty of
+% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+% GNU General Public License for more details.
+%
+% You should have received a copy of the GNU General Public
+% License along with this manual; if not, download it from the www.fsf.org
+% website or write to the Free Software Foundation, Inc., 59 Temple Place,
+% Suite 330, Boston, MA 02111, USA.
+%
+% Version 0.1.3 for minecrafty 0.62.
+% TODO: fix the Aether reference, remove all the obsolete entries
+%
+% \font\tenrm=universalis at 10pt
+\phead{MINECRAFTY}{6}{2018-04-12}{Linux}{Java games}
+\shead{NAME}
+minecrafty -- A Minecraft launcher front end.
+\shead{SYNOPSIS}
+\begin{TPlist}{}
+  \item[{\bf minecrafty \  [-hvacTSBEOP]}
+    {\bf [-b\ }{\it n.n}{\bf ]}
+    {\bf [-g\ }{\it n.n}{\bf ]}
+    {\bf [-m \  0$|$1$|$2]}
+    {\bf [-r\ }{\it nn.n}{\bf ]}
+    {\bf [-z\ }{\it XxY}{\bf ]\ ...}]
+  \item[{{\bf minecrafty}{\it \ }{\bf [-f\ }{\it launcher\_name$|$help}{\bf ]\ ...}}]
+  \item[{{\bf minecrafty}{\it \ }{\bf [-l\ }{\it launcher\_name$|$help}{\bf ]\ ...}}]
+  \item[{{\bf minecrafty}{\it \ }{\bf [-s}{\it \ servername}{\bf ]\ ...}}]
+\end{TPlist}
+
+\shead{DESCRIPTION}
+{\bf minecrafty}
+executes a java launcher for the computer game Minecraft (Java Edition).
+Optionally, you can download or start Minecraft launchers or download
+java clients and servers for vanilla Minecraft. 
+
+When
+{\bf minecrafty}
+is started with no arguments, it runs the Minecraft launcher found in\break
+{\it \$\{HOME\}/.minecraft/bin/minecraft\_launcher.jar}
+if you have already downloaded and installed it in that location.
+
+It is
+{\it not}
+for the Bedrock edition of Minecraft; that already has its own launcher
+and only works under Windows 10.
+\shead{REQUIREMENTS}
+Most of these requirements actually relate to the ability to run Minecraft,
+not specifically the minecrafty front end.
+\sshead{Hardware}
+\begin{TPlist}{}
+\item[{{\bf Memory}}]
+Your machine should have an absolute minimum of 4 Gb to play Minecraft.
+It should ideally have more memory than this, especially for recent FTB
+modpacks and other modpack collections.
+\item[{{\bf 3-D Video card}}]
+You should have a recent PCI Express 3-D video card that can play Minecraft, preferably
+with 512 Mb of video memory or more. Laptop video and integrated video
+chipsets may or may not work well for Minecraft, as they are often slower
+or may have less memory for video. AGP video cards aren't powerful enough,
+and are far too old.
+\item[{{\bf Intel or AMD CPU}}]
+This should be from 2008 or later, as earlier CPUs simply won't run
+Minecraft well, if at all. Anything that's a Core/2 Quad or later works,
+but an i3/i5/i7 or an AMD equivalent would be better. A 32-bit CPU can run
+Minecraft, but to get the best performance, your CPU and Linux should be
+running in 64-bit mode.
+\end{TPlist}
+\sshead{Software}
+\begin{TPlist}{}
+\item[{{\bf Minecraft}}]
+A paid account for Minecraft. The unpaid version won't work, or at best
+you'll have a demo that lasts you 100 minutes (about five in-game days).
+You can purchase Minecraft from the
+{\it minecraft.net}
+website. Some local stores may sell a Minecraft prepaid card with a code
+you can redeem at 
+{\it minecraft.net.}
+\item[{{\bf java}}]
+A recent version of java 8, either JavaSE or SDK will do. OpenJDK will also do fine.
+If Minecraft will run using your java, you're good. 
+\item[{{\bf Linux}}]
+Any recent up-to-date version of Linux later than 2014 will do, I've tested
+this under Ubuntu and Fedora, both work fine. I cannot confirm if this script
+or its dependencies will even work under Cygwin, let alone wine.
+\item[{{\bf Xorg}}]
+Linux running in graphical (Xorg) mode on a local screen, in 3-D accelerated
+mode. Your desktop can be GDM, KDM, or whatever. Wayland also works,
+as long as it provides the same features.
+\item[{{\bf xrandr}}]
+This is available in all common Linux distributions.
+\item[{{\bf bash4}}]
+You need bash installed, preferably bash4 or later. I don't think this
+script will work under dash or most other shells.
+\item[{{\bf awk}}]
+The gawk package should provide awk, and should be available in all Linux
+distributions.
+\item[{{\bf wget}}]
+This does the fetching of launchers and client jar files. I haven't tested
+this with curl or other web fetching programs.
+\item[{{\bf terminal}}]
+Not an absolute requirement, but is a good idea so you can see output.
+Terminal examples include Gnome Terminal, Konsole, or even xterm.
+\end{TPlist}
+\shead{OPTIONS}
+\sshead{General options}
+Options for minecrafty are as follows:
+\begin{TPlist}{}
+\item[{{\bf -h}}]
+prints the main help screen for 
+{\bf minecrafty}{\rm .}
+You can also use
+{\bf -?}
+to view the same help.
+Further help details are described under the
+{\bf Launcher options}
+and
+{\bf Fetching options}
+sections.
+\item[{{\bf -v}}]
+show minecrafty's version string
+\item[{{\bf -a}}]
+appends launcher output to
+{\it \$\{HOME\}/.minecraft/minecrafty.output.txt,}
+creating it if it doesn't exist. You should probably
+trim this file from time to time, or use the
+{\bf -c}
+switch instead.
+\item[{{\bf -c}}]
+creates 
+{\it \$\{HOME\}/.minecraft/minecrafty.output.txt}
+for logging launcher output, emptying the file first if it already exists.
+\end{TPlist}
+\sshead{Memory options}
+These options affect how much memory the launcher will start with. This does
+{\it not}
+affect how much memory that Minecraft itself will start with, just the amount
+assigned to the launcher. Historically (previous to 1.5.2) the amount assigned
+on the commandline affected how much memory the Minecraft client started with.
+In addition, some launchers (the ones that don't use Java to start themselves)
+don't require a specific memory setting, so these options are ignored for them.
+\begin{TPlist}{}
+\item[{{\bf -T}}]
+runs launcher with a tiny amount of memory (256 mb).
+\item[{{\bf -S}}]
+runs launcher with a normal amount of memory (512 Mb).
+This is the default if no memory option is chosen.
+\item[{{\bf -B}}]
+runs launcher with a larger amount of memory (1024 mb).
+\item[{{\bf -E}}]
+runs launcher with heaps of memory, only on 64-bit systems (2 Gb).
+\end{TPlist}
+\sshead{Audio options}
+These are needed if you need pulseaudio to be tweaked or simply get out of
+the way.
+\begin{TPlist}{}
+\item[{{\bf -O}}]
+create OSS-like pulseaudio device.
+\item[{{\bf -P}}]
+suspends pulseaudio while Minecraft runs.
+\end{TPlist}
+\sshead{Graphical options}
+These affect what you see on your screen.
+\begin{TPlist}{}
+\item[{{\bf -b}{\it \ n.n}
+}]
+set the brightness to the value specified as 
+{\it n.n,}
+for example 
+{\bf -b 1.0.}
+If unset, 1.0 is used. 0.7 darker, 1.2 lighter.
+\item[{{\bf -g}{\it \ n.n}
+}]
+set the gamma offset. If unset, 1.0 is used. 0.7 lighter, 1.2 darker.
+\item[{{\bf -m}{\it \ $<$0$|$1$|$2$|$3$>$}
+}]
+select monitor to apply gamma correction to.
+\item[{{\bf -r}{\it \ nn.n}
+}]
+set a valid refresh rate for the second monitor, as Minecraft has a habit
+of setting this to the recommended value (often 60 Hz) instead of the
+value used when your screen started. This applies to people who have
+specifically set 75 Hz or some other refresh rate.
+\item[{{\bf -z}{\it \ XxY}
+}]
+set required resolution (1920x1080 default).
+\end{TPlist}
+\sshead{Fetching options}
+\begin{TPlist}{}
+\item[{{\bf -f help}}]
+produces help for fetching launchers and Minecraft versions.
+\item[{{\bf -f\ $<$}{\it n.n}{\bf \ $|$}{\it n.n.n}{\bf $>$}
+}]
+retrieves a release version of the
+{\it minecraft.jar}
+client, examples of this are
+{\bf 1.0}
+or
+{\bf 1.10.2}{\rm .}
+This script doesn't fetch versions earlier than 1.0 or pre-release client
+versions, but the default launcher will now fetch earlier versions such as
+alpha and beta.
+\item[{{\bf -f $<$YEARwWEEKx$>$}}]
+retrieves a snapshot version of minecraft.jar, such as 17w49b.
+{\bf Year}
+starts from 11, and (so far) goes to 18 but will possibly range up to
+29. 
+{\bf WEEK}
+ranges from 01 to 53,
+{\bf x}
+is a letter from a to m. The earliest snapshot version that exists in this
+format is 11w47a; although there were earlier snapshot versions, they don't
+follow this naming convention.
+\item[{{\bf -f}{\it \ launcher\_name}
+}]
+retrieves
+{\it launcher\_name}
+from the relevant remote host such as the FTB website.
+The valid 
+{\it launcher\_name}
+choices are:
+% \ind{1\parindent}
+% TODO: turn this into a two-column list without border
+% |name|meaning|
+{\begin{TPlist}{}
+\item[{\bf launcher}]
+\item[{\bf default}]
+\item[{\bf vanilla}]
+downloads the default launcher.
+\item[{\bf atl}]
+download AT Launcher for Linux.
+\item[{\bf ftb}]
+download FTB launcher.
+\item[{\bf magic}]
+download MagicLauncher.
+\item[{\bf multi}]
+download MultiMC, this requires a recent version of Linux and glibc.
+\item[{\bf technic}]
+download Technic launcher.
+\item[{\bf terra}]
+download TerraFirmaCraft launcher (1.7.10 only).
+  \end{TPlist}
+} % Inner list
+% ### Obsoleted entries ###
+% .B aether
+% download Aether Launcher. This seems to be the latest Aether II project.
+% Currently the launcher doesn't work, and development versions of 1.10.2 and
+% 1.11.2 use a profile created on the default launcher.
+% .TP
+% .B bukkitrb
+% download latest recommended bukkit build (obsolete due to a DMCA claim)
+% .TP
+% .B craft
+% download Craftland installer for latest Aether prerelease.
+% .TP
+% .B digiex
+% download DigiEX launcher (obsolete, may not work).
+% .TP
+% .B mvc
+% download Minecraft Version Changer from TunkDesign. (probably obsolete)
+% .TP
+% .B skmc
+% download development version of SKMCLauncher.jar (obsolete, may not work).
+% .TP
+% \ind{1\parindent}
+\end{TPlist} % Outer list
+\sshead{Launcher options}
+\begin{TPlist}{}
+\item[{{\bf -l help}}]
+produces help for starting Minecraft launchers.
+\item[{{\bf -l}{\it \ launcher\_name}
+}]
+starts specified launcher. So does simply typing
+{\bf minecrafty}
+at the prompt. The valid
+{\it launcher\_name}
+choices are:
+\ind{1\parindent}
+% TODO: turn this into a two-column list without border
+% |name|meaning|
+    {\begin{TPlist}{}
+      \item[{\bf default}]
+      \item[{\bf launcher}]
+      \item[{\bf vanilla}] run default launcher
+      \item[{{\bf atl}}] run AT Launcher
+      \item[{{\bf ftb}}] run FTB launcher
+      \item[{{\bf magic}}] run MagicLauncher
+      \item[{{\bf multi}}] run MultiMC
+      \item[{{\bf technic}}] run Technic launcher
+      \item[{{\bf terra}}] run TerraFirmaCraft launcher (1.7.10 only)
+      \end{TPlist}
+    }
+% ### Obsoleted entries ###
+% .TP
+% .B aether
+% run Aether Launcher
+% .TP
+% .B craft
+% run CraftLand launcher
+% .TP
+% .B digiex
+% run DigiEX launcher
+% .TP
+% .B mvc
+% run Minecraft Version Changer (MVC.jar)
+% .TP
+% .B skmc
+% run development version of SKMCLauncher.jar
+% \ind{1\parindent}
+\end{TPlist}
+\sshead{Starting a server}
+\begin{TPlist}{{\bf -s}{\it \ server\_name.jar}
+}
+\item[{{\bf -s}{\it \ server\_name.jar}
+}]
+starts
+{\it \$\{HOME\}/.minecraft/server/server\_name.jar ,}
+you will need to download the server of your choice into this location.
+
+\end{TPlist}\shead{EXAMPLES}
+\begin{TPlist}{{\bf minecrafty}}
+\item[{{\bf minecrafty}}]
+executes the default launcher with the default amount of memory assigned
+to it.
+\item[{{\bf minecrafty -l ftb}}]
+executes the FTB launcher with the default amount of memory assigned to it.
+\item[{{\bf minecrafty -f 1.12.2}}]
+fetch the jar file for the 1.12.2 client, saving it in the correct place.
+\item[{{\bf minecrafty -f 18w15a}}]
+fetch the jar file for the 18w15a snapshot (development version) client file.
+\item[{{\bf minecrafty -m 1 -g 1.3 -z 1360x768 -r 75 -c}}]
+execute the default launcher, setting the screensize, refresh rate and gamma
+for the second monitor. Console output from the launcher will be in
+{\it \$\{HOME\}/.minecraft/minecrafty.output.txt}
+for you to look at if you have problems later. The user's probably going to
+have to put the minecraft window on the second monitor and deal with all that
+lovely desktop manager jazz for themselves.
+\item[{{\bf minecrafty -s spigot-1.12.2.jar}}]
+This runs the spigot server file. You'll need to get a server jar file
+and put it into
+{\it \$\{HOME\}/.minecraft/server/}
+
+\end{TPlist}\shead{BUGS}
+No doubt there are plenty, I still haven't winkled out all the bugs in the
+graphics options yet, and most of the launchers that I used to support
+downloads for aren't around any more. Thankfully, I can recommend the FTB
+launcher, which is kept up to date.
+
+This seems to take no notice of an existing MCBase or Minecraft home where
+that differs from the normal user's home directory.
+
+The return value from minecrafty will be different if you use the logfile
+option
+{\bf -a}
+or
+{\bf -c}
+as the exit value will actually be from the program used to capture the output.
+
+\shead{AUTHORS}
+Me, of course (brickviking@gmail.com). I've had a little bit of help from others too.
+
+\shead{ACKNOWLEDGEMENTS}
+\begin{TPlist}{{\bf Mojang}}
+\item[{{\bf Mojang}}]
+for the game that got seriously popular. Yes, Infiniminer got there
+first, but Mojang made Minecraft what it is today.
+\item[{{\bf The writers of Java}}]
+If it wasn't for Java, then Minecraft might have been written in C\#. Oh wait,
+Microsoft already did that.
+\item[{{\bf Microsoft}}]
+for continuing to support Minecraft when Mojang was bought by them.
+\item[{{\bf Youtube Minecraft channels}}]
+These most certainly helped bring Minecraft into prominence, and must surely
+have had a hand in making Minecraft the most wanted game for ages.
+\item[{{\bf Minecraft players and server owners}}]
+These are the real reason Minecraft has remained popular. Yes, it's had
+several changes and additions, multiple platforms has become a thing, and
+Youtube channels devoted to Minecraft have both come and gone. But without
+the users, Minecraft would have disappeared into the Mysts of time.
+
+%# vim:expandtab:ts=4
+\end{TPlist}
+%
+% end of input file: minecrafty.6
+%--------------------------------------------------
+\end{document}
