@@ -418,6 +418,26 @@ ParseLatestBeta() {
     beefjerky=$(grep -h -m1 ${MCBase}/server/text "<item><title>Recommended Build for CraftBukkit: ")
 }
 
+#This should fetch the manifest for available versions
+# Called from FetchMinecraft
+FetchGlobalManifest() {
+    wget -O ${MCHOME}/stash/version_manifest.json https://launchermeta.mojang.com/mc/game/version_manifest.json
+    # TODO: Please code the fail case!
+    # TODO: we should deal with commas at this stage so that searching will work
+}
+
+# This should fetch the manifest for individual version
+# Called from FetchMinecraft
+FetchVersionManifest() {
+# takes a version to download
+    # We need a file to grep
+    if [[ -f $manifest ]]; then
+	DROPOFF_MANIFEST_URL=$(grep ${DROPOFF} ${manifest}| grep URL)
+    fi
+    wget -O ${DROPOFF}/${DROPOFF}.json ${DROPOFF_MANIFEST_URL}
+}
+
+
 FetchMinecraft() {
     # Pulled this in from fetchminecraft.sh at version 0.1.9
     # ver 0.0.0: initial cut
