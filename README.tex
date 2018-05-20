@@ -1,0 +1,84 @@
+\documentclass[10pt,a4paper]{book}
+\author{brickviking}
+\title{Minecraft}
+\begin{document}
+\chapter*{Minecraft}
+
+•This is the one-stop script for starting Minecraft. This isn't a replacement for current
+launchers, it's more a tool to help out with starting them up.
+
+\section*{Features}
+\begin{itemize}
+\item Download commonly available launchers:
+{\begin{itemize}
+  \item Default java launcher for Linux (minecraft.net)
+  \item ATL
+  \item FeedTheBeast
+  \item MagicLauncher
+  \item MultiMC
+  \item Technic
+\end{itemize}}
+\item Download available release and snapshot versions of the Minecraft java client
+\item Execute any installed Minecraft java-powered launcher, even the default one
+{\begin{itemize}
+  \item Allocate memory for the launcher
+  \item Change screen brightness/gamma/resolution
+  \item Send output to a logfile 
+\end{itemize}}
+\item Reset refresh rate on monitors after Minecraft finishes
+\item Starts a selected installed server
+\end{itemize}
+
+\subsection*{Recently removed launchers}
+These launchers have all been removed from minecrafty because they're either
+obsolete or in some cases, have been removed by their authors.
+\begin{itemize}
+  \item Aether Launcher (superceded by Aether development version)
+  \item Craftland (unknown)
+  \item Digiex (obsolete and not kept up to date)
+  \item Minecraft Version Changer (TunkDesign) (obsolete, though still available)
+  \item SKMCLauncher (sk89q.com, obsolete)
+  \item Download of the latest bukkit Recommended Build (DCMA issues)
+\end{itemize}
+
+\section*{Requirements}
+\begin{itemize}
+  \item A paid account for Minecraft. Unpaid won't work, or at best you will have demo.
+  \item One or more of the Minecraft launchers referred to in the list above.
+  \item Linux running in graphical (Xorg) mode with 3-D acceleration. Minecraft won't work otherwise.
+  \item Any version of Linux with bash 4 (FreeBSD may work, but only if you have bash 4 installed.) This has NOT been tested with cygwin, as Windows has its own launcher.
+  \item xrandr (available in most Linuxes.)
+  \item awk (gawk should be available in Linux by default.)
+  \item wget (to fetch files.)
+  \item Java 8 (either OpenJDK, Oracle JDK or equivalents.)
+  \item Other Minecraft requirements (decent video card, recent machine, enough memory.)
+  \item Some terminal, to run this script and see its output. Not absolutely mandatory, but you'll thank me if something goes wrong and you can see it.
+\end{itemize}
+
+\section*{Who this is for}
+\begin{itemize}
+\item People who use modified jars.
+\item People who use non-standard launchers like FTB or Technic.
+\item People who wish to tweak how Minecraft starts up.
+\item Dual/multi-monitor setups where the second screen gets its refresh rate reset every time
+  Minecraft quits.
+\item People who want a single file to start whatever variant of Minecraft they have,
+  whether client or server.
+\item People who are reasonably comfortable with using a commandline. This program
+  works well enough from .desktop files, but then you don't see any text information.
+\end{itemize}
+
+\section*{Who this is NOT for}
+\begin{itemize}
+\item People with no computer experience, who just want to run Minecraft without
+  any changes, additions or hassles. If the base launcher does what you want, then
+  this script is not for you.
+\item People using the new-format java-less launcher. These usually have a
+  version number of 2.00.1009 or greater. Minecrafty won't start this one without
+  some help, and at least on Linux, the new launcher isn't officially supported.
+\item People trying to run Minecraft without having paid for it. This script
+  will not help you. Minecraft is not overly expensive in comparison to some
+  other games, and is most definitely worth it.
+\end{itemize}
+\end{document}
+

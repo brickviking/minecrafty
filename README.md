@@ -8,7 +8,7 @@ Features
 
 -   Download commonly available launchers:
 
-    -   Default launcher (minecraft.net)
+    -   Default java launcher for Linux (minecraft.net)
 
     -   ATL
 
@@ -20,9 +20,9 @@ Features
 
     -   Technic
 
--   Download available release and snapshot versions of the Minecraft client
+-   Download available release and snapshot versions of the Minecraft java client
 
--   Execute any installed Minecraft launcher, even the default one
+-   Execute any installed Minecraft java-powered launcher, even the default one
 
     -   Allocate memory for the launcher
 
@@ -93,4 +93,8 @@ Who this is NOT for
 
 -   People with no computer experience, who just want to run Minecraft without any changes, additions or hassles. If the base launcher does what you want, then this script is not for you.
 
+-   People using the new-format java-less launcher. These usually have a version number of 2.00.1009 or greater. Minecrafty won’t start this one without some help, and at least on Linux, the new launcher isn’t officially supported.
+
 -   People trying to run Minecraft without having paid for it. This script will not help you. Minecraft is not overly expensive in comparison to some other games, and is most definitely worth it.
+
+
