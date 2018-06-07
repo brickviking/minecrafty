@@ -13,7 +13,7 @@
 \documentclass[]{article}
 
 \usepackage{troffman}
-
+\def\mcy{{\bf minecrafty} }
 \begin{document}
 %--------------------------------------------------
 % start of input file: minecrafty.6
@@ -47,15 +47,17 @@
 minecrafty -- A Minecraft launcher front end.
 \shead{SYNOPSIS}
 \begin{TPlist}{}
-  \item[{\bf minecrafty \  [-hvacTSBEOP]}
-    {\bf [-b\ }{\it n.n}{\bf ]}
-    {\bf [-g\ }{\it n.n}{\bf ]}
-    {\bf [-m \  0$|$1$|$2]}
-    {\bf [-r\ }{\it nn.n}{\bf ]}
-    {\bf [-z\ }{\it XxY}{\bf ]\ ...}]
-  \item[{{\bf minecrafty}{\it \ }{\bf [-f\ }{\it launcher\_name$|$help}{\bf ]\ ...}}]
-  \item[{{\bf minecrafty}{\it \ }{\bf [-l\ }{\it launcher\_name$|$help}{\bf ]\ ...}}]
-  \item[{{\bf minecrafty}{\it \ }{\bf [-s}{\it \ servername}{\bf ]\ ...}}]
+  \item[{\mcy\ 
+  \lbrack{\bf -hvacTSBEOP}\rbrack\ 
+  \lbrack{\bf -b\ {\it n.n}}\rbrack\ 
+  \lbrack{\bf -g\ {\it n.n}}\rbrack\ 
+  \lbrack{\bf -m \ {\it 0$|$1$|$2}}\rbrack\ 
+  \lbrack{\bf -r\ {\it nn.n}}\rbrack\ 
+  \lbrack{\bf -z\ {\it XxY}\rbrack} ...}] % end of first item
+  \item[{\mcy\lbrack{\bf -f\ {\it launcher\_name$|$help}}\rbrack\ ...}]
+  \item[{\mcy\lbrack{\bf -l\ {\it launcher\_name$|$help}}\rbrack\ ...}]
+  \item[{\mcy\lbrack{\bf -s\ {\it servername}}\rbrack\ ...}]
+  \item[{\mcy ...}]
 \end{TPlist}
 
 \shead{DESCRIPTION}
@@ -79,17 +81,17 @@ Most of these requirements actually relate to the ability to run Minecraft,
 not specifically the minecrafty front end.
 \sshead{Hardware}
 \begin{TPlist}{}
-\item[{{\bf Memory}}]
+\item[{{\bf Memory}}]\nwl
 Your machine should have an absolute minimum of 4 Gb to play Minecraft.
 It should ideally have more memory than this, especially for recent FTB
 modpacks and other modpack collections.
-\item[{{\bf 3-D Video card}}]
+\item[{{\bf 3-D Video card}}]\nwl
 You should have a recent PCI Express 3-D video card that can play Minecraft, preferably
 with 512 Mb of video memory or more. Laptop video and integrated video
 chipsets may or may not work well for Minecraft, as they are often slower
 or may have less memory for video. AGP video cards aren't powerful enough,
 and are far too old.
-\item[{{\bf Intel or AMD CPU}}]
+\item[{{\bf Intel or AMD CPU}}]\nwl
 This should be from 2008 or later, as earlier CPUs simply won't run
 Minecraft well, if at all. Anything that's a Core/2 Quad or later works,
 but an i3/i5/i7 or an AMD equivalent would be better. A 32-bit CPU can run
@@ -98,7 +100,7 @@ running in 64-bit mode.
 \end{TPlist}
 \sshead{Software}
 \begin{TPlist}{}
-\item[{{\bf Minecraft}}]
+\item[{{\bf Minecraft}}]\nwl
 A paid account for Minecraft. The unpaid version won't work, or at best
 you'll have a demo that lasts you 100 minutes (about five in-game days).
 You can purchase Minecraft from the
@@ -106,29 +108,30 @@ You can purchase Minecraft from the
 website. Some local stores may sell a Minecraft prepaid card with a code
 you can redeem at 
 {\it minecraft.net.}
-\item[{{\bf java}}]
+\item[{{\bf java}}]\nwl
 A recent version of java 8, either JavaSE or SDK will do. OpenJDK will also do fine.
 If Minecraft will run using your java, you're good. 
-\item[{{\bf Linux}}]
-Any recent up-to-date version of Linux later than 2014 will do, I've tested
+\item[{{\bf Linux}}]\nwl
+Any recent up-to-date 64-bit version of Linux later than 2014 will do, I've tested
 this under Ubuntu and Fedora, both work fine. I cannot confirm if this script
 or its dependencies will even work under Cygwin, let alone wine.
-\item[{{\bf Xorg}}]
+Minecraft itself works on 32-bit versions of Linux up to 1.12.2, but not from 1.13 onwards, as lwjgl has dropped all support for 32-bit Linux in 2016.
+\item[{{\bf Xorg}}]\nwl
 Linux running in graphical (Xorg) mode on a local screen, in 3-D accelerated
 mode. Your desktop can be GDM, KDM, or whatever. Wayland also works,
 as long as it provides the same features.
-\item[{{\bf xrandr}}]
+\item[{{\bf xrandr}}]\nwl
 This is available in all common Linux distributions.
-\item[{{\bf bash4}}]
+\item[{{\bf bash4}}]\nwl
 You need bash installed, preferably bash4 or later. I don't think this
 script will work under dash or most other shells.
-\item[{{\bf awk}}]
+\item[{{\bf awk}}]\nwl
 The gawk package should provide awk, and should be available in all Linux
 distributions.
-\item[{{\bf wget}}]
+\item[{{\bf wget}}]\nwl
 This does the fetching of launchers and client jar files. I haven't tested
 this with curl or other web fetching programs.
-\item[{{\bf terminal}}]
+\item[{{\bf terminal}}]\nwl
 Not an absolute requirement, but is a good idea so you can see output.
 Terminal examples include Gnome Terminal, Konsole, or even xterm.
 \end{TPlist}
@@ -193,31 +196,31 @@ suspends pulseaudio while Minecraft runs.
 These affect what you see on your screen.
 \begin{TPlist}{}
 \item[{{\bf -b}{\it \ n.n}
-}]
+}]\nwl
 set the brightness to the value specified as 
 {\it n.n,}
 for example 
 {\bf -b 1.0.}
 If unset, 1.0 is used. 0.7 darker, 1.2 lighter.
 \item[{{\bf -g}{\it \ n.n}
-}]
+}]\nwl
 set the gamma offset. If unset, 1.0 is used. 0.7 lighter, 1.2 darker.
 \item[{{\bf -m}{\it \ $<$0$|$1$|$2$|$3$>$}
-}]
+}]\nwl
 select monitor to apply gamma correction to.
 \item[{{\bf -r}{\it \ nn.n}
-}]
+}]\nwl
 set a valid refresh rate for the second monitor, as Minecraft has a habit
 of setting this to the recommended value (often 60 Hz) instead of the
 value used when your screen started. This applies to people who have
 specifically set 75 Hz or some other refresh rate.
 \item[{{\bf -z}{\it \ XxY}
-}]
+}]\nwl
 set required resolution (1920x1080 default).
 \end{TPlist}
 \sshead{Fetching options}
 \begin{TPlist}{}
-\item[{{\bf -f help}}]
+\item[{{\bf -f help}}]\nwl
 produces help for fetching launchers and Minecraft versions.
 \item[{{\bf -f\ $<$}{\it n.n}{\bf \ $|$}{\it n.n.n}{\bf $>$}
 }]
@@ -230,7 +233,7 @@ or
 This script doesn't fetch versions earlier than 1.0 or pre-release client
 versions, but the default launcher will now fetch earlier versions such as
 alpha and beta.
-\item[{{\bf -f $<$YEARwWEEKx$>$}}]
+\item[{{\bf -f $<$YEARwWEEKx$>$}}]\nwl
 retrieves a snapshot version of minecraft.jar, such as 17w49b.
 {\bf Year}
 starts from 11, and (so far) goes to 18 but will possibly range up to
@@ -242,7 +245,7 @@ is a letter from a to m. The earliest snapshot version that exists in this
 format is 11w47a; although there were earlier snapshot versions, they don't
 follow this naming convention.
 \item[{{\bf -f}{\it \ launcher\_name}
-}]
+}]\nwl
 retrieves
 {\it launcher\_name}
 from the relevant remote host such as the FTB website.
@@ -252,24 +255,24 @@ choices are:
 % \ind{1\parindent}
 % TODO: turn this into a two-column list without border
 % |name|meaning|
-{\begin{TPlist}{}
-\item[{\bf launcher}]
-\item[{\bf default}]
-\item[{\bf vanilla}]
-downloads the default launcher.
-\item[{\bf atl}]
-download AT Launcher for Linux.
-\item[{\bf ftb}]
-download FTB launcher.
-\item[{\bf magic}]
-download MagicLauncher.
-\item[{\bf multi}]
-download MultiMC, this requires a recent version of Linux and glibc.
-\item[{\bf technic}]
-download Technic launcher.
-\item[{\bf terra}]
-download TerraFirmaCraft launcher (1.7.10 only).
-  \end{TPlist}
+{\begin{description}
+\item[{\bf launcher}]{}
+\item[{\bf default}]{}
+\item[{\bf vanilla}]{\nwl
+downloads the default launcher.}
+\item[{\bf atl}]{\nwl
+download AT Launcher for Linux.}
+\item[{\bf ftb}]{\nwl
+download FTB launcher.}
+\item[{\bf magic}]{\nwl
+download MagicLauncher.}
+\item[{\bf multi}]{\nwl
+download MultiMC, this requires a recent version of Linux and glibc.}
+\item[{\bf technic}]{\nwl
+download Technic launcher.}
+\item[{\bf terra}]{\nwl
+download TerraFirmaCraft launcher (1.7.10 only).}
+  \end{description}
 } % Inner list
 % ### Obsoleted entries ###
 % .B aether
@@ -308,17 +311,17 @@ choices are:
 \ind{1\parindent}
 % TODO: turn this into a two-column list without border
 % |name|meaning|
-    {\begin{TPlist}{}
-      \item[{\bf default}]
-      \item[{\bf launcher}]
-      \item[{\bf vanilla}] run default launcher
-      \item[{{\bf atl}}] run AT Launcher
-      \item[{{\bf ftb}}] run FTB launcher
-      \item[{{\bf magic}}] run MagicLauncher
-      \item[{{\bf multi}}] run MultiMC
-      \item[{{\bf technic}}] run Technic launcher
-      \item[{{\bf terra}}] run TerraFirmaCraft launcher (1.7.10 only)
-      \end{TPlist}
+    {\begin{description}
+      \item[{\bf default}]{}
+      \item[{\bf launcher}]{}
+      \item[{\bf vanilla}]{\nwl run default launcher}
+      \item[{{\bf atl}}]{\nwl run AT Launcher}
+      \item[{{\bf ftb}}]{\nwl run FTB launcher}
+      \item[{{\bf magic}}]{\nwl run MagicLauncher}
+      \item[{{\bf multi}}]{\nwl run MultiMC}
+      \item[{{\bf technic}}]{\nwl run Technic launcher}
+      \item[{{\bf terra}}]{\nwl run TerraFirmaCraft launcher (1.7.10 only)}
+      \end{description}
     }
 % ### Obsoleted entries ###
 % .TP
@@ -342,31 +345,22 @@ choices are:
 \begin{TPlist}{{\bf -s}{\it \ server\_name.jar}
 }
 \item[{{\bf -s}{\it \ server\_name.jar}
-}]
-starts
-{\it \$\{HOME\}/.minecraft/server/server\_name.jar ,}
+}]\nwl starts {\it \$\{HOME\}/.minecraft/server/server\_name.jar ,}
 you will need to download the server of your choice into this location.
 
 \end{TPlist}\shead{EXAMPLES}
 \begin{TPlist}{{\bf minecrafty}}
-\item[{{\bf minecrafty}}]
-executes the default launcher with the default amount of memory assigned
-to it.
-\item[{{\bf minecrafty -l ftb}}]
-executes the FTB launcher with the default amount of memory assigned to it.
-\item[{{\bf minecrafty -f 1.12.2}}]
-fetch the jar file for the 1.12.2 client, saving it in the correct place.
-\item[{{\bf minecrafty -f 18w15a}}]
-fetch the jar file for the 18w15a snapshot (development version) client file.
-\item[{{\bf minecrafty -m 1 -g 1.3 -z 1360x768 -r 75 -c}}]
-execute the default launcher, setting the screensize, refresh rate and gamma
+\item[{{\bf minecrafty}}]\nwl executes the default launcher with the default amount of memory assigned to it.
+\item[{{\bf minecrafty -l ftb}}]\nwl executes the FTB launcher with the default amount of memory assigned to it.
+\item[{{\bf minecrafty -f 1.12.2}}]\nwl fetch the jar file for the 1.12.2 client, saving it in the correct place.
+\item[{{\bf minecrafty -f 18w15a}}]\nwl fetch the jar file for the 18w15a snapshot (development version) client file.
+\item[{{\bf minecrafty -m 1 -g 1.3 -z 1360x768 -r 75 -c}}]\nwl execute the default launcher, setting the screensize, refresh rate and gamma
 for the second monitor. Console output from the launcher will be in
 {\it \$\{HOME\}/.minecraft/minecrafty.output.txt}
 for you to look at if you have problems later. The user's probably going to
 have to put the minecraft window on the second monitor and deal with all that
 lovely desktop manager jazz for themselves.
-\item[{{\bf minecrafty -s spigot-1.12.2.jar}}]
-This runs the spigot server file. You'll need to get a server jar file
+\item[{{\bf minecrafty -s spigot-1.12.2.jar}}]\nwl This runs the spigot server file. You'll need to get a server jar file
 and put it into
 {\it \$\{HOME\}/.minecraft/server/}
 
@@ -391,22 +385,11 @@ Me, of course (brickviking@gmail.com). I've had a little bit of help from others
 
 \shead{ACKNOWLEDGEMENTS}
 \begin{TPlist}{{\bf Mojang}}
-\item[{{\bf Mojang}}]
-for the game that got seriously popular. Yes, Infiniminer got there
-first, but Mojang made Minecraft what it is today.
-\item[{{\bf The writers of Java}}]
-If it wasn't for Java, then Minecraft might have been written in C\#. Oh wait,
-Microsoft already did that.
-\item[{{\bf Microsoft}}]
-for continuing to support Minecraft when Mojang was bought by them.
-\item[{{\bf Youtube Minecraft channels}}]
-These most certainly helped bring Minecraft into prominence, and must surely
-have had a hand in making Minecraft the most wanted game for ages.
-\item[{{\bf Minecraft players and server owners}}]
-These are the real reason Minecraft has remained popular. Yes, it's had
-several changes and additions, multiple platforms has become a thing, and
-Youtube channels devoted to Minecraft have both come and gone. But without
-the users, Minecraft would have disappeared into the Mysts of time.
+\item[{{\bf Mojang}}]\nwl for the game that got seriously popular. Yes, Infiniminer got there first, but Mojang made Minecraft what it is today.
+\item[{{\bf The writers of Java}}]\nwl If it wasn't for Java, then Minecraft might have been written in C\#. Oh wait, Microsoft already did that.
+\item[{{\bf Microsoft}}]\nwl for continuing to support Minecraft when Mojang was bought by them.
+\item[{{\bf Youtube Minecraft channels}}]\nwl These most certainly helped bring Minecraft into prominence, and must surely have had a hand in making Minecraft the most wanted game for ages.
+\item[{{\bf Minecraft players and server owners}}]\nwl These are the real reason Minecraft has remained popular. Yes, it's had several changes and additions, multiple platforms has become a thing, and Youtube channels devoted to Minecraft have both come and gone. But without the users, Minecraft would have disappeared into the Mysts of time.
 
 %# vim:expandtab:ts=4
 \end{TPlist}
