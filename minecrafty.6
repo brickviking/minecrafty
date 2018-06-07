@@ -1,15 +1,12 @@
 .\" Copyright (c) 2018 brickviking (brickviking@gmail.com),
 .\"     Thu Apr 12 17:05:00 NZST 2018
 .\"
-.\" This is free documentation; you can redistribute it and/or
-.\" modify it under the terms of the GNU General Public License as
-.\" published by the Free Software Foundation; either version 2 of
-.\" the License, or (at your option) any later version.
-.\"
-.\" The GNU General Public License's references to "object code"
-.\" and "executables" are to be interpreted as the output of any
-.\" document formatting or typesetting system, including
-.\" intermediate and printed output.
+.\" Permission is granted to copy, distribute and/or modify this document
+.\" under the terms of the GNU Free Documentation License, Version 1.3
+.\" or any later version published by the Free Software Foundation;
+.\" with no Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts.
+.\" A copy of the license is included in the separate document entitled "GNU
+.\" Free Documentation License".
 .\"
 .\" This manual is distributed in the hope that it will be useful,
 .\" but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -21,7 +18,7 @@
 .\" website or write to the Free Software Foundation, Inc., 59 Temple Place,
 .\" Suite 330, Boston, MA 02111, USA.
 .\"
-.\" Version 0.1.3 for minecrafty 0.59.
+.\" Version 0.1.3 for minecrafty 0.62.
 .\" TODO: fix the Aether reference, remove all the obsolete entries
 .\" 
 .TH MINECRAFTY 6 2018-04-12 "Linux" "Java games"
@@ -95,9 +92,10 @@ A recent version of java 8, either JavaSE or SDK will do. OpenJDK will also do f
 If Minecraft will run using your java, you're good. 
 .TP
 .B Linux
-Any recent up-to-date version of Linux later than 2014 will do, I've tested
+Any recent up-to-date 64-bit version of Linux later than 2014 will do, I've tested
 this under Ubuntu and Fedora, both work fine. I cannot confirm if this script
 or its dependencies will even work under Cygwin, let alone wine.
+Minecraft itself works on 32-bit versions of Linux up to 1.12.2, but not from 1.13 onwards, as lwjgl has dropped all support for 32-bit Linux in 2016.
 .TP
 .B Xorg
 Linux running in graphical (Xorg) mode on a local screen, in 3-D accelerated

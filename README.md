@@ -59,7 +59,7 @@ Requirements
 
 -   Linux running in graphical (Xorg) mode with 3-D acceleration. Minecraft won’t work otherwise.
 
--   Any version of Linux with bash 4 (FreeBSD may work, but only if you have bash 4 installed.) This has NOT been tested with cygwin, as Windows has its own launcher.
+-   Any 64-bit version of Linux with bash 4 (FreeBSD may work, but only if you have bash 4 installed.) Minecraft will also work on 32-bit versions up to 1.12.2, but not from 1.13 onwards as lwjgl has dropped all 32-bit support back in 2016. This script has NOT been tested with cygwin, as Windows has its own launcher.
 
 -   xrandr (available in most Linuxes.)
 
@@ -93,7 +93,7 @@ Who this is NOT for
 
 -   People with no computer experience, who just want to run Minecraft without any changes, additions or hassles. If the base launcher does what you want, then this script is not for you.
 
--   People using the new-format java-less launcher. These usually have a version number of 2.00.1009 or greater. Minecrafty won’t start this one without some help, and at least on Linux, the new launcher isn’t officially supported.
+-   People using the new-format java-less launcher. These usually have a launcher version number of 2.00.1009 or greater. Minecrafty won’t start this one without some help, and at least on Linux, the new launcher isn’t officially supported.
 
 -   People trying to run Minecraft without having paid for it. This script will not help you. Minecraft is not overly expensive in comparison to some other games, and is most definitely worth it.
 
