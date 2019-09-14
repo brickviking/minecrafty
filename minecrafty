@@ -77,6 +77,7 @@ FOA=(
 "launcher" Fetch "download default launcher"
 "default" Fetch "download default launcher"
 "vanilla" Fetch "download default launcher"
+"newlauncher" Fetch "download new GUI default launcher"
 "atl" Fetch "download AT Launcher for Linux"
 "ftb" Fetch "download FTB launcher"
 "magic" Fetch "download MagicLauncher"
@@ -514,6 +515,12 @@ FetchMinecraft() {
             fi
             # otherwise, it succeeded, we might as well go get the server file
             wget -O ${SERVER}/snapshot_server_$DROPOFF.jar http://assets.minecraft.net/${DROPOFF//\./_}/minecraft_server.jar
+            retval=$?
+            if [[ $retval != 0 ]]; then
+                rm ${SERVER}/snapshot_server_${DROPOFF}.jar
+                echo "Download of ${DROPOFF} server jar failed, no such version or other error"
+                exit 1
+            fi
         ;;
         # older final version, account for x.y and x.y.z from 1.0 to 1.5.1, different home than below's new version. Clients only below 1.2
         1.[01234].[0-9]|1.[0-5]|1.5.[01]) 
@@ -527,6 +534,12 @@ FetchMinecraft() {
                 exit 1
             fi
             wget -O ${SERVER}/final_server_$DROPOFF.jar http://assets.minecraft.net/${DROPOFF//\./_}/minecraft_server.jar
+            retval=$?
+            if [[ $retval != 0 ]]; then
+                rm ${SERVER}/final_server_${DROPOFF}.jar
+                echo "Download of ${DROPOFF} server jar failed, no such version or other error"
+                exit 1
+            fi
         ;;
         ########## Newer client/server releases ########
         # New form of final release, covers every single 1.x (1.6 - 1.9) and double digit 1.xx.yy version (1.5.2 up to 1.99.99)
@@ -634,6 +647,18 @@ FetchMinecraft() {
 #        devlauncher) # development launcher, which may need to be removed as it has been moved to the default
 #            wget -O ${MCBase}/MinecraftDev.jar https://s3.amazonaws.com/Minecraft.Download/launcher/MinecraftDev.jar
 #            ;;
+        newlauncher) # new default GUI launcher
+            wget -O ${MCBase}/bin/Minecraft-GUI-launcher.tar.gz https://launcher.mojang.net/download/Minecraft.tar.gz
+            retval=$?
+            if [[ $retval != 0 ]]; then
+                # whoops, barfed.
+                rm ${MCBase}/bin/Minecraft-GUI-launcher.tar.gz
+                echo "${ME}: Fetch of new minecraft launcher tarball failed!"
+                exit 1
+            fi
+            # Now we extract it
+            tar xvf "${MCBase}/bin/Minecraft-GUI-launcher.tar.gz" # TODO: Check retval!
+            ;;
         atl) # Only true for Linux, at least currently. Windows has an exe, Mac has an app.
             if [[ ! -d ${ATLauncherBase} ]]; then
                 mkdir ${ATLauncherBase}

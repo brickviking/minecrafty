@@ -1,6 +1,128 @@
 Well, a wee while since I did one of these and ever followed through on it.
 
-Anyhow, I need to tweak further. We need to create a .desktop file, and some
-sort of install.sh file. It could do stuff like creating a ~/.minecraft,
-copying minecrafty into run location, and putting .desktop into suitable location.
-Hey, how about an icon?
+Anyhow, I need to tweak further. We need to create a .desktop file (eh,
+why???), and some sort of install.sh file. It could do stuff like creating a
+~/.minecraft, copying minecrafty into run location, and putting .desktop
+into suitable location.  We can't automatically download the default launcher,
+there's no point if the user hasn't set up an account at mojang yet.
+
+Problem with the .desktop file is that minecrafty very much requires knowing
+the user's home directory name, though the actual script could be stashed
+in /usr/local/bin or /usr/bin, the other issue is bundling an icon with it.
+The one I have is by dharmainitiative2010 at deviantart, but I don't know his
+licencing restrictions for the icon I have of his. The .desktop file could
+simply be put into /usr/share/applications/, and if I ever made an RPM or deb,
+that could take care of pulling in the requirements such as awk,sed et al. Can't
+do the same for tarballs unless Slack happens to have some magic up its sleeve
+for that. No idea how to do it for Gentoo or Arch.
+
+Hey, how about an icon?  There's also no licence, given that this is a
+script, there's not really much point.  The manpage's under Free Document
+License (from the GPL).
+
+Rewrite FetchMinecraft, it's too large. For example:
+(and yes, these should be refined to actual versions)
+Function.name       MatchString
+Fetch.Old.Final     1.[0-4].[0-9]|1.[0-5]|1.5.[01]
+..........Snapshot  1[12]w[012345][0-9][a-f_] (too simple, see note above)
+..........Server    1.[0-5]|1.[0-4].[0-9]|1.5.[01]|1[12]w[012345][0-9][a-f_]
+Fetch.New.Final     1.[6-9]|1.5.[2-9]|1.[6-9].[0-9]|
+..........Snapshot  13w48a..29w53l
+..........Server
+Fetch.Launcher      default|multi|mc|...
+
+Retrievecode's the same in each case, but the MatchString's the bit that takes
+a while to compare against. Still, that'll all be done in FetchMineCraft's case() switch.
+This'll bollix up jumping to Fetch (which previously didn't exist)
+
+Could I perhaps show which Launchers are installed? Path existence could
+work (if [[ -d XyzBase ]] ... fi ), though FTB's slightly different.
+
+Could possibly functionise the checking and creation of directories, if 
+that fails, croak and suggest person checks their system for read-only.
+
+(done) Remove unused/obsolete entries from the man page.
+
+Should I check for pre-existing jars before downloading? Size? Checksums?
+Looks like I check for existence, but not size and certainly not checksum.
+Size can probably be got from a HEAD request, no idea about checksum though.
+
+LaunchHelp needs a rewrite for output to make things line up.
+
+
+I just found out that minecrafty can download versions prior to 1.0! Link for
+alphas and betas is:
+https://s3.amazonaws.com/Minecraft.Download/versions/a1.2.5/a1.2.5.jar (etc)
+same for json. Beta is very similar.
+No idea how to download the server for these versions (yet). They may not have
+separate server jars for anything earlier than release_1.2, or if they do,
+I can't find them.
+
+I should probably remove the unfilled directory from ${MCBASE}/versions/ if 
+I can't download the client jar; I probably can't download the json either.
+
+I pondered updates, but then realised that all the launcher candidates typically
+keep themselves updated, and ditto for the minecraft versions.
+
+I can perhaps consider a first cut at minecrafty.tex, and producing the man page
+and pdf (and even HTML) from latex2man, it might make my man page production
+just that bit easier.
+
+- Turns out that while I can convert into latex fine*, I can't readily go the other
+way yet, neither of the tools I use can convert for one reason or other.
+
+(*)tr2latex converts, but uses a stylesheet that I had to mod.
+
+(latex2man fails for perl reasons, pandoc fails for unknown to me reasons)
+Exact error message appears to be as follows:
+***
+pandoc: blocks is null
+CallStack (from HasCallStack):
+error, called at src/Text/Pandoc/Writers/Man.hs:287:47 in
+  pandoc-1.19.1-K4MTLUCdX282FQ0VY8hDKm:Text.Pandoc.Writers.Man
+***
+I may have to build up a document that pandoc can convert, though I'm not sure
+if the error's in the conversion, or the complexity of my man page. I did find
+out that pandoc can't go in the other direction (man => latex) so that's out.
+
+How about DocBook as an intermediate stage?
+
+That's proving problematic. And pandoc's not really doing the job properly even
+in text.
+
+It would seem that the minecraft launcher's changing the places where it gets recent
+stuff from, invalidating my whole script. Charming. s3.amazonaws.com still works for
+everything up to 18w16a, but 18w19b is missing from there and can only be grabbed
+from some as-yet-unknown URL passed over 443, so I never see the URL, at least not
+in wireshark.
+
+                            *One hour later*
+
+Grabbing https://launchermeta.mojang.com/mc/game/version_manifest.json gets us
+versions available from the launcher, but not versions I used to be able to grab.
+I can no longer get 18w19a, for example.
+# comment, * step, % failstep
+
+* Run program, head off into FetchMinecraft # (rest is irrelevant)
+  * Fetch https://launchermeta.mojang.com/mc/game/version_manifest.json
+    % If fail to fetch, whine about possible network error.
+  * otherwise, stash in safe place for next stage
+  * run a substitute on all commas, adding a \r for searching
+  * grep for specific version URL, such as 18w19b
+  * if success
+    * we'll have a version's URL, which is a manifest for what to grab.
+      # I've done this before.
+    * download that manifest url. # (i.e. 18w19b)
+      % This shouldn't fail, but better write fail case.
+    * drop that into $version/$version.json # (Assuming success)
+    * grep that version manifest for client and server URLs
+      % This Should Definitely Not Fail(TM).
+    * download client and server URLs
+      % We've handled this before if there's a failure
+  * else
+    * puke: can't get version_manifest, claim possible network error.
+  * end FetchMinecraft
+* end program
+
+Create function to detect OS, so we can perhaps run under Cygwin's bash.exe or maybe
+even Win10's bash.
