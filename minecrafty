@@ -1,7 +1,7 @@
 #!/bin/bash
 
 VERSION=0
-MINOR=65
+MINOR=66
 PATCH=
 ME=$(basename $0)
 # Default gamma brightness of game
@@ -128,9 +128,10 @@ LONA=(
 "skmc" SetSKMCLauncher "run development version of SKMCLauncher.jar"
 )
 
+# Apparently bash now supports ( [string]="value" ) arrays.
+
 # This routine "stuffs" values into GETOPTS for later use by the getopts routine
 StuffGetOpts() {
-# Apparently bash now supports ( [string]="value" ) arrays.
     for (( i=0, p=0; i< ${#GOA[@]}; i+=3, p++ )); do
         GETOPTARRAY+=( "${GOA[i]}" )
         GETOPTS="${GETOPTS}${GOA[i]}"
@@ -140,8 +141,8 @@ StuffGetOpts() {
 
 }
 
+# Put stuff into LaunchOpts array
 StuffLaunchOpts() {
-# Apparently bash now supports ( [string]="value" ) arrays.
     for (( i=0, p=0; i< ${#LOA[@]}; i+=3, p++ )); do
         LAUNCHOPTARRAY+=( "${LOA[i]}" )
         LAUNCHOPTS="${LAUNCHOPTS}${LOA[i]}"
@@ -150,8 +151,8 @@ StuffLaunchOpts() {
     done
 }
 
+# Put stuff into FetchOpts array
 StuffFetchOpts() { #Set this up for launchers
-# Apparently bash now supports ( [string]="value" ) arrays.
     for (( i=0, p=0; i< ${#FOA[@]}; i+=3, p++ )); do
         FETCHOPTARRAY+=( "${FOA[i]}" )
         FETCHOPTS="${FETCHOPTS}${FOA[i]}"
@@ -445,13 +446,15 @@ FetchVersionManifest() {
     wget -O ${DROPOFF}/${DROPOFF}.json ${DROPOFF_MANIFEST_URL}
 }
 
+# TODO: please PLEASE create this
 MassageVersionManifest() {
     echo "${ME}: doesn't work, please code MassageVersionManifest()"
     # Blank, but will add CR at each , in the XML file
-    return # TODO: please PLEASE create this
+    return
 }
 
-
+# very very big function to handle fetching everythig from launchers to versions
+# BUGS: too big by far, many of the versions can no longer be retrieved from AWS
 FetchMinecraft() {
     # Pulled this in from fetchminecraft.sh at version 0.1.9
     # ver 0.0.0: initial cut
@@ -777,6 +780,8 @@ FetchMinecraft() {
     esac
 }
 
+# We have to start minecraft with something, choose sane defaults
+# BUGS: default launcher only works up until 1.14.3
 DefaultSettings() {
         # We should perhaps unset ${MEM}? Problem is, this is called before Set*Launch is.
         CMDARG="-jar ${MCBase}/bin/minecraft-launcher.jar"
@@ -801,12 +806,14 @@ SetArchaicLauncher() {
 #        FetchBright
 }
 
+# Start commands using padsp (provides a "fake" /dev/dsp for programs that really need it)
 SetPADSP() {
     PARUN="padsp "
     CMDRUN="$PARUN $JAVARUN"
     CMD="${CMDRUN} ${CMDOPT} ${MEM} ${CMDARG}"
 }
 
+# Start commands stopping pulseaudio altogether for programs that can only talk to alsa
 SetPAPause() {
     # This command isn't always the same name
     if which pasuspend >/dev/null; then 
@@ -853,6 +860,7 @@ SetEnormousMemory() {
     fi
 }
 
+# Choose which monitor to run minecraft on, and therefore change refresh rate, brightness/gamma.
 SetMonitor() {
 # TODO: correctly apply this to -g
     MON=$(( $1 * 2 )) #MonitorOffset
@@ -862,6 +870,7 @@ SetMonitor() {
     fi
 }
 
+# Show the current program version
 ShowVersionString() {
     echo "$ME: ${VERSION}.${MINOR}.${PATCH}"
     unset CMD
@@ -876,15 +885,15 @@ SetDevLauncher() {
 #        FetchBright
 }
 
+# Set values up to launch MagicLauncher
 SetMagicLauncher() {
-# queue this up so it runs the MagicLauncher.
     CMDRUN="$PARUN $JAVARUN -Xincgc"
     CMDARG="-jar ${MCBase}/bin/MagicLauncher_1.0.0.jar"
     CMD="${CMDRUN} ${CMDOPT} ${MEM} ${CMDARG}"
 }
 
+# Set values up to launch MultiMC
 SetMultiLauncher() {
-# queue this up so it runs MultiMC.
     if [[ -n ${MEM} ]]; then
         echo -e "${ME}: ${MEM} (from -T/-B/-E) is being ignored. FTBLauncher sets memory\n           for Minecraft from its own settings"
     fi
@@ -901,15 +910,15 @@ SetCraftLauncher() {
     CMD="${CMDRUN} ${CMDOPT} ${CMDARG}"
 }
 
+# Set values up to launch digiex's mclauncher, now obsolete, unsupported and deprecated
 SetDigiLauncher() {
-# runs  digiexs' mclauncher, now obsolete, unsupported and deprecated
     CMDRUN="$PARUN $JAVARUN -Xincgc"
     CMDARG="-jar ${MCBase}/bin/digiex-mclauncher.jar"
     CMD="${CMDRUN} ${CMDOPT} ${MEM} ${CMDARG}"
 }
 
+# Set values up to launch SKMClauncher, now obsolete, unsupported and deprecated
 SetSKMCLauncher() {
-# runs SKMClauncher, now obsolete, unsupported and deprecated
 #    CMDARG="-jar ${MCBase}/bin/SKMCLauncher-3.1.7-SNAPSHOT.jar"
     if [[ -n ${MEM} ]]; then
         echo "${ME}: ${MEM} (from -T/-B/-E) is being ignored. skmclauncher sets memory\n           for Minecraft from its own settings"
@@ -920,6 +929,7 @@ SetSKMCLauncher() {
     CMD="${CMDRUN} ${CMDOPT} ${CMDARG}"
 }
 
+# Set values up to launch FTB
 SetFTBLauncher() {
     if [[ -n ${MEM} ]]; then
         echo "${ME}: ${MEM} (from -T/-B/-E) is being ignored. FTBLauncher sets memory\n           for Minecraft from its own settings"
@@ -930,6 +940,7 @@ SetFTBLauncher() {
     CMD="${CMDRUN} ${CMDOPT} ${CMDARG}"
 }
 
+# Set values up to launch TechnicLauncher
 SetTechLauncher() {
     if [[ -n ${MEM} ]]; then
         echo "${ME}: ${MEM} (from -T/-B/-E) is being ignored. TechnicLauncher sets memory\n           for Minecraft from its own settings"
@@ -940,6 +951,7 @@ SetTechLauncher() {
     CMD="${CMDRUN} ${CMDOPT} ${CMDARG}"
 }
 
+# Set values up to launch TerraFirma
 SetTerraLauncher() {
     # For some reason, this launcher needs more memory than just 256Mb
     # TODO: update this so it starts with  memory settings from -TSBE, strip out T
@@ -1002,7 +1014,7 @@ done
 
 }
 
-# End of functions, now let's create our arrays
+#### End of functions, now let's create our arrays ####
 
 StuffGetOpts
 StuffFetchOpts
@@ -1019,6 +1031,7 @@ GetOpts $@
 
 if [[ ${CMD+defined} ]]; then
   RunMC
+  # Okay, minecraft finished (for good or bad), let's set screen back to how it was
   # TODO: how to fold these calls into a single xrandr call
   if [[ ${GAMMA} ]]; then
     ResetGamma
