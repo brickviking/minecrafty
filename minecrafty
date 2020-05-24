@@ -962,7 +962,8 @@ SetFTBAppLauncher() {
     fi
     MYDIR="${FTBAppBase}"
     #CMDRUN="$PARUN $JAVARUN -Xincgc"
-    CMDRUN="$PARUN "
+    CMDRUN="$PARUN ${FTBAppBase}/FTBApp"
+    CMDARG=""
     #CMDARG="-jar ${FTBAppBase}/FTB_Launcher.jar"
     CMD="${CMDRUN} ${CMDOPT} ${CMDARG}"
 }
