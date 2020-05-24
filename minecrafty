@@ -1,7 +1,7 @@
 #!/bin/bash
 
 VERSION=0
-MINOR=66
+MINOR=67
 PATCH=
 ME=$(basename $0)
 # Default gamma brightness of game
@@ -29,6 +29,7 @@ OUTFILE=""
 # Optional, if you add launchers, set a path here, add a SetXyzLauncher()
 # function, add a line to ${FOA} and ${LOA} and a stanza in FetchMinecraft()
 FTBBase="${HOME}/FTB.minecraft"
+FTBAppBase="${HOME}/FTBA"
 TechnicBase="${HOME}/.technic"
 ATLauncherBase="${HOME}/ATLauncher"
 MultiMCBase="${MCBase}/MultiMC"
@@ -80,6 +81,7 @@ FOA=(
 "newlauncher" Fetch "download new GUI default launcher"
 "atl" Fetch "download AT Launcher for Linux"
 "ftb" Fetch "download FTB launcher"
+"ftba" Fetch "download FTB App launcher"
 "magic" Fetch "download MagicLauncher"
 "multi" Fetch "download MultiMC"
 "technic" Fetch "download beta Technic launcher"
@@ -109,6 +111,7 @@ LOA=(
 "new" NewDefaultSettings "run new default launcher"
 "atl" SetATLauncher "run AT Launcher"
 "ftb" SetFTBLauncher "run FTB launcher"
+"ftba" SetFTBAppLauncher "run FTB App launcher"
 "magic" SetMagicLauncher "run MagicLauncher"
 "multi" SetMultiLauncher "run MultiMC"
 "technic" SetTechLauncher "run Technic launcher"
@@ -682,6 +685,18 @@ FetchMinecraft() {
         magic) # another non-default launcher
             wget -O ${MCBase}/bin/MagicLauncher-1.0.0.jar http://magiclauncher.com/download.php?f=MagicLauncher_1.0.0.jar
             ;;
+        ftba) # Patching in support for FTB_Launcher, one of the few to need a different root.
+            if [[ ! -d ${FTBBaseApp} ]]; then
+                mkdir ${FTBBaseApp}
+                # TODO: If this fails, we have bigger problems
+            fi
+            # TODO: correct this for each version, scrape webpage?
+            # NB: launcher updates itself, how do we download latest?
+            wget -O ${FTBBaseApp}/FTBA_unix_1_0_8.sh "https://apps.modpacks.ch/FTBApp/release/1.0.8/FTBA_unix_1_0_8.sh"
+            ;;
+        magic) # another non-default launcher
+            wget -O ${MCBase}/bin/MagicLauncher-1.0.0.jar http://magiclauncher.com/download.php?f=MagicLauncher_1.0.0.jar
+            ;;
 # it seems MultiMC is arch-dependent. I now have a download link. Woo hoo!
 # TODO: check if dir exists, create if it doesn't
         multi) # a kept-up-to-date launcher
@@ -937,6 +952,18 @@ SetFTBLauncher() {
     MYDIR="${FTBBase}"
     CMDRUN="$PARUN $JAVARUN -Xincgc"
     CMDARG="-jar ${FTBBase}/FTB_Launcher.jar"
+    CMD="${CMDRUN} ${CMDOPT} ${CMDARG}"
+}
+
+# Set values up to launch FTB App, new kid on the block
+SetFTBAppLauncher() {
+    if [[ -n ${MEM} ]]; then
+        echo "${ME}: ${MEM} (from -T/-B/-E) is being ignored. FTBAppLauncher sets memory\n           for Minecraft from its own settings"
+    fi
+    MYDIR="${FTBAppBase}"
+    #CMDRUN="$PARUN $JAVARUN -Xincgc"
+    CMDRUN="$PARUN "
+    #CMDARG="-jar ${FTBAppBase}/FTB_Launcher.jar"
     CMD="${CMDRUN} ${CMDOPT} ${CMDARG}"
 }
 
