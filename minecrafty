@@ -1,7 +1,7 @@
 #!/bin/bash
 
 VERSION=0
-MINOR=67
+MINOR=68
 PATCH=
 ME=$(basename $0)
 # Default gamma brightness of game
@@ -654,7 +654,7 @@ FetchMinecraft() {
 #            wget -O ${MCBase}/MinecraftDev.jar https://s3.amazonaws.com/Minecraft.Download/launcher/MinecraftDev.jar
 #            ;;
         newlauncher) # new default GUI launcher
-            wget -O ${MCBase}/bin/Minecraft-GUI-launcher.tar.gz https://launcher.mojang.net/download/Minecraft.tar.gz
+            wget -O ${MCBase}/bin/Minecraft-GUI-launcher.tar.gz https://launcher.mojang.com/download/Minecraft.tar.gz
             retval=$?
             if [[ $retval != 0 ]]; then
                 # whoops, barfed.
