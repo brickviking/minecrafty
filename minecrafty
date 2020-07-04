@@ -662,8 +662,13 @@ FetchMinecraft() {
                 echo "${ME}: Fetch of new minecraft launcher tarball failed!"
                 exit 1
             fi
-            # Now we extract it
-            tar xvf "${MCBase}/bin/Minecraft-GUI-launcher.tar.gz" # TODO: Check retval!
+            # Now we extract it in the correct place
+            pushd "${MCBase}"
+            # peel correct CURRENT version, I need to back the launcher folder up.
+            PREVVER=$(grep "Launcher core version:" launcher_log.txt | cut -c85-93)
+            mv minecraft-launcher minecraft-launcher-${PREVVER}
+            tar xvf "${MCBase}/bin/Minecraft-GUI-launcher.tar.gz" # TODO: Check retval! We could run out of room without knowing it.
+            popd
             ;;
         atl) # Only true for Linux, at least currently. Windows has an exe, Mac has an app.
             if [[ ! -d ${ATLauncherBase} ]]; then
