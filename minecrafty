@@ -666,7 +666,7 @@ FetchMinecraft() {
             pushd "${MCBase}"
             # peel correct CURRENT version, I need to back the launcher folder up.
             PREVVER=$(grep "Launcher core version:" launcher_log.txt | cut -c85-93)
-            mv minecraft-launcher minecraft-launcher-${PREVVER}
+            mv "minecraft-launcher" "minecraft-launcher-${PREVVER}"
             tar xvf "${MCBase}/bin/Minecraft-GUI-launcher.tar.gz" # TODO: Check retval! We could run out of room without knowing it.
             popd
             ;;
