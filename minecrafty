@@ -815,8 +815,6 @@ DefaultSettings() {
         # We should perhaps unset ${MEM}? Problem is, this is called before Set*Launch is.
         CMDARG="-jar ${MCBase}/bin/minecraft-launcher.jar"
         CMD="${CMDRUN} ${CMDOPT} ${MEM} ${CMDARG}"
-#        FetchGamma
-#        FetchBright
 }
 
 # New set up for new GUI launcher, not the same as the java launcher
@@ -824,8 +822,6 @@ NewDefaultSettings() {
         CMDARG=""
         CMDRUN="${NEWCMDRUN}"
         CMD="${CMDRUN} ${CMDOPT} ${MEM} ${CMDARG}"
-#        FetchGamma
-#        FetchBright
 }
 
 # New set up for new GUI launcher, not the same as the java launcher
@@ -838,8 +834,6 @@ SetNewFTBLauncher() {
 SetArchaicLauncher() {
         CMDARG="-cp ${MCBase}/bin/original-minecraft-launcher.jar net.minecraft.LauncherFrame"
         CMD="${CMDRUN} ${CMDOPT} ${MEM} ${CMDARG}"
-#        FetchGamma
-#        FetchBright
 }
 
 # Start commands using padsp (provides a "fake" /dev/dsp for programs that really need it)
