@@ -1,7 +1,7 @@
 #!/bin/bash
 
 VERSION=0
-MINOR=70
+MINOR=72
 PATCH=
 ME=$(basename $0)
 # Default gamma brightness of game
@@ -23,13 +23,17 @@ CMDRUN="$JAVARUN"
 # Linux Home: MCBase="${HOME}/.minecraft"
 MCBase="${HOME}/.minecraft"
 # Better to patch the new launcher into an existing setup than rewire everything
-NEWCMDRUN="${MCBase}/minecraft-launcher/minecraft-launcher"
+# It seems that the new launcher "shouldn't" live inside ~/.minecraft
+#NEWCMDRUN="${MCBase}/minecraft-launcher/minecraft-launcher"
+NEWCMDRUN="${HOME}/bin/minecraft-launcher/minecraft-launcher"
 # Set the logfile to empty string initially
 OUTFILE=""
 # Optional, if you add launchers, set a path here, add a SetXyzLauncher()
 # function, add a line to ${FOA} and ${LOA} and a stanza in FetchMinecraft()
 FTBBase="${HOME}/FTB.minecraft"
 FTBAppBase="${HOME}/FTBA"
+FTBNewBase="${HOME}/.ftba/bin"
+FTBNEWCMDRUN="${FTBNewBase}/minecraft-launcher/minecraft-launcher"
 TechnicBase="${HOME}/.technic"
 ATLauncherBase="${HOME}/ATLauncher"
 MultiMCBase="${MCBase}/MultiMC"
@@ -112,6 +116,7 @@ LOA=(
 "atl" SetATLauncher "run AT Launcher"
 "ftb" SetFTBLauncher "run FTB launcher"
 "ftba" SetFTBAppLauncher "run FTB App launcher"
+"ftbl" SetNewFTBLauncher "run FTB's minecraft_launcher"
 "magic" SetMagicLauncher "run MagicLauncher"
 "multi" SetMultiLauncher "run MultiMC"
 "technic" SetTechLauncher "run Technic launcher"
@@ -817,6 +822,13 @@ NewDefaultSettings() {
         CMD="${CMDRUN} ${CMDOPT} ${MEM} ${CMDARG}"
 #        FetchGamma
 #        FetchBright
+}
+
+# New set up for new GUI launcher, not the same as the java launcher
+SetNewFTBLauncher() {
+        CMDARG=""
+        CMDRUN="${FTBNEWCMDRUN}"
+        CMD="${CMDRUN} --workDir ${FTBNewBase} ${CMDOPT} ${CMDARG}"
 }
 
 SetArchaicLauncher() {
