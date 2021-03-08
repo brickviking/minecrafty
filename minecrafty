@@ -485,6 +485,8 @@ FetchMinecraft() {
 
     # ! Big Fat Warning !  These directories had better exist, especially the second one.
     SINGLE="${MCBase}/bin"
+    # Need this for new launcher, as it doesn't like being inside .minecraft
+    NEWSINGLE="${HOME}/bin"
     SERVER="${MCBase}/server/stash"
     if [[ ! -d $SINGLE ]]; then
         echo "Can't save, you don't seem to have a valid Minecraft installation at ${MCBase}!"
@@ -667,10 +669,12 @@ FetchMinecraft() {
                 echo "${ME}: Fetch of new minecraft launcher tarball failed!"
                 exit 1
             fi
-            # Now we extract it in the correct place
-            pushd "${MCBase}"
+            # Now we extract it in the correct place, used to be ${MCHOME}
+            pushd "${HOME}/bin"
             # peel correct CURRENT version, I need to back the launcher folder up.
-            PREVVER=$(grep "Launcher core version:" launcher_log.txt | cut -c85-93)
+            PREVVER=$(grep "Launcher core version:" "${MCBASE}/launcher_log.txt" | cut -c85-93)
+            # TODO: This will error if it doesn't already exist, i.e. brand new install of launcher
+            # QUESTION: what if we already have the newest version?
             mv "minecraft-launcher" "minecraft-launcher-${PREVVER}"
             tar xvf "${MCBase}/bin/Minecraft-GUI-launcher.tar.gz" # TODO: Check retval! We could run out of room without knowing it.
             popd
