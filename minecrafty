@@ -670,7 +670,7 @@ FetchMinecraft() {
                 exit 1
             fi
             # Now we extract it in the correct place, used to be ${MCHOME}
-            pushd "${HOME}/bin"
+            pushd "${NEWSINGLE}"
             # peel correct CURRENT version, I need to back the launcher folder up.
             PREVVER=$(grep "Launcher core version:" "${MCBASE}/launcher_log.txt" | cut -c85-93)
             # TODO: This will error if it doesn't already exist, i.e. brand new install of launcher
