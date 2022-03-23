@@ -36,6 +36,7 @@ SetAetherLauncher	minecrafty	/^SetAetherLauncher() {$/;"	f
 SetArchaicLauncher	minecrafty	/^SetArchaicLauncher() {$/;"	f
 SetBright	minecrafty	/^SetBright() {$/;"	f
 SetCraftLauncher	minecrafty	/^SetCraftLauncher() {$/;"	f
+SetDesktop	minecrafty	/^SetDesktop() {$/;"	f
 SetDevLauncher	minecrafty	/^SetDevLauncher() {$/;"	f
 SetDigiLauncher	minecrafty	/^SetDigiLauncher() {$/;"	f
 SetEnormousMemory	minecrafty	/^SetEnormousMemory() {$/;"	f

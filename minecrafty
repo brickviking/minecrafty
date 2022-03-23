@@ -1,7 +1,7 @@
 #!/bin/bash
 
 VERSION=0
-MINOR=72
+MINOR=73
 PATCH=
 ME=$(basename $0)
 # Default gamma brightness of game
@@ -68,6 +68,7 @@ GOA=(
 "f:" FetchMinecraft "retrieves minecraft.jar or launcher, \`-f help' for more details"
 "l:" Launcher "starts specified launcher, \`-l help' for more details"
 "s:" ServerRun "starts server from \`${MCBase}/server', supply filename"
+"d:" SetDesktop "sets desktop then starts server"
 )
 
 # Entries that aren't used at the moment, they're obsolete, I think.
@@ -364,13 +365,19 @@ RunMC() {
     fi
 # Run the command we got earlier, finishing by peeling the return value
     if [[ -z "${OUTFILE}" ]]; then
-      ${CMD}
-      retval=$?
+        if [[ "${MYDESK}" ]]; then
+            xdotool set_desktop ${MYDESK}
+        fi
+        ${CMD}
+        retval=$?
     else
+        if [[ "${MYDESK}" ]]; then
+            xdotool set_desktop ${MYDESK}
+        fi
 # Run the command we got earlier, outputting the command through tee.
 # return value will be from tee
-      ${CMD} 2>&1 | tee ${OUTFILE}
-      retval=$?
+        ${CMD} 2>&1 | tee ${OUTFILE}
+        retval=$?
     fi
     popd
 }
@@ -853,6 +860,15 @@ SetPAPause() {
     fi
     CMDRUN="$PARUN $JAVARUN"
     CMD="${CMDRUN} ${CMDOPT} ${MEM} ${CMDARG}"
+}
+
+# Starts $CMDRUN on desktop
+SetDesktop() {
+    if [[ -z $1 ]]; then
+        return
+        # barf
+    fi
+    MYDESK=$1
 }
 
 # Only of any use for running the vanilla launcher, no good for TerraFirma
