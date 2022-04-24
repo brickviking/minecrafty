@@ -68,7 +68,7 @@ GOA=(
 "f:" FetchMinecraft "retrieves minecraft.jar or launcher, \`-f help' for more details"
 "l:" Launcher "starts specified launcher, \`-l help' for more details"
 "s:" ServerRun "starts server from \`${MCBase}/server', supply filename"
-"d:" SetDesktop "sets desktop then starts server"
+"d:" SetDesktop "sets desktop"
 )
 
 # Entries that aren't used at the moment, they're obsolete, I think.
