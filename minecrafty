@@ -6,7 +6,7 @@ PATCH=
 ME=$(basename $0)
 # Default gamma brightness of game
 GAMMADEF=1.0
-# Rabbit
+# Rabbit SC2034
 RESOLUTION=1920x1080
 MYRES=
 # Default memory assign (whatever the java executable assigns)
@@ -42,7 +42,7 @@ MultiMCBase="${MCBase}/MultiMC"
 CLBase="${HOME}/.craftland"
 TerraFirmaBase="${HOME}/.tfcraft" # currently at 1.7.10 (20180412)
 AetherLauncherBase="${HOME}/.aether_launcher"
-AncientLauncher="${HOME}/OldLauncher" # works up to 1.5.1. Maybe.
+AncientLauncher="${HOME}/OldLauncher" # works up to 1.5.1. Maybe. SC2034
 
 # Mandatory to declare an associative array
 declare -A FUNCARRAY
@@ -69,9 +69,10 @@ GOA=(
 "l:" Launcher "starts specified launcher, \`-l help' for more details"
 "s:" ServerRun "starts server from \`${MCBase}/server', supply filename"
 "d:" SetDesktop "sets desktop"
+"e:" SetExtra "additional parameters passed to the launcher"
 )
 
-# Entries that aren't used at the moment, they're obsolete, I think.
+# Entries that aren't used at the moment, they're obsolete, I think. SC2034 WF
 GONA=(
 )
 
@@ -94,7 +95,7 @@ FOA=(
 )
 # TODO: I could also have entry for spigot in there
 
-# Unused and obsoleted -f entries
+# Unused and obsoleted -f entries SC2034 WF
 FONA=(
 "aether" Fetch "download classic Aether Launcher"
 "ancient" Fetch "download original Minecraft launcher (up to 1.5.1 only)"
@@ -125,7 +126,7 @@ LOA=(
 )
 
 
-# Unused -l entries
+# Unused -l entries SC2034 WF
 LONA=(
 "aether" SetAetherLauncher "run classic Aether Launcher"
 "ancient" SetArchaicLauncher "run original Minecraft launcher (up to 1.5.1 only)"
@@ -219,7 +220,7 @@ OUTFILE="-a ${MCBase}/minecrafty.output.txt"
 # Hopefully sets brightness, separate from the gamma
 BrightInit() {
     if [[ -z $MON ]]; then MON=0; fi # set a default if one hasn't been set already
-    if [[ ${1} == ${1//[^[:digit:]\.]/} ]]; then
+    if [[ ${1} == ${1//[^[:digit:]\.]/} ]]; then # SC2053
         if [[ ! $BRIGHT ]]; then # Only set if it hasn't already been
             BRIGHT=${1:-${BRIGHTDEF}}
         else
@@ -233,19 +234,19 @@ BrightInit() {
 
 FetchBright() {
 # TODO: I should put xrandr output into a var, as it's used multiple places
-# This routine fetches available outputs that are plugged in
+# This routine fetches available outputs that are plugged in SC2207
     BARRAY=( $(xrandr --verbose | awk 'NR == 1 { next }; match($0, /^[[:alnum:]\-]+/) { output = substr($0,RSTART, RLENGTH) }; /Brightness:/ { print output, $2 }') )
 }
 
 SetBright() {
 # This'll brighten/darken things a bit - only thing that needs changing will be the output monitor
-    xrandr --output ${BARRAY[${MON}]} --brightness "${BRIGHT}"
+    xrandr --output ${BARRAY[${MON}]} --brightness "${BRIGHT}" # SC2053
 }
 
 ResetBright() {
 # TODO: Remove host dependency, pretty hard to do without having X involved anyhow.
 # Now we put the brightness back to normal, on the first screen
-    BRIGHT=${BARRAY[$MON+1]}
+    BRIGHT=${BARRAY[$MON+1]} # Why didn't SC2086 trigger in this case?
 #    xrandr --output ${BARRAY[$MON]} --brightness ${BARRAY[$MON+1]}
     SetBright # Might as well reuse the same function.
 }
@@ -264,13 +265,13 @@ MYRES=${1}
 SetResolution() {
 # Just like it says on the tin, sir
 # Only change if there's a reason to do so
-# TODO: Figure out what $MON is supposed to be
+# TODO: Figure out what $MON is supposed to be SC2053
 if [[ ${RES} != ${MYRES} ]]; then
-    if [[ ${BARRAY} ]]; then
+    if [[ ${BARRAY} ]]; then # SC2128 WF, purely testing if it exists
 # WARNING: Ouch, multiple monitors???
-        xrandr --output ${BARRAY[${MON}]} --mode ${MYRES}
+        xrandr --output "${BARRAY[${MON}]}" --mode "${MYRES}"
     else
-        xrandr --output ${MON} --mode ${MYRES}
+        xrandr --output "${MON}" --mode "${MYRES}"
     fi
 else
     unset MYRES # means we don't reset it later
@@ -281,12 +282,12 @@ ResetResolution() {
 # Now we put the resolution back to normal, a call to SetResolution with desired RESOLUTION
 # TODO: what about multiple screens?
 MYRES=${RES}
-xrandr --output ${BARRAY[${MON}]} --mode ${MYRES}
+xrandr --output "${BARRAY[${MON}]}" --mode "${MYRES}"
 }
 
 GammaInit() {
     if [[ -z $MON ]]; then MON=0; fi # set a default if one hasn't been set already
-    if [[ ${1} == ${1//[^[:digit:]\.]/} ]]; then
+    if [[ ${1} == ${1//[^[:digit:]\.]/} ]]; then # SC2053
         if [[ ! $GAMMA ]]; then # Only set if it hasn't already been
             GAMMA=${1:-${GAMMADEF}}
         else
@@ -868,7 +869,27 @@ SetDesktop() {
         return
         # barf
     fi
-    MYDESK=$1
+    # What about if $#@ is > 1?
+    NEWDESK="$1"
+
+    case "$1" in "term"|"dev") NEWDESK=0 ;;
+	"www") NEWDESK=1 ;;
+	"virt") NEWDESK=2 ;;
+	"games") NEWDESK=3 ;;
+	"doc") NEWDESK=4 ;;
+	"chat") NEWDESK=5 ;;
+	"aud"|"mus") NEWDESK=6 ;;
+	"vid") NEWDESK=7 ;;
+	"gfx") NEWDESK=8 ;;
+	"NSP") NEWDESK=9 ;;
+    esac
+    # Comment this out, the go command is somewhere else
+    # xdotool set_desktop ${NEWDESK}
+  # We should only do the following if remaining nargs is gt 1
+  # Irrelevant for minecrafty
+    unset XDOTOOL NEWDESK
+
+    MYDESK=${NEWDESK}
 }
 
 # Only of any use for running the vanilla launcher, no good for TerraFirma
@@ -931,6 +952,14 @@ SetDevLauncher() {
 #        FetchBright
 }
 
+# Set up parameter to pass to the launcher (supports MultiMC at this stage)
+# At this time, this would need to appear after the -l switch
+SetExtra() {
+    # Check this is a switch that a launcher can understand
+    # Now we tack it into the CMD param
+    CMDEXTRA="$1"
+}
+
 # Set values up to launch MagicLauncher
 SetMagicLauncher() {
     CMDRUN="$PARUN $JAVARUN -Xincgc"
@@ -943,9 +972,13 @@ SetMultiLauncher() {
     if [[ -n ${MEM} ]]; then
         echo -e "${ME}: ${MEM} (from -T/-B/-E) is being ignored. FTBLauncher sets memory\n           for Minecraft from its own settings"
     fi
+    if [[ -n "${CMDEXTRA}" ]]; then
+        CMDARG="${CMDEXTRA}"
+    else
+        CMDARG=""
+    fi
     MYDIR="${MultiMCBase}"
     CMDRUN="${MultiMCBase}/MultiMC"
-    CMDARG=""
     CMD="${CMDRUN} ${CMDOPT} ${CMDARG}"
 }
 
@@ -1086,7 +1119,7 @@ exit 0
 ;;
 esac
 DefaultSettings
-GetOpts $@
+GetOpts $@ #SC2086
 
 if [[ ${CMD+defined} ]]; then
   RunMC
