@@ -885,11 +885,9 @@ SetDesktop() {
     esac
     # Comment this out, the go command is somewhere else
     # xdotool set_desktop ${NEWDESK}
-  # We should only do the following if remaining nargs is gt 1
-  # Irrelevant for minecrafty
-    unset XDOTOOL NEWDESK
 
     MYDESK=${NEWDESK}
+    unset XDOTOOL NEWDESK
 }
 
 # Only of any use for running the vanilla launcher, no good for TerraFirma
@@ -958,6 +956,7 @@ SetExtra() {
     # Check this is a switch that a launcher can understand
     # Now we tack it into the CMD param
     CMDEXTRA="$1"
+    echo "CMDEXTRA: ${CMDEXTRA}"
 }
 
 # Set values up to launch MagicLauncher
