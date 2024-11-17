@@ -259,7 +259,7 @@ read RES < <(xdpyinfo | sed -rn 's/.*dimension.* ([0-9]+x[0-9]+).*/\1/p')
 # Better feed the BARRAY, as it holds my available monitors
 FetchBright
 # TODO: Please PLEASE find out how to sanity check this one
-MYRES=${1}
+MYRES="${1}"
 }
 
 SetResolution() {
@@ -281,7 +281,7 @@ fi
 ResetResolution() {
 # Now we put the resolution back to normal, a call to SetResolution with desired RESOLUTION
 # TODO: what about multiple screens?
-MYRES=${RES}
+MYRES="${RES}"
 xrandr --output "${BARRAY[${MON}]}" --mode "${MYRES}"
 }
 
@@ -872,30 +872,30 @@ SetDesktop() {
     # What about if $#@ is > 1?
     NEWDESK="$1"
 
-  case "$1" in "term"|"tty"|"0") NEWDESK=0 ;;
-    "www"|"1") NEWDESK=1 ;;
-    "games"|"2") NEWDESK=2 ;;
-    "games2"|"3") NEWDESK=3 ;;
-    "steam"|"4") NEWDESK=4 ;;
-    "doc"|"5") NEWDESK=5 ;;
-    "chat"|"6") NEWDESK=6 ;;
-    "virt"|"7") NEWDESK=7 ;;
-    "aud"|"8") NEWDESK=8 ;;
-    "vid"|"9") NEWDESK=9 ;;
-    "gfx"|"10") NEWDESK=10 ;;
-    "bits"|"11") NEWDESK=11 ;;
-    "spare"|"12") NEWDESK=12 ;;
-    "stuff"|"13") NEWDESK=13 ;;
-    "other"|"14") NEWDESK=14 ;;
-    "l"|"lft"|"left"|"15") NEWDESK=15 ;;
-    "r"|"rght"|"right"|"16") NEWDESK=16 ;;
-    "u"|"up"|"17") NEWDESK=17 ;;
-    "d"|"dn"|"down"|"18") NEWDESK=18 ;;
-    "NSP"|"last"|"end"|"19") NEWDESK=19 ;;
+    case "$1" in "term"|"tty"|"0") NEWDESK=0 ;;
+      "www"|"1") NEWDESK=1 ;;
+      "games"|"2") NEWDESK=2 ;;
+      "games2"|"3") NEWDESK=3 ;;
+      "steam"|"4") NEWDESK=4 ;;
+      "doc"|"5") NEWDESK=5 ;;
+      "chat"|"6") NEWDESK=6 ;;
+      "virt"|"7") NEWDESK=7 ;;
+      "aud"|"8") NEWDESK=8 ;;
+      "vid"|"9") NEWDESK=9 ;;
+      "gfx"|"10") NEWDESK=10 ;;
+      "bits"|"11") NEWDESK=11 ;;
+      "spare"|"12") NEWDESK=12 ;;
+      "stuff"|"13") NEWDESK=13 ;;
+      "other"|"14") NEWDESK=14 ;;
+      "l"|"lft"|"left"|"15") NEWDESK=15 ;;
+      "r"|"rght"|"right"|"16") NEWDESK=16 ;;
+      "u"|"up"|"17") NEWDESK=17 ;;
+      "d"|"dn"|"down"|"18") NEWDESK=18 ;;
+      "NSP"|"last"|"end"|"19") NEWDESK=19 ;;
     *) echo "Desktop name not found"
         return 1;;
-  esac
- # Comment this out, the go command is somewhere else
+    esac
+    # Comment this out, the go command is somewhere else
     # xdotool set_desktop ${NEWDESK}
 
     MYDESK=${NEWDESK}
